@@ -16,15 +16,14 @@ router.post('/', function(req, res, next) {
 			db.collection('userlist').findOne(query1,(err, result)=>{
 				var dataFilter = [];
 				result.offerList.forEach( function(element, index) {
-					if(req.body.end <= result.offerList.length){
-						if(req.body.start<=index&&req.body.end>index){
-							dataFilter.push(element)
-						}
+					if(req.body.start<=index&&req.body.end>index){
+						dataFilter.push(element)
 					}
 				});
 				var dataRes = {
 					mes : true,
 					admin  	 : {
+						isMaster : isAdmin.master,
 						isAdmin  : isAdmin.admin,
 						isID 	 : isAdmin.idFacebook,
 						pending  : isAdmin.request,
@@ -41,11 +40,7 @@ router.post('/', function(req, res, next) {
 		mongo.connect(pathMongodb,function(err,db){
 			assert.equal(null,err);
 				db.collection('userlist').findOne(query, function(err,result){
-					// if(result.admin){
-						responData(db,result)
-					// }else{
-						// res.send({"mes":false})
-					// }
+					responData(db,result)
 				assert.equal(null,err);
 				db.close();
 			});

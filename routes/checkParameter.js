@@ -7,6 +7,13 @@ var randomstring = require("randomstring");
 const pathMongodb = require("./pathDb");
 
 router.get('/', function(req, res, next) {
+	function getClientAddress(request){ 
+	    with(request)
+	        return (req.headers["X-Forwarded-For"] ||
+            req.headers["x-forwarded-for"] ||
+            '').split(',')[0] ||
+           	req.client.remoteAddress;
+	}
 	function save(dataUpdate, link) {
 		var queryUpdate = {
 			"isReportClick" : true
@@ -21,60 +28,71 @@ router.get('/', function(req, res, next) {
 		})		
 	})
 	}
-	try {
-		function checkPostback(app, person) {
-			if(person.request.length>0){
-				var data = person.request.filter(function(items) {
-					return items.app.index === req.query.offer_id&&items.adConfirm === "true";
-				});
-				if(data.length === 0){
-					res.redirect("/");
-				}else{
-					var queryNetwork = {
-						"isNetwork" : true
-					}
-					var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-					var today = new Date();
-					var strToday = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()} - ${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
-					var strRandom = randomstring.generate();
-					var dataUpdate = {
-						$push : {
-							"report" : {
-								"appName"   : data[0].app.nameSet,
-								"name"	 	: person.profile.displayName,
-					            "idOffer"   : req.query.offer_id,
-					            "id"	 	: req.query.aff_id,
-					            "time"		: strToday,
-					            "country"   : data[0].app.countrySet,
-					            "ip"		: ip,
-					            "agent"		: req.headers['user-agent'],
-					            "key" 		: strRandom,
-					            "pay"	  	: data[0].app.paySet,
-					            "platfrom"	: data[0].app.platformSet
+	function redirectAPI(app, data, person) {
+		var queryNetwork = {
+			"isNetwork" : true
+		}
+		var ip = getClientAddress(req);
+		var today = new Date();
+		var strToday = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()} - ${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
+		var strRandom = randomstring.generate();
+		if(person.master){
+			data.paySet = Math.round((data.paySet/100*20)*100)/100;
+		}
+		var dataUpdate = {
+			$push : {
+				"report" : {
+					"appName"   : data.nameSet,
+					"name"	 	: person.profile.displayName,
+		            "idOffer"   : req.query.offer_id,
+		            "id"	 	: req.query.aff_id,
+		            "time"		: strToday,
+		            "country"   : data.countrySet,
+		            "ip"		: ip,
+		            "agent"		: req.headers['user-agent'],
+		            "key" 		: strRandom,
+		            "pay"	  	: data.paySet,
+		            "platfrom"	: data.platformSet
+				}
+			}
+		}
+		mongo.connect(pathMongodb,function(err,db){
+			assert.equal(null,err);
+				db.collection('userlist').findOne(queryNetwork, function(err,result){
+					if(!err){
+						if(result.NetworkList.length!==0){
+							for(let x = 0; x < result.NetworkList.length; x++){
+								if(app.nameNetworkSet.indexOf(result.NetworkList[x].name)!==-1){
+									var link = `${app.urlSet}+&${result.NetworkList[x].postback}=${strRandom}`
+										save(dataUpdate,link)
+									break;
+								}
 							}
 						}
 					}
-					mongo.connect(pathMongodb,function(err,db){
-						assert.equal(null,err);
-							db.collection('userlist').findOne(queryNetwork, function(err,result){
-								if(!err){
-									if(result.NetworkList.length!==0){
-										for(let x = 0; x < result.NetworkList.length; x++){
-											if(app.nameNetworkSet.indexOf(result.NetworkList[x].name)!==-1){
-												var link = `${app.urlSet}+&${result.NetworkList[x].postback}=${strRandom}`
-													save(dataUpdate,link)
-												break;
-											}
-										}
-									}
-								}
-							assert.equal(null,err);
-							db.close();
-						});
+				assert.equal(null,err);
+				db.close();
+			});
+		});
+	}
+	try {
+		function checkPostback(app, person) {
+			if(person.member){
+				if(person.request.length>0){
+					let data = person.request.filter(function(items) {
+						return items.app.index === req.query.offer_id&&items.adConfirm === "true";
 					});
+					if(data.length === 0){
+						res.redirect("/");
+					}else{
+						redirectAPI(app, data[0].app, person)
+					}
+				}else{
+					res.redirect("/");
 				}
-			}else{
-				res.redirect("/");
+			}else if(person.master){
+				let data = app;
+				redirectAPI(app, data, person)
 			}
 		}
 	} catch(e) {

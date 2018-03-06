@@ -16,7 +16,7 @@ router.post('/', function(req, res, next) {
 			db.collection('userlist').findOne(query1,(err, result)=>{
 				var dataFilter = [];
 				result.offerList.forEach( function(items, index) {
-					if(items.platformSet.toLowerCase().indexOf(req.body.OS.toLowerCase())!==-1 && items.countrySet.toLowerCase().indexOf(req.body.country)!== -1){
+					if(items.platformSet.toLowerCase().indexOf(req.body.OS.toLowerCase())!==-1 && items.countrySet.toLowerCase().indexOf(req.body.country)!== -1&&index>=req.body.start&&index<req.body.end){
 						items.index = index;
 						dataFilter.push(items)
 					}

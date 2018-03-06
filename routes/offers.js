@@ -14,24 +14,39 @@ router.get('/', function(req, res, next) {
  			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
-						var download, myOffer, memSel;
+						var download, myOffer, memSel, selNetworks;
 						if(result.admin){
-							download     = `<li class="has_sub">
-				                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
-				                            </li>
-											<li class="has_sub">
-						                        <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
+							db.collection("userlist").findOne({"isNetwork": true }, (err, result)=>{
+								selNetworks = `<select class="select-drop-blue sel-mem" name="sel-Networks" id="sel-Networks">
+                                                <option value="all">Network List</option>`;
+								result.NetworkList.forEach( function(element, index) {
+									selNetworks += `<option value="${element.name}">${element.name}</option>`;
+								});
+								selNetworks += `</select>`
+								download     = `<li class="has_sub">
+					                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
+					                            </li>
+					                            <li class="has_sub">
+					                                <a href="/adduser" class="waves-effect"><i class="fa fa-users"></i> <span> Add User  </span></a>
+					                            </li>
+												<li class="has_sub">
+							                        <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
+							                    </li>`;
+							    myOffer = `<li class="has_sub">
+						                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 						                    </li>`;
-						    myOffer = "";
-						    memSel  = ``;
+							    memSel  = ``;
+								renderPage(download, myOffer, memSel, selNetworks)
+							})
 						}else{
 							download = "";
 							myOffer  = `<li class="has_sub">
 			                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
 			                            </li>`;
 			                memSel   = "";
+							selNetworks  = "";
+							renderPage(download, myOffer, memSel, selNetworks)
 						}
-						renderPage(download, myOffer, memSel)
 						assert.equal(null,err);
 						db.close();
 					});
@@ -39,7 +54,7 @@ router.get('/', function(req, res, next) {
 		} catch(e) {
 			res.redirect("/")
 		}
-	  	function renderPage(download, myOffer, memSel) {
+	  	function renderPage(download, myOffer, memSel, selNetworks) {
 	  		var admin =`<li>
 		       			<a href="/admin" class="waves-effect"><i class="zmdi zmdi-view-dashboard"></i> <span> Dashboard </span> </a>
 		    		</li>`;
@@ -49,7 +64,8 @@ router.get('/', function(req, res, next) {
 				"admin" : admin,
 				"download": download,
 				"myOffer" : myOffer,
-				"memSel"  : memSel
+				"memSel"  : memSel,
+				"selNetworks" : selNetworks,
 			})
 	  	}
 	}else{

@@ -17,7 +17,6 @@ router.post('/', function(req, res, next) {
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
 						result.user = req.user.id;
-						console.log(result)
 						res.send(result)	
 					assert.equal(null,err);
 					db.close();

@@ -384,6 +384,7 @@ File: Components
   border-radius: 3px;
   border: 2px solid #98a6ad;
   content: "";
+  bottom: 1px;
   display: inline-block;
   height: 17px;
   left: 0;

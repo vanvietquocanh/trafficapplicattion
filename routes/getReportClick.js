@@ -21,10 +21,15 @@ router.get('/', function(req, res, next) {
 				                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
 				                            </li>
 				                            <li class="has_sub">
+				                                <a href="/adduser" class="waves-effect"><i class="fa fa-users"></i> <span> Add User  </span></a>
+				                            </li>
+				                            <li class="has_sub">
 						                        <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 						                    </li>
 						                    `;
-						    myOffer = ``;
+						    myOffer = `<li class="has_sub">
+					                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
+					                    </li>`;
 						}else{
 							memSel 	  = ``;
 							download  = ``;

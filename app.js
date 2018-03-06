@@ -29,6 +29,7 @@ var conversion = require('./routes/conversion');
 var checkParameter = require('./routes/checkParameter');
 var getReportClick = require('./routes/getReportClick');
 var apiprofileUser = require('./routes/apiprofileUser');
+var addUser = require('./routes/addUser');
 var apiGetDataReportClick = require('./routes/apiGetDataReportClick');
 var listNetwork = require('./routes/listNetwork');
 var filter = require('./routes/filter');
@@ -38,12 +39,21 @@ var addNetwork = require('./routes/addNetwork');
 var search = require('./routes/search');
 var postback = require('./routes/postBack');
 var routeShowRequest = require('./routes/routeShowRequest');
+var requestTestLink = require('./routes/requestTestLink');
 var apiRequestOfUser = require('./routes/apiRequestOfUser');
 var requestList = require('./routes/requestList');
 var responOfAdmin = require('./routes/responOfAdmin');
 var updatePay = require('./routes/updatePay');
 var delRequest = require('./routes/delRequest');
+var updateuserlist = require('./routes/updateUserList');
 var dataOfMyOffer = require('./routes/dataOfMyOffer');
+var getDataUserList = require('./routes/getDataUserList');
+var addOffer = require('./routes/addOffer');
+var getListCustomOffer = require('./routes/getListCustomOffer');
+var delUser = require('./routes/delUser');
+var publicuser = require('./routes/post.request.user');
+var editUserAdd = require('./routes/edit.useradd');
+var addNewOffer = require('./routes/addNewOffer');
 var logout = require('./routes/logout');
 
 var app = express();
@@ -56,6 +66,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/checkparameter', checkParameter);
 app.use('/tracking', postback);
+app.use('/publicuser', publicuser);
 app.use(session(
                 { secret: 'coppycat',
                   resave: false,
@@ -111,8 +122,17 @@ app.use('/userpost', apiRequestOfUser);
 app.use('/listrequest', requestList);
 app.use('/respon', responOfAdmin);
 app.use('/delrequest', delRequest);
+app.use('/adduser', addUser);
+app.use('/adminupdateuser', updateuserlist);
 app.use('/datamyoffer', dataOfMyOffer);
+app.use('/deluser', delUser);
+app.use('/getdatauserlist', getDataUserList);
 app.use('/updatepay', updatePay);
+app.use('/addnewoffer', addOffer);
+app.use('/addoffer', addNewOffer);
+app.use('/edituseradd', editUserAdd);
+app.use('/requesttestlink', requestTestLink);
+app.use('/admincutomsoffer', getListCustomOffer);
 app.use('/logout', logout);
 
 // catch 404 and forward to error handler

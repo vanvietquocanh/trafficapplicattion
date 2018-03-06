@@ -52,17 +52,23 @@ router.get('/', function(req, res, next) {
 		                        var download = `<li class="has_sub">
 					                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
 					                            </li>
+					                            <li class="has_sub">
+					                                <a href="/adduser" class="waves-effect"><i class="fa fa-users"></i> <span> Add User  </span></a>
+					                            </li>
 		                        				<li class="has_sub">
 					                                <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 					                            </li>`;
-							if(result.member){
+							if(result.member||result.master){
 								var myOffer = `<li class="has_sub">
 				                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
 				                            </li>`
 								download = ``;
 		                            renderPage("profile",admin, download, myOffer)
-							}else if(result.admin||result.master){
-		                        renderPage("index", admin, download, "")
+							}else if(result.admin){
+								let myOffer = 	`<li class="has_sub">
+							                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
+							                    </li>`
+		                        renderPage("index", admin, download, myOffer)
 							}else{
 								res.render("error",{
 									error:{

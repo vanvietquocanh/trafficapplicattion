@@ -16,7 +16,7 @@ router.get('/', function(req, res, next) {
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
 						if(result.admin){
-							fs.readFile("../OfferList.txt", "utf8", (err, data)=>{
+							fs.readFile("/root/trafficapplicattion/OfferList.txt", "utf8", (err, data)=>{
 								if(err){
 									console.log(err);
 								}else{

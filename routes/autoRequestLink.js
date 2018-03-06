@@ -12,6 +12,7 @@ router.post('/', function(req, res, next) {
 	function RequestAPI() {
 		this.countRequest = 0;
 		this.countCustomInNetwork = 0;
+		this.itemLead;
 		this.arrayDadaPushToDatabase = [];
 		this.textWrite = "";
 	}
@@ -20,13 +21,13 @@ router.post('/', function(req, res, next) {
 			request.get({
 			    url: network.link
 			}, function (err, respon) {
-			   requestApi.saveDB(network, db, query, respon.body) 	
+			   requestApi.changeData(network, db, query, respon.body) 	
 			});
 		} catch(e) {
 			requestApi.callRequestGet(network);
 		}
 	}
-	RequestAPI.prototype.saveDB = (network, db, query, respon) =>{
+	RequestAPI.prototype.changeData = (network, db, query, respon) =>{
 		requestApi.countRequest++;
 		var data = JSON.parse(respon);
 		var dataChecker = data;
@@ -46,30 +47,40 @@ router.post('/', function(req, res, next) {
 			}
 			requestApi.textWrite+= `http://${req.headers.host}/checkparameter/?offer_id=${z}&aff_id=${req.user.id}|${dataChecker[z].countrySet}|${dataChecker[z].platformSet.toUpperCase()}\r\n`;
 			requestApi.arrayDadaPushToDatabase.push(dataChecker[z])
+			requestApi.itemLead = z;
 		}//this is loop change keys of value;
 		if(requestApi.countRequest===requestApi.countCustomInNetwork){
-			fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{
-				if(err) throw err;
-				console.log('Save!!!')
-			});
-		    try{
-				var dataSave = {
-		    		$set:{
-		    			"offerList": requestApi.arrayDadaPushToDatabase 
-		    		}
-		    	}
-				db.collection('userlist').updateOne(query,dataSave,{upsert: true},(err,result)=>{
-					if(!err){
-						res.send("Successfully saved MongoDB data!");
-					}
-				})
+			db.collection("userlist").findOne({"isOfferCustom":true}, (err, result)=>{
+				if(result.listOffer!==null){
+					result.listOffer.forEach( function(element, index) {
+						requestApi.textWrite+= `http://${req.headers.host}/checkparameter/?offer_id=${requestApi.arrayDadaPushToDatabase.length}&aff_id=${req.user.id}|${element.countrySet}|${element.platformSet.toUpperCase()}\r\n`;
+						element.index = requestApi.itemLead;
+						requestApi.arrayDadaPushToDatabase.push(element);
+						requestApi.itemLead++;
+					});
+				}
+				fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{
+					if(err) throw err;
+				});
+			    try{
+					var dataSave = {
+			    		$set:{
+			    			"offerList": requestApi.arrayDadaPushToDatabase 
+			    		}
+			    	}
+					db.collection('userlist').updateOne(query,dataSave,{upsert: true},(err,result)=>{
+						if(!err){
+							res.send("Successfully saved MongoDB data!");
+						}
+					})
 
-				mongo.connect(pathMongodb,function(err,db){
-					assert.equal(null,err);
-				});	
-			}catch(e){
-				res.send("Error connect Database. Please retry!!!")
-			}
+					mongo.connect(pathMongodb,function(err,db){
+						assert.equal(null,err);
+					});	
+				}catch(e){
+					res.send("Error connect Database. Please retry!!!")
+				}
+			})
 		}
 	}
 	RequestAPI.prototype.callRequestPost = (network, db, query) =>{
@@ -77,7 +88,7 @@ router.post('/', function(req, res, next) {
 			request.post({
 			    url: network.link
 			}, function (err, respon) {
-				requestApi.saveDB(network, db, query, respon.body)
+				requestApi.changeData(network, db, query, respon.body)
 			});
 		} catch(e) {
 			requestApi.callRequestPost(network);

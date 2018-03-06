@@ -6,7 +6,6 @@ var filterBtn = $("#filter");
 var platform = $("#os");
 var result = $("#result");
 var download = $('#download-btn');
-var sortOS = $("#os");
 var sortCountry = $("#country");
 var tagDownload = $("#download-btn");
 var rowsTable = $("fixcenter");
@@ -24,6 +23,8 @@ function SortItems() {
 	this.countStart = 0;
 	this.countEnd = 500;
 	this.newArrayList = [];
+	this.master;
+	this.checkboxGroup = [];
 }
 SortItems.prototype.getAPI = function(){
 	var data = {
@@ -31,7 +32,9 @@ SortItems.prototype.getAPI = function(){
 		end   : this.countEnd
 	}
 	requestItems = $.post("/trackinglink", data, function(res) {
+		console.log(res)
 		if(res.mes){
+			sortItems.setMaster(res.admin.isMaster)
 			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
 			if(res.offerList.length===500&&!sortItems.searchMethod){
 				sortItems.countStart += 500;
@@ -39,9 +42,12 @@ SortItems.prototype.getAPI = function(){
 				sortItems.getAPI();
 			}
 		}else {
-			console.log(res)
+			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
 		}
 	});
+};
+SortItems.prototype.setMaster = function(master){
+	this.master = master;
 };
 SortItems.prototype.setData = function(data, user, pending, approved){
 	this.pending = pending;
@@ -52,15 +58,14 @@ SortItems.prototype.setData = function(data, user, pending, approved){
 		this.list = data;
 		this.admin = user;
 		table.empty();
+		sortItems.newArrayList=[];
 		sortItems.createHtml();		
 	}else{
 		$.each(data, function(index, val) {
 			sortItems.list.push(val)
 		});
-		table.empty();
-		sortItems.newArrayList = [];		
+		table.empty();	
 		sortItems.createHtml();
-		sortItems.newPagination(sortItems.page)
 	}
 };
 SortItems.prototype.createHtml = function(){
@@ -72,14 +77,14 @@ SortItems.prototype.createHtml = function(){
 				                <img class="image-logo" src="${val.imgSet}" alt="">
 				                <div class="respon-checkbox">
 				                    <div class="checkbox checkbox-primary">
-				                        <input id="checkbox2" type="checkbox" name="" value="">
-				                        <label for="checkbox2">
+				                        <input class="checkbox-group" id="checkbox-${val.index}" type="checkbox" name="offer" value="${val.index}">
+				                        <label for="checkbox-${val.index}">
 				                        </label>
 				                    </div>
 				                </div>
 				            </ul>
 				            <ul class="offerItems-nonePd block-name-platform">
-				                <ul class="container-name-platform fix-margin">`;
+				            <ul class="container-name-platform fix-margin">`;
 		switch (val.platformSet) {
 			case "android":
 				elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/android.png" alt=""></li>`;
@@ -88,14 +93,14 @@ SortItems.prototype.createHtml = function(){
 				elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/apple.png" alt=""></li>`;
 				break;
 		}
-				elementHtml += `<li class="style-list-of-items style-name"><a class="text-nameApp" href="">${val.nameSet}</a></li>
+				elementHtml += `<li class="style-list-of-items style-name"><a class="text-nameApp">${val.nameSet}</a></li>
 				                </ul>
 				                <li class="style-list-of-items flex-items fixline-text">
 				                    <div class="content-info flex-left id-prevlink content-flex">
 				                        <ul class="fix-margin custom-margin-respone">
-				                        	<a class="text-block" href="">#${val.index}</a>
+				                        	<a class="text-block">#${val.index}</a>
 				                        </ul>
-				                        <ul class="fix-margin custom-margin-respone"><a class="paytext" href="">$${new Number(val.paySet)}</a></ul>
+				                        <ul class="fix-margin custom-margin-respone"><a class="paytext">$${new Number(val.paySet)}</a></ul>
 				                    </div>
 				                    <div class="content-info flex-left id-prevlink content-flex">
 				                        <ul class="fix-margin "><a class="color-green prelink" target="_blank" href="${val.prevLink}"><i class="fa fa-external-link-square"></i>Preview</a></ul>
@@ -103,7 +108,7 @@ SortItems.prototype.createHtml = function(){
 				                    </div>
 				                    <div class="content-info flex-left last-info line-1366 click-show-${index} goals-bnt content-flex">
 				                        <ul class="fix-margin custom-margin-respone">
-				                            <li class="flex-left" href="">KPIs<a class="box-green">!</a></li>
+				                            <li class="flex-left">KPIs<a class="box-green">!</a></li>
 											<ul class="fix-margin-content-goals">
 												<a style='display: none; line-height: 1.2em;'>${val.descriptionSet}</a>
 											</ul>
@@ -112,24 +117,28 @@ SortItems.prototype.createHtml = function(){
 				                    <div class="content-info maxwidth-size line-1366 content-flex country-size-block">
 				                        <ul class="offerItems-nonePd fix-margin flex-left country-size">
 				                            <li class="style-list-of-items">
-				                                <a class="upper-case text-block" href="#">${val.countrySet}</a>
+				                                <a class="upper-case text-block">${val.countrySet}</a>
 				                            </li>
 				                            <li class="style-list-of-items">`;
 		if(val.categorySet===""){
-				elementHtml +=		`<a class="" href="#">${val.categorySet}</a>`;
+				elementHtml +=		`<a class="">${val.categorySet}</a>`;
 		}else{
-				elementHtml +=		`<a class="boxcategory" href="#">${val.categorySet}</a>`;
+				elementHtml +=		`<a class="boxcategory">${val.categorySet}</a>`;
 		}
 				elementHtml +=		`</li>
 				                        </ul>
 				                    </div>
 				                    <div class="content-info center-btn content-flex resize-btn">
-				                        <ul class="offerItems-nonePd container-btn">
-				                            <button class="btn-content-request requestapp-${index}">
+				                        <ul class="offerItems-nonePd container-btn">`;
+		if(!(sortItems.master)){
+				elementHtml += 		`<button class="btn-content-request requestapp-${index}">
 				                                <i class="fa fa-shopping-cart m-r-xs icon-btn"></i>
 				                                <p class="text-btn">Request offer</p>
-				                            </button>
-				                        </ul>
+				                            </button>`
+		}else{
+				elementHtml +=  	`<p>${pathRedirect}</p>`
+		}                            
+				elementHtml += 	 	   `</ul>
 				                    </div>
 				                </li>
 				            </ul>
@@ -139,11 +148,12 @@ SortItems.prototype.createHtml = function(){
 	sortItems.countPage();
 };
 SortItems.prototype.countPage = function(){
+	sortItems.newArrayList = [];
 	var x = 0;
 	var paginationString = `<ul class="pagination auto-pagination pull-right m-t-lg">
-                                <li class="prev-page disabled">
-                                	<a class="pagination-items">‹</a>
-						        </li>`;
+                            <li class="prev-page disabled">
+                            	<a class="pagination-items">‹</a>
+					        </li>`;
 	while (sortItems.arrayList.length>0){
 		sortItems.newArrayList.push(sortItems.arrayList.splice(0, 20));
 		if(x<5){
@@ -153,16 +163,16 @@ SortItems.prototype.countPage = function(){
 		}
         x++;
 	};
-		paginationString  += 	`<li class="next-page">
-                                    <a class="pagination-items">...</a>
-                                </li>
-                                <li class="next-page">
-                                    <a class="pagination-items pag-${sortItems.newArrayList.length-1} pagination-number">${sortItems.newArrayList.length}</a>
-                                </li>
-                                <li class="next-page">
-                                    <a class="pagination-items">›</a>
-                                </li>
-                            </ul>`;
+	paginationString  += 	`<li class="next-page">
+                                <a class="pagination-items">...</a>
+                            </li>
+                            <li class="next-page">
+                                <a class="pagination-items pag-${sortItems.newArrayList.length-1} pagination-number">${sortItems.newArrayList.length}</a>
+                            </li>
+                            <li class="next-page">
+                                <a class="pagination-items">›</a>
+                            </li>
+                        </ul>`;
 	sortItems.renderPage(sortItems.page, paginationString);
 };
 SortItems.prototype.newPagination = function(page){
@@ -215,7 +225,7 @@ SortItems.prototype.renderPage = function(page, pagination){
 	$(".pagination-number").click((e)=>{
 		sortItems.page = $(e.target).attr("class").split("pag-")[1].split(" ")[0];
 		table.empty();
-		if(sortItems.page>2&&sortItems.page<sortItems.newArrayList.length-3){
+		if(sortItems.page>=2&&sortItems.page<sortItems.newArrayList.length-3){
 			sortItems.newPagination(sortItems.page)
 			$(`.next-page`).removeClass('active');
 			$(`.pag-${sortItems.page}`).parent().addClass('active');
@@ -310,6 +320,7 @@ filterBtn.click(function(event) {
 		sortItems.searchMethod = true;
 		requestItems.abort();
 		sortItems.countStart = 0;
+		sortItems.countEnd = 500;
 		filterBtn.children().removeClass("fa-search").addClass('fa-spin fa-refresh');
 		var OS = "";
 		var country = "";
@@ -319,14 +330,25 @@ filterBtn.click(function(event) {
 		if(sortCountry.val()!=="all"){
 			country = sortCountry.val();
 		}
-		let data = {
-			OS 		: OS,
-			country : country
+		function filterRq() {
+			let data = {
+				OS 		: OS,
+				country : country,
+				start: sortItems.countStart,
+				end  : sortItems.countEnd
+			}
+			$.post('/filter', data , function(res, textStatus, xhr) {
+				table.empty();
+				filterBtn.children().removeClass("fa-spin fa-refresh").addClass('fa-search');
+				sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
+				if(res.offerList.length===500){
+					sortItems.countStart += 500;
+					sortItems.countEnd += 500;
+					filterRq(data)
+				}
+			});
 		}
-		$.post('/filter', data , function(data, textStatus, xhr) {
-			filterBtn.children().removeClass("fa-spin fa-refresh").addClass('fa-search');
-			sortItems.setData(data.offerList, data.admin, res.admin.pending, res.admin.approved)
-		});
+		filterRq()
 	}
 });
 btnSearch.click(function(event) {
@@ -334,11 +356,16 @@ btnSearch.click(function(event) {
 		sortItems.searchMethod = true;
 		requestItems.abort();
 		sortItems.countStart = 0;
+		sortItems.countEnd = 500;
 		var data = {
-			query: search.val()
+			query: search.val(),
+			start: sortItems.countStart,
+			end  : sortItems.countEnd
 		}
 		btnSearch.children().removeClass("fa-search").addClass('fa-spin fa-refresh');
 		$.post('/search', data, function(res, textStatus, xhr) {
+			table.empty();
+			console.log(res)
 			btnSearch.children().removeClass("fa-spin fa-refresh").addClass('fa-search');
 			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
 		});

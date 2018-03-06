@@ -35,20 +35,22 @@ router.post('/', function(req, res, next) {
 							}
 							var data = [];
 							db.collection('userlist').find(queryRequest).toArray((err, result)=> {
-								result.forEach(function(element, index) {
-									if(element.request!==undefined&&element.request.length>0){
-										element.request.forEach( function(ele, i) {
-											if(req.body.start<=i&&req.body.end>i){
-												if(order(ele)){
-													data.push(ele)
-												}
+								if(!err){
+									if(result.length>0){
+										result.forEach(function(element, index) {
+											element.request.forEach( function(ele, i) {
+												if(req.body.start<=i&&req.body.end>i){
+													if(order(ele)){
+														data.push(ele)
+													}
 
-											}
+												}
+											});
 										});
 									}else{
 										data = [];
 									}
-								});	
+								}
 								var dataRes = {
 									mes : true,
 									data: data

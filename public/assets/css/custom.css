@@ -1,3 +1,74 @@
+.user-box-add{
+	display: flex;
+	width: 100%;
+}
+.btn-addUser{
+	margin: 0 auto;
+	margin-top: .5em;
+	width: 30%;
+	border: 1px solid #10c469;
+	background: #10c469;
+	color: #fff;
+}
+.icon-user::after{
+	content: "\f234";
+}
+.icon-set::after{
+	content: "\f00c";
+}
+.ip-add{
+	width: 90%;
+	border-radius: .3em;
+	margin-top: .5em;
+	border: 1px solid #188ae2;
+	color: #222;
+	text-align: center;
+}
+.ip-add::placeholder{
+	text-align: center;
+	color: #10c469;
+}
+.btn-user{
+	cursor: pointer;
+}
+.edit-ele{
+	border-right: 1px solid #444;
+}
+.prev-fix-user-box{
+	padding-bottom: 0;
+	margin-bottom: 0;
+}
+.after-fix-user-box{
+	border-top: 1px solid #444;
+	margin: 0;
+	padding: 0;
+}
+.user-box-list{
+	border-right: 1px solid #222;
+	width: 40%;
+	list-style: none;
+}
+.user-box-list-items{
+	width: 100%;
+	text-align: center;
+}
+.fx-pad{
+	padding: 0;
+	width: 50%;
+}
+.icon-items{
+	border: none;
+	width: 20%;
+	display: flex;
+}
+.btn-edit::after{
+	content: "\f14b";
+	color: #188ae2;
+}
+.btn-del::after{
+	content: "\f014";
+	color: #188ae2;
+}
 #updateDB{
 	background: #a0e0bf;
 	border:  1px solid #fff;
@@ -181,6 +252,7 @@
     width: 100%;
 }
 .select-drop-blue{
+	height: 33px;
 	border-radius: .2em;
 	width: 100%;
     background: #fff;
@@ -251,6 +323,9 @@
 	background: #2c3e50;
 	color: #fff;
 	margin: 0;
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 	text-align: center;
 	border-bottom: 1px solid #5d676e;
 }
@@ -342,6 +417,7 @@
 	display: flex;
 }
 .style-list-of-items{
+	width: 100%;
 	list-style: none;
 	white-space: nowrap;
     overflow: hidden;
@@ -539,7 +615,7 @@
 		width: 12%;
 	}
 	.sel-mem{
-		width: 25%;
+		width: 37.6%;
 	}
 	.downloadbtn{
 		width: 100%;
@@ -554,6 +630,9 @@
 	}
 	.offerItems{
 		width: 99%;
+	}
+	.sel-mem{
+		width: 37.5%;
 	}
 }
 @media screen and (min-width: 900px){
@@ -577,13 +656,13 @@
 		width: 15%;
 	}
 	.sel-country{
-		width: 50%;
+		width: 34%;
 	}
 	.headingfix{
 		width: 70%;
 	}
 	.sel-mem{
-		width: 33.6%;
+		width: 33%;
 	}
 	.custNet-hidden{
 		margin-top: 30%;
@@ -722,7 +801,7 @@
 		padding: 0 1em;
 	}
 	.sel-country{
-		width: 22%;
+		width: 35%;
 	}
 	.sel-OS{
 		width: 8%;
@@ -731,7 +810,7 @@
 		width: 11%;
 	}
 	.sel-mem{
-		width: 45.74%;
+		width: 44.1%;
 	}
 	.sel-addOffer{
 		width: 12%;
@@ -750,7 +829,7 @@
 		width: 45%;
 	}
 	.country-size{
-		margin: 0 auto;
+		width: 100%;
 	}
 	.del-request{
 		margin-left: 0;
@@ -788,7 +867,7 @@
 }
 @media screen and (min-width: 1600px){
 	.sel-mem{
-		width: 44.5%;
+		width: 22%;
 	}
 	.margin-left{
 		width: 10%;
@@ -822,7 +901,7 @@
 		order: 2;
 	}
 	.custNet-hidden{
-		margin-top: 20%;
+		margin-top: 10%;
 	}
 	.custNet-hidden-lable{
 		width: 25%;

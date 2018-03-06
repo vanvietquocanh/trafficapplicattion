@@ -79,7 +79,13 @@ b {
 }
 a:hover {
   outline: 0;
-  text-decoration: none;
+}
+.hoverLogin{
+  transition: .5s;
+}
+.hoverLogin:hover{
+  font-weight: 900;
+  text-decoration: underline;
 }
 a:active {
   outline: 0;

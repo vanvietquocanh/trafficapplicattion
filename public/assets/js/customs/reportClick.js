@@ -2,7 +2,6 @@
 var table = $('tbody');
 var sortItems = new SortItems;
 var paginationUL = $('#pag');
-var countItemsReportClick = 50;
 var platform = $("#os");
 var members = $("#members");
 var filterBtn = $('#filter');
@@ -57,15 +56,13 @@ SortItems.prototype.setPath = function(path){
 };
 SortItems.prototype.setDataReport = function(data){
 	this.dataReportClick = data;
-	sortItems.renderReport(countItemsReportClick)
+	sortItems.renderReport()
 };
-SortItems.prototype.renderReport = function(countItem) {
+SortItems.prototype.renderReport = function() {
 	table.empty();
 	var lengthofListReportClick = this.dataReportClick.length;
 	for(let x = this.dataReportClick.length-1; x >= 0; x--){
-		var elementHtml = "";
-		if(x < countItem){
-			elementHtml += `<tr role="row" class="odd fixcenter sel-items" style="color: #111">
+		var elementHtml = `<tr role="row" class="odd fixcenter sel-items" style="color: #111">
 							<td class="sorting_1" tabindex="0" style="color: #111">${sortItems.dataReportClick[x].id}</td>
 							<td class="sorting_1" tabindex="0" style="color: #111">${sortItems.dataReportClick[x].appName}</td>
 							<td class="sorting_1" tabindex="0" style="color: #111">${sortItems.dataReportClick[x].name}</td>
@@ -77,7 +74,6 @@ SortItems.prototype.renderReport = function(countItem) {
 							<td>${sortItems.dataReportClick[x].key}</td>
 						</tr>`;
 			sortItems.arrayList.push(elementHtml)
-		}	
 	}
 	sortItems.countPage();
 }
@@ -228,10 +224,14 @@ filterBtn.click(function(event) {
         "countStart"    : sortItems.countStart,
         "countEnd"      : sortItems.countEnd
 	}
+	sortItems.arrayList = [];
+	sortItems.newArrayList = [];
 	sortItems.getAPI(sortItems.path, dataFilter)
 });
 btnSearch.click(function(event) {
 	if(search.val()!==""){
+		sortItems.arrayList = [];
+		sortItems.newArrayList = [];
 		sortItems.searchMethod = true;
 		sortItems.countStart = 0;
 		sortItems.countEnd   = 500;

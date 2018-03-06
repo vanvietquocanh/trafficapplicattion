@@ -22,10 +22,8 @@ router.post('/', function(req, res, next) {
 							dataFilter.push(element)
 						}
 					}else{
-						if(index == req.body.query){
-							element.index = index;
-							dataFilter.push(element)
-						}
+						element.index = index;
+						dataFilter.push(element)
 					}
 				});
 				var dataRes = {
