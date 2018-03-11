@@ -45,7 +45,7 @@ router.post('/', function(req, res, next) {
 				dataChecker[z][`${Object.keys(network.custom)[j].trim()}`] = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 				delete dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 			}
-			requestApi.textWrite+= `http://${req.headers.host}/checkparameter/?offer_id=${z}&aff_id=${req.user.id}|${dataChecker[z].countrySet}|${dataChecker[z].platformSet.toUpperCase()}\r\n`;
+			requestApi.textWrite+= `https://${req.headers.host}/checkparameter/?offer_id=${z}&aff_id=${req.user.id}|${dataChecker[z].countrySet}|${dataChecker[z].platformSet.toUpperCase()}\r\n`;
 			requestApi.arrayDadaPushToDatabase.push(dataChecker[z])
 			requestApi.itemLead = z;
 		}//this is loop change keys of value;
@@ -53,7 +53,7 @@ router.post('/', function(req, res, next) {
 			db.collection("userlist").findOne({"isOfferCustom":true}, (err, result)=>{
 				if(result.listOffer!==null){
 					result.listOffer.forEach( function(element, index) {
-						requestApi.textWrite+= `http://${req.headers.host}/checkparameter/?offer_id=${requestApi.arrayDadaPushToDatabase.length}&aff_id=${req.user.id}|${element.countrySet}|${element.platformSet.toUpperCase()}\r\n`;
+						requestApi.textWrite+= `https://${req.headers.host}/checkparameter/?offer_id=${requestApi.arrayDadaPushToDatabase.length}&aff_id=${req.user.id}|${element.countrySet}|${element.platformSet.toUpperCase()}\r\n`;
 						element.index = requestApi.itemLead;
 						requestApi.arrayDadaPushToDatabase.push(element);
 						requestApi.itemLead++;

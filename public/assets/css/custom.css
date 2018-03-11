@@ -443,6 +443,9 @@
 	line-height: 1.5em;
 	padding: 0 1em;
 }
+.style-name-app{
+	text-align: left;
+}
 .btn-content-request{
 	border-radius: .2em;
 	background: #5b69bc;

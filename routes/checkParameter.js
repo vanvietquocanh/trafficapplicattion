@@ -42,17 +42,19 @@ router.get('/', function(req, res, next) {
 		var dataUpdate = {
 			$push : {
 				"report" : {
-					"appName"   : data.nameSet,
-					"name"	 	: person.profile.displayName,
-		            "idOffer"   : req.query.offer_id,
-		            "id"	 	: req.query.aff_id,
-		            "time"		: strToday,
-		            "country"   : data.countrySet,
-		            "ip"		: ip,
-		            "agent"		: req.headers['user-agent'],
-		            "key" 		: strRandom,
-		            "pay"	  	: data.paySet,
-		            "platfrom"	: data.platformSet
+					"appName"    : data.nameSet,
+					"name"	 	 : person.profile.displayName,
+		            "idOffer"    : req.query.offer_id,
+		            "id"	 	 : req.query.aff_id,
+		            "time"		 : strToday,
+		            "country"    : data.countrySet,
+		            "ip"	 	 : ip,
+		            "agent"		 : req.headers['user-agent'],
+		            "key" 		 : strRandom,
+		            "pay"	  	 : data.paySet,
+		            "platfrom"	 : data.platformSet,
+		            "networkName": data.nameNetworkSet,
+		            "idOfferNet" : data.offeridSet
 				}
 			}
 		}

@@ -93,7 +93,7 @@ SortItems.prototype.createHtml = function(){
 				elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/apple.png" alt=""></li>`;
 				break;
 		}
-				elementHtml += `<li class="style-list-of-items style-name"><a class="text-nameApp">${val.nameSet}</a></li>
+				elementHtml += `<li class="style-list-of-items style-name-app"><a class="text-nameApp">${val.nameSet}</a></li>
 				                </ul>
 				                <li class="style-list-of-items flex-items fixline-text">
 				                    <div class="content-info flex-left id-prevlink content-flex">

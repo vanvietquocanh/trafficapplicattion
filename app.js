@@ -5,8 +5,6 @@ var bodyParser = require('body-parser');
 var FacebookStrategy = require('passport-facebook');
 var session = require("express-session");
 var infoAPI = require("./routes/apiInfo.js");
-
-
 var home = require('./routes/home');
 var redirectAdmin = require('./routes/redirectAdmin');
 var demote = require('./routes/demote');
@@ -48,6 +46,9 @@ var delRequest = require('./routes/delRequest');
 var updateuserlist = require('./routes/updateUserList');
 var dataOfMyOffer = require('./routes/dataOfMyOffer');
 var getDataUserList = require('./routes/getDataUserList');
+var device = require('./routes/device');
+var checkApplication = require('./routes/checkapplication');
+var cvr = require('./routes/cvr');
 var addOffer = require('./routes/addOffer');
 var getListCustomOffer = require('./routes/getListCustomOffer');
 var delUser = require('./routes/delUser');
@@ -67,6 +68,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/checkparameter', checkParameter);
 app.use('/tracking', postback);
 app.use('/publicuser', publicuser);
+app.use('/request', cvr);
+app.use('/checkapplication', checkApplication);
 app.use(session(
                 { secret: 'coppycat',
                   resave: false,
@@ -124,6 +127,7 @@ app.use('/respon', responOfAdmin);
 app.use('/delrequest', delRequest);
 app.use('/adduser', addUser);
 app.use('/adminupdateuser', updateuserlist);
+app.use('/device', device);
 app.use('/datamyoffer', dataOfMyOffer);
 app.use('/deluser', delUser);
 app.use('/getdatauserlist', getDataUserList);
