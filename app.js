@@ -46,6 +46,8 @@ var delRequest = require('./routes/delRequest');
 var updateuserlist = require('./routes/updateUserList');
 var dataOfMyOffer = require('./routes/dataOfMyOffer');
 var getDataUserList = require('./routes/getDataUserList');
+var equalsOfferId = require('./routes/equalsOfferId');
+var equals = require('./routes/equals');
 var device = require('./routes/device');
 var checkApplication = require('./routes/checkapplication');
 var cvr = require('./routes/cvr');
@@ -56,8 +58,10 @@ var publicuser = require('./routes/post.request.user');
 var editUserAdd = require('./routes/edit.useradd');
 var addNewOffer = require('./routes/addNewOffer');
 var logout = require('./routes/logout');
-
+var setAuto = require("./autoRequest")
 var app = express();
+var schedule = require('node-schedule');
+
 app.enable('trust proxy')
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -70,6 +74,8 @@ app.use('/tracking', postback);
 app.use('/publicuser', publicuser);
 app.use('/request', cvr);
 app.use('/checkapplication', checkApplication);
+app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
+app.use('/equals', equals);
 app.use(session(
                 { secret: 'coppycat',
                   resave: false,
@@ -79,7 +85,18 @@ app.use(session(
                   }
                 }
               ));
-
+var j = schedule.scheduleJob({hour: 7, minute: 0, dayOfWeek: new schedule.Range(0, 6)}, function(){
+  var querySearchEmpty = {
+        "isOldOffer" : true
+      };
+  setAuto(querySearchEmpty);
+});
+var k = schedule.scheduleJob('0 0 */3 * *', function(){
+  var querySearchEmpty = {
+        "isNewOffer" : true
+      };
+  setAuto(querySearchEmpty);
+});
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new FacebookStrategy(infoAPI, function(accessToken, refreshToken, profile, done) {
