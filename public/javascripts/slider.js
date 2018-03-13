@@ -1,22 +1,22 @@
 jQuery(document).ready(function($) {
 	var imagesArray = [
 			{
-			   "slide": "../images/slide/splash-home.jpg",
+			   "slide": "../images/slide/pexels1.jpg",
 			},
 			{
-			   "slide": "../images/slide/1220-1.jpg",
+			   "slide": "../images/slide/pexels2.jpg",
 			},
 			{
-			   "slide": "../images/slide/0224-英文.png",
+			   "slide": "../images/slide/pexels3.jpg",
 			},
 			{
-			   "slide": "../images/slide/1116.jpg",
+			   "slide": "../images/slide/pexels4.jpg",
 			},
 			{
-			   "slide": "../images/slide/1023.jpg",
+			   "slide": "../images/slide/pexels5.jpeg",
 			},
 			{
-			   "slide": "../images/slide/A1026.jpg",
+			   "slide": "../images/slide/pexels6.jpg",
 			}
 		];
 	var i = 0;
@@ -82,5 +82,5 @@ jQuery(document).ready(function($) {
 	},100);
 	setInterval(()=>{
 		prev();
-	},3000)
+	},6000)
 });

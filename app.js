@@ -4,7 +4,10 @@ var passport = require("passport")
 var bodyParser = require('body-parser');
 var FacebookStrategy = require('passport-facebook');
 var session = require("express-session");
+var LocalStrategy = require("passport-local")
 var infoAPI = require("./routes/apiInfo.js");
+var schedule = require('node-schedule');
+
 var home = require('./routes/home');
 var redirectAdmin = require('./routes/redirectAdmin');
 var demote = require('./routes/demote');
@@ -59,9 +62,11 @@ var editUserAdd = require('./routes/edit.useradd');
 var addNewOffer = require('./routes/addNewOffer');
 var logout = require('./routes/logout');
 var advertiser = require('./routes/advertiser');
-var setAuto = require("./autoRequest")
+var Monetization = require('./routes/monetization');
+var setAuto = require("./autoRequest");
+
 var app = express();
-var schedule = require('node-schedule');
+
 
 app.enable('trust proxy')
 // view engine setup
@@ -78,6 +83,7 @@ app.use('/checkapplication', checkApplication);
 app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
 app.use('/equals', equals);
 app.use('/advertiser', advertiser);
+app.use('/Monetization', Monetization);
 app.use(session(
                 { secret: 'coppycat',
                   resave: false,
@@ -103,7 +109,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new FacebookStrategy(infoAPI, function(accessToken, refreshToken, profile, done) {
       done(null, profile);
-    }))
+    })|| new LocalStrategy(function(username, password, done) {
+   
+    })
+    )
 passport.serializeUser((user, done)=>{
   done(null, user)
 })

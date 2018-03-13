@@ -7,7 +7,7 @@ const pathMongodb = require("./pathDb");
 
 router.get('/:parameter', function(req, res, next) {
 	if(req.params.parameter === "signup"){
-		
+		res.render("register");
 	}
 });
 

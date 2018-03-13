@@ -119,14 +119,14 @@ body {
         width: 50%; }
         body .header-logo-item-320px {
           width: 45%;
-          max-width: 80px;
+          max-width: 200px;
           height: 100%;
           transition: .5s;
-          background: url(../images/logo/icon-yeahmobi-c@2x.png) no-repeat center center;
-          background-size: 45%; }
+          background: url(../images/logo/rocket.png) no-repeat center center;
+          background-size: 100%; }
           body .header-logo-item-320px:hover {
-            background: url(../images/logo/icon-yeahmobi-w@2x.png) no-repeat center center;
-            background-size: 45%; }
+            background: url(../images/logo/rok.png) no-repeat center center;
+            background-size: 30%; }
     body .header .icon {
       display: -webkit-box;
       display: -ms-flexbox;
@@ -598,7 +598,7 @@ body {
     background: url(../images/logo/rocket.png) no-repeat center center;
     background-size: 100%; }
     body .header-logo-item-320px:hover {
-      background: url(../images/logo/logo2.png) no-repeat center center;
+      background: url(../images/logo/rok.png) no-repeat center center;
       background-size: 30%; }
   body .header-720px-container-bar-element-text {
     width: 20%; }
