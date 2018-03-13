@@ -3,16 +3,12 @@ var router = express.Router();
 const mongo = require('mongodb');
 const assert = require('assert');
 var randomstring = require("randomstring");
-
 const pathMongodb = require("./pathDb");
-
+var request = require("request");
 router.get('/', function(req, res, next) {
 	function getClientAddress(request){ 
 	    with(request)
-	        return (req.headers["X-Forwarded-For"] ||
-            req.headers["x-forwarded-for"] ||
-            '').split(',')[0] ||
-           	req.client.remoteAddress;
+	        return req.headers["x-real-ip"];
 	}
 	function save(dataUpdate, link) {
 		var queryUpdate = {
@@ -79,23 +75,29 @@ router.get('/', function(req, res, next) {
 	}
 	try {
 		function checkPostback(app, person) {
-			if(person.member){
-				if(person.request.length>0){
-					let data = person.request.filter(function(items) {
-						return items.app.index === req.query.offer_id&&items.adConfirm === "true";
-					});
-					if(data.length === 0){
-						res.redirect("/");
-					}else{
-						redirectAPI(app, data[0].app, person)
+			request.get(`http://ip-api.com/json/${req.headers["x-real-ip"]}`,(err, response, body)=>{
+				if(app.countrySet.indexOf(JSON.parse(body).countryCode)!==-1){
+					if(person.member){
+						if(person.request.length>0){
+							let data = person.request.filter(function(items) {
+								return items.app.index === req.query.offer_id&&items.adConfirm === "true";
+							});
+							if(data.length === 0){
+								res.redirect("/");
+							}else{
+								redirectAPI(app, data[0].app, person)
+							}
+						}else{
+							res.redirect("/");
+						}
+					}else if(person.master){
+						let data = app;
+						redirectAPI(app, data, person)
 					}
 				}else{
-					res.redirect("/");
+					res.send("We're sorry, this offer is not currently available. Please try again later or contact customer support for further information")
 				}
-			}else if(person.master){
-				let data = app;
-				redirectAPI(app, data, person)
-			}
+			})
 		}
 	} catch(e) {
 		console.log(e);

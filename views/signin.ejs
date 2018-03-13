@@ -8,12 +8,16 @@
     <link rel="shorcut icon" type="image/x-icon" href="./images/logo/rok.png">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel='stylesheet' href='/stylesheets/styleLogin.css' />
     <link rel="stylesheets" href="/prefix/style.css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script> 
     <script src="./javascripts/slider.js"></script>
     <script src="./javascripts/buttonSocial.js"></script>
     <script src="./javascripts/goToTop.js"></script>
+    <script src="./javascripts/formLogin.js"></script>
   </head>
   <body>
     <header class="header">
@@ -61,10 +65,8 @@
             <a href="#">En</a>
             <i class="fa fa-caret-right" aria-hidden="true"></i>
         </li>
-        <li class="login">
+        <li class="login" id="bt-show-log">
             <a class="txt-log">Login</a>
-            <ul class="login-type"><a href="/signin" class="btn-fb-login facebook-bgr" style="padding:0; margin:0; height: 4em; margin-top: 9px;"><i class="fa fa-facebook mg-center"></i><p class="lg-with">Login with</p><p class="social-txt facebook">Facebook</p></a></ul>
-            <ul class="login-type mar-last"><a href="/signin" class="btn-fb-login account-bgr" style="padding:0; margin:0; height: 4em; margin-top: 2.1em;"><i class="fa fa-user mg-center"></i><p class="lg-with">Login with</p><p class="social-txt">Account</p></a></ul>
         </li>
         <ul class="header-container">
             <div class="header-container-bar">
@@ -425,6 +427,52 @@
                 </a>
             </li>
         </ul>
+    </div>
+    <div class="fromLogin">
+        <div class="formLogin-container">
+            <header class="formLogin-container-header">
+                <h1 class="formLogin-container-header-clientLog">
+                    Client Login
+                    <i class="material-icons icon-exit">clear</i>
+                </h1>
+                <div class="respon-720px">
+                    <a href="/signin" class="formLogin-container-header-typeLogin btn-fb-login facebook-bgr"><i class="fa fa-facebook color-white icon-w20"></i><p class="color-white">Login with Facebook</p></a>
+                    <a class="formLogin-container-header-typeLogin color-white btn-fb-login account-bgr"><i class="fa fa-user color-white icon-w20"></i><p class="color-white">Login with Account</p></a>
+                </div>
+            </header>
+            <div class="formLogin-container-content">
+                <ul class="formLogin-container-content-sub">
+                    <h6 class="formLogin-container-content-sub-title">
+                        User Aquisition
+                    </h6>
+                    <ul class="formLogin-container-content-sub-img img-0">
+                        
+                    </ul>
+                    <!-- <img src="/images/logo/imgUseracquisition.png" alt="Useracquisition"> -->
+                    <a class="btn-getLink" href="">BECOME AN ADVERTISER</a>
+                </ul>
+                <ul class="formLogin-container-content-sub">
+                    <h6 class="formLogin-container-content-sub-title">
+                        Monetization
+                    </h6>
+                    <ul class="formLogin-container-content-sub-img img-1">
+                        
+                    </ul>
+                    <!-- <img src="/images/logo/imgMonetize.png" alt="Monetize"> -->
+                    <a class="btn-getLink" href="">BECOME A PUBLISHER</a>
+                </ul>
+                <ul class="formLogin-container-content-sub">
+                    <h6 class="formLogin-container-content-sub-title">
+                        Monetizing via SDK
+                    </h6>
+                    <ul class="formLogin-container-content-sub-img img-2">
+                        
+                    </ul>
+                    <!-- <img src="/images/logo/imgMonetizeSDK.png" alt="MonetizeSDK"> -->
+                    <a class="btn-getLink" href="">BECOME A PUBLISHER</a>
+                </ul>
+            </div>
+        </div>
     </div>
     <footer class="footer">
         <a class="footer-logo" href="#">

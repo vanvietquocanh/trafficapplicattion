@@ -71,7 +71,7 @@ SortItems.prototype.setData = function(data, user, pending, approved){
 SortItems.prototype.createHtml = function(){
 	var affID = this.admin;
 	$.each(this.list, function(index, val) {
-		var pathRedirect = `https://${window.location.href.split("//")[1].split("/")[0]}/checkparameter/?offer_id=${val.index}&aff_id=${affID.isID}`;
+		var pathRedirect = `http://${window.location.href.split("//")[1].split("/")[0]}/checkparameter/?offer_id=${val.index}&aff_id=${affID.isID}`;
 		var elementHtml =  `<div class="offerItems">
 				            <ul class="offerItems-nonePd block-img">
 				                <img class="image-logo" src="${val.imgSet}" alt="">

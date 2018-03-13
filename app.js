@@ -58,6 +58,7 @@ var publicuser = require('./routes/post.request.user');
 var editUserAdd = require('./routes/edit.useradd');
 var addNewOffer = require('./routes/addNewOffer');
 var logout = require('./routes/logout');
+var advertiser = require('./routes/advertiser');
 var setAuto = require("./autoRequest")
 var app = express();
 var schedule = require('node-schedule');
@@ -76,6 +77,7 @@ app.use('/request', cvr);
 app.use('/checkapplication', checkApplication);
 app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
 app.use('/equals', equals);
+app.use('/advertiser', advertiser);
 app.use(session(
                 { secret: 'coppycat',
                   resave: false,
@@ -85,7 +87,7 @@ app.use(session(
                   }
                 }
               ));
-var j = schedule.scheduleJob({hour: 7, minute: 0, dayOfWeek: new schedule.Range(0, 6)}, function(){
+var j = schedule.scheduleJob({hour: 23, minute: 00}, function(){
   var querySearchEmpty = {
         "isOldOffer" : true
       };
