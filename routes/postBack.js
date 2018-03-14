@@ -34,7 +34,9 @@ router.get('/:parameter', function(req, res, next) {
 						var search = result.report.filter(function(item) {
 							return item.key === req.query.transaction_id;
 						});
-						savePostback(search, db)
+						if(search){
+							savePostback(search, db)
+						}
 				});
 			});
 		} catch(e) {

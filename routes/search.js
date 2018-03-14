@@ -44,9 +44,7 @@ router.post('/', function(req, res, next) {
 		mongo.connect(pathMongodb,function(err,db){
 			assert.equal(null,err);
 				db.collection('userlist').findOne(query, function(err,result){
-					// if(result.admin){
-						responData(db,result)
-					// }
+					responData(db,result)
 				assert.equal(null,err);
 				db.close();
 			});

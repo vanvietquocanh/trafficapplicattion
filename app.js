@@ -83,7 +83,8 @@ app.use('/checkapplication', checkApplication);
 app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
 app.use('/equals', equals);
 app.use('/advertiser', advertiser);
-app.use('/Monetization', Monetization);
+app.use('/monetization', Monetization);
+app.use('/requesttestlink', requestTestLink);
 app.use(session(
                 { secret: 'coppycat',
                   resave: false,
@@ -163,7 +164,6 @@ app.use('/updatepay', updatePay);
 app.use('/addnewoffer', addOffer);
 app.use('/addoffer', addNewOffer);
 app.use('/edituseradd', editUserAdd);
-app.use('/requesttestlink', requestTestLink);
 app.use('/admincutomsoffer', getListCustomOffer);
 app.use('/logout', logout);
 

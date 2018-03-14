@@ -16,7 +16,7 @@ router.post('/', function(req, res, next) {
 			db.collection('userlist').findOne(query1,(err, result)=>{
 				var dataFilter = [];
 				result.offerList.forEach( function(items, index) {
-					if(items.platformSet.toLowerCase().indexOf(req.body.OS.toLowerCase())!==-1 && items.countrySet.toLowerCase().indexOf(req.body.country)!== -1&&index>=req.body.start&&index<req.body.end){
+					if(items.platformSet.toLowerCase().indexOf(req.body.OS.toLowerCase())!==-1 && items.countrySet.toLowerCase().indexOf(req.body.country)!== -1){
 						items.index = index;
 						dataFilter.push(items)
 					}
@@ -39,9 +39,7 @@ router.post('/', function(req, res, next) {
 		mongo.connect(pathMongodb,function(err,db){
 			assert.equal(null,err);
 				db.collection('userlist').findOne(query, function(err,result){
-					// if(result.admin){
-						responData(db,result)
-					// }
+					responData(db,result)
 				assert.equal(null,err);
 				db.close();
 			});

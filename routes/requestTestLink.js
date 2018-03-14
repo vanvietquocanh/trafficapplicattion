@@ -14,7 +14,21 @@ const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	res.redirect("/")
+	// try {
+	// 	mongo.connect(pathMongodb,function(err,db){
+	// 		assert.equal(null,err);
+	// 		var query1 = {
+	// 			"dataAPITrackinglink" : true
+	// 		}
+	// 		db.collection('userlist').findOne(query1,(err, result)=>{
+	// 			res.send(result.offerList.length)
+	// 		})
+	// 	});
+	// } catch(e) {
+	// 	// statements
+	// 	console.log(e);
+	// }
+	// res.redirect("/")
 	// function request(path){
 	// 	var proxy = process.env.socks_proxy || 'socks5://223.197.203.41:15356';
 	// 	var endpoint = process.argv[2] || path;
