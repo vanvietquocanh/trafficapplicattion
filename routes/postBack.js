@@ -16,7 +16,8 @@ router.get('/:parameter', function(req, res, next) {
 					$push : {
 						"conversion" : data[0]
 					}
-				}
+				};
+				console.log(data)
 				db.collection("userlist").updateOne(queryConversion,dataUpdate, (err, result)=>{
 						if(!err){
 							res.send(JSON.stringify({"message": "Ok!"}))
@@ -34,7 +35,7 @@ router.get('/:parameter', function(req, res, next) {
 						var search = result.report.filter(function(item) {
 							return item.key === req.query.transaction_id;
 						});
-						if(search){
+						if(search.length>0){
 							savePostback(search, db)
 						}
 				});

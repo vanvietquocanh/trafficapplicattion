@@ -94,18 +94,18 @@ app.use(session(
                   }
                 }
               ));
-var j = schedule.scheduleJob({hour: 23, minute: 00}, function(){
-  var querySearchEmpty = {
-        "isOldOffer" : true
-      };
-  setAuto(querySearchEmpty);
-});
-var k = schedule.scheduleJob('0 0 */3 * *', function(){
-  var querySearchEmpty = {
-        "isNewOffer" : true
-      };
-  setAuto(querySearchEmpty);
-});
+//var j = schedule.scheduleJob({hour: 23, minute: 00}, function(){
+//  var querySearchEmpty = {
+//        "isOldOffer" : true
+//      };
+//  setAuto(querySearchEmpty);
+//});
+//var k = schedule.scheduleJob('0 0 */3 * *', function(){
+//  var querySearchEmpty = {
+//        "isNewOffer" : true
+//      };
+//  setAuto(querySearchEmpty);
+//});
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new FacebookStrategy(infoAPI, function(accessToken, refreshToken, profile, done) {
