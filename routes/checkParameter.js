@@ -74,11 +74,8 @@ router.get('/', function(req, res, next) {
 	}
 	try {
 		function checkPostback(app, person) {
-				console.log("+++++++++++++++++++++++++++++++++++");
-				console.log(req.headers["x-real-ip"]);
-				console.log("+++++++++++++++++++++++++++++++++++");
-			// request.get(`http://ip-api.com/json/${req.headers["x-real-ip"]}`,(err, response, body)=>{
-				// if(app.countrySet.indexOf(JSON.parse(body).countryCode)!==-1){
+			request.get(`http://ip-api.com/json/${req.headers["x-real-ip"]}`,(err, response, body)=>{
+				if(app.countrySet.indexOf(JSON.parse(body).countryCode)!==-1){
 					if(person.member){
 						if(person.request.length>0){
 							let data = person.request.filter(function(items) {
@@ -95,10 +92,10 @@ router.get('/', function(req, res, next) {
 					}else if(person.master||person.admin){
 						redirectAPI(app, app, person)
 					}
-				// }else{
-				// 	res.send("We're sorry, this offer is not currently available. Please try again later or contact customer support for further information")
-				// }
-			// })
+				}else{
+					res.send("We're sorry, this offer is not currently available. Please try again later or contact customer support for further information")
+				}
+			})
 		}
 	} catch(e) {
 		console.log(e);

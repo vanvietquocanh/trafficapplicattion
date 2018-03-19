@@ -22,7 +22,7 @@ router.post('/', function(req, res, next) {
 								dataFilter.push(element)
 							}
 						}else{
-							if(element.index === req.body.query){
+							if(element.index == req.body.query){
 								dataFilter.push(element)
 							}
 						}

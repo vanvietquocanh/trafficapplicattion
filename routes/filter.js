@@ -40,6 +40,7 @@ router.post('/', function(req, res, next) {
 					},
 					offerList: dataFilter
 				}
+				db.close();
 				res.send(dataRes)
 			})
 		}
@@ -51,7 +52,6 @@ router.post('/', function(req, res, next) {
 				db.collection('userlist').findOne(query, function(err,result){
 					responData(db,result)
 				assert.equal(null,err);
-				db.close();
 			});
 		});
 	} catch(e) {
