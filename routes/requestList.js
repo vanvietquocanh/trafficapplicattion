@@ -39,11 +39,9 @@ router.post('/', function(req, res, next) {
 									if(result.length>0){
 										result.forEach(function(element, index) {
 											element.request.forEach( function(ele, i) {
-												if(req.body.start<=i&&req.body.end>i){
-													if(order(ele)){
-														data.push(ele)
-													}
-
+												console.log(ele);
+												if(order(ele)){
+													data.push(ele)
 												}
 											});
 										});
@@ -53,7 +51,7 @@ router.post('/', function(req, res, next) {
 								}
 								var dataRes = {
 									mes : true,
-									data: data
+									data: data.splice(req.body.start, 500)
 								}
 								res.send(dataRes)
 								assert.equal(null,err);

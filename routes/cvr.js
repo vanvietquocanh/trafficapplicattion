@@ -20,24 +20,40 @@ router.get('/:value', function(req, res, next) {
 			}
 			var cvr = new CVR();
 			function CVR(){
-				this.conversion;
-				this.listOffer;
-				this.click;
+				this.conversion = [];
+				this.listOffer = [];
+				this.click = [];
 				this.savedata = [];
 				this.check = [];
 			}
 			CVR.prototype.connectMongo = function() {
 				mongo.connect(pathMongodb, (err, db)=>{
 					assert.equal(null, err);
-					db.collection("userlist").findOne(offerList, (err, result)=>{
+					db.collection("userlist").find(offerList).toArray((err, result)=>{
 						if(!err){
-							cvr.listOffer = result.offerList;
-							db.collection("userlist").findOne(queryConversion, (err,result)=>{
+							result.forEach(function(element, index) {
+								element.offerList.forEach(function(ele, i) {
+									cvr.listOffer.push(ele)
+								});
+							});
+							db.collection("userlist").find(queryConversion).toArray((err,result)=>{
 								if(!err){
-									cvr.conversion = result.conversion;
-									db.collection("userlist").findOne(queryClick, (err, result)=>{
+									result.forEach(function(element, index) {
+										element.conversion.forEach(function(ele, i) {
+											cvr.conversion.push(ele)
+										});
+									});
+									db.collection("userlist").find(queryClick).toArray((err, result)=>{
 										if(!err){
-											cvr.click = result.report;
+											result.forEach(function(element, index) {
+												if(element.report.length!==undefined){
+													element.report.forEach(function(ele, i) {
+														cvr.click.push(ele)
+													});
+												}else{
+													cvr.click.push(element.report)
+												}
+											});
 											cvr.checkInConversion()
 										}
 										assert.equal(null,err);
@@ -89,7 +105,7 @@ router.get('/:value', function(req, res, next) {
 			};
 			CVR.prototype.checkLinkApp = function(data) {
 				var dataResponClient = [];
-				data.forEach( function(element, index) {
+				data.forEach(function(element, index) {
 					cvr.listOffer.forEach( function(ele, i) {
 						if(cvr.orderLead(element,ele)){
 							element.link = `https://${req.headers.host}//checkparameter/?offer_id=${i}&aff_id={FacebookID}`

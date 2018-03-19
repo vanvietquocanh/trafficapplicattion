@@ -14,6 +14,9 @@ const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+	console.log(req.headers);
+	console.log("========================================================================================================================");
+	console.log(req.headers.host)
 	// try {
 	// 	mongo.connect(pathMongodb,function(err,db){
 	// 		assert.equal(null,err);

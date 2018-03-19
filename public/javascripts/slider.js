@@ -1,4 +1,8 @@
 jQuery(document).ready(function($) {
+	var html = "";
+	function getImage(link){
+		html +=`<img src="${link}" style="display: none;"/>`
+	}
 	var imagesArray = [
 			{
 			   "slide": "../images/slide/pexels1.jpg",
@@ -19,6 +23,10 @@ jQuery(document).ready(function($) {
 			   "slide": "../images/slide/pexels6.jpg",
 			}
 		];
+	imagesArray.forEach( function(element, index) {
+		getImage(element.slide)
+		$("body").append(html);
+	});
 	var i = 0;
 	var eleShowSlider = $('#slideShow');
 	var elePicker = $('#picker');

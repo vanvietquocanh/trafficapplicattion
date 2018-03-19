@@ -21,17 +21,15 @@ router.post('/', function(req, res, next) {
 				}else {
 					conditionDate = true;
 				}
-				if(condition){
+				if(condition.admin){
 					return val.platfrom.toString().toLowerCase().indexOf(req.body.platform.toLowerCase())!==-1 
 						&& val.country.toString().toLowerCase().indexOf(req.body.country.toLowerCase())!==-1
-						&& val.name.toLowerCase().indexOf(req.body.member)!==-1
 						&& (val.appName.toString().toLowerCase().indexOf(req.body.querySearch)!==-1 || val.idOffer.indexOf(req.body.querySearch)!==-1)
 						&& conditionDate
 				}else{
-					return val.id == req.user.id
+					return val.id === req.user.id
 						&& val.platfrom.toString().toLowerCase().indexOf(req.body.platform.toLowerCase())!==-1 
 						&& val.country.toString().toLowerCase().indexOf(req.body.country.toLowerCase())!==-1
-						&& val.name.toString().toLowerCase().indexOf(req.body.member)!==-1
 						&& (val.appName.toString().toLowerCase().indexOf(req.body.querySearch)!==-1 || val.idOffer.indexOf(req.body.querySearch)!==-1)
 						&& conditionDate;
 				}
@@ -42,11 +40,19 @@ router.post('/', function(req, res, next) {
 				}
 				mongo.connect(pathMongodb,function(err,db){
 					assert.equal(null,err);
-						db.collection('userlist').findOne(query, (err,result)=>{
+						db.collection('userlist').find(query).toArray((err,result)=>{
 							var dataResponse = [];
-							result.report.forEach(function(val, index) {
-								if(orderRes(val, condition)){
-									dataResponse.push(val)
+							result.forEach( function(element, index) {
+								if(element.report.length!==undefined){
+									element.report.forEach( function(click, i) {
+										if(orderRes(click, condition)){		
+											dataResponse.push(click)
+										}		
+									});
+								}else{
+									if(orderRes(element.report, condition)){
+										dataResponse.push(element.report)
+									}
 								}
 							});
 							res.send(dataResponse.splice(req.body.countStart, 500))
@@ -61,10 +67,10 @@ router.post('/', function(req, res, next) {
 			mongo.connect(pathMongodb, (err, db)=>{
 				assert.equal(null, err);
 					db.collection("userlist").findOne(userRequest, (err,result)=>{
-						if(result.admin){
-							responseReportClick(result.admin)
-						}else {
-							responseReportClick(result.admin)
+						if(result){
+							responseReportClick(result)
+						}else{
+							res.redirect("/")
 						}
 					})
 			})

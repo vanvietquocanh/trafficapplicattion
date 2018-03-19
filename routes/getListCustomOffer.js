@@ -20,7 +20,7 @@ router.post('/', function(req, res, next) {
 				}
 				db.collection('userlist').findOne(query, (err,result)=>{
 					var dataResponse = [];
-					result.listOffer.forEach(function(val, index) {
+					result.offerList.forEach(function(val, index) {
 						if(orderRes(val)){
 							dataResponse.push(val)
 						}

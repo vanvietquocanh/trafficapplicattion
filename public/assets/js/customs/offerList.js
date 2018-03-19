@@ -32,7 +32,6 @@ SortItems.prototype.getAPI = function(){
 		end   : this.countEnd
 	}
 	requestItems = $.post("/trackinglink", data, function(res) {
-		console.log(res)
 		if(res.mes){
 			sortItems.setMaster(res.admin.isMaster)
 			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
@@ -58,13 +57,13 @@ SortItems.prototype.setData = function(data, user, pending, approved){
 		this.list = data;
 		this.admin = user;
 		table.empty();
-		sortItems.newArrayList=[];
+		sortItems.newArrayList = [];
 		sortItems.createHtml();		
 	}else{
 		$.each(data, function(index, val) {
 			sortItems.list.push(val)
 		});
-		table.empty();	
+		table.empty();
 		sortItems.createHtml();
 	}
 };
@@ -129,14 +128,14 @@ SortItems.prototype.createHtml = function(){
 				                        </ul>
 				                    </div>
 				                    <div class="content-info center-btn content-flex resize-btn">
-				                        <ul class="offerItems-nonePd container-btn">`;
+				                        <ul class="offerItems-nonePd container-btn" style='display: flex; width:100%;'>`;
 		if(!(sortItems.master)){
 				elementHtml += 		`<button class="btn-content-request requestapp-${index}">
 				                                <i class="fa fa-shopping-cart m-r-xs icon-btn"></i>
 				                                <p class="text-btn">Request offer</p>
 				                            </button>`
 		}else{
-				elementHtml +=  	`<p>${pathRedirect}</p>`
+				elementHtml +=  	`<button class="cp-${index} btn-cp-mt-ls"><i class="fa fa-copy custom-master-side"/></button><p style="width:100px;">${pathRedirect}</p>`
 		}                            
 				elementHtml += 	 	   `</ul>
 				                    </div>
@@ -215,22 +214,26 @@ SortItems.prototype.newPagination = function(page){
 	sortItems.renderPage(page, paginationString);
 };
 SortItems.prototype.renderPage = function(page, pagination){
-	$.each(sortItems.newArrayList[page], function(index, el) {
+	var pageIndex = page;
+	if(sortItems.newArrayList<page){
+		pageIndex = 0;
+	}
+	$.each(sortItems.newArrayList[pageIndex], function(index, el) {
 		table.append(el);
 	});
 	if(pagination){
 		table.append(pagination)
 	};
-	$(`.pag-${page}`).parent().addClass('active');
+	$(`.pag-${pageIndex}`).parent().addClass('active');
 	$(".pagination-number").click((e)=>{
-		sortItems.page = $(e.target).attr("class").split("pag-")[1].split(" ")[0];
+		sortItems.pageIndex = $(e.target).attr("class").split("pag-")[1].split(" ")[0];
 		table.empty();
-		if(sortItems.page>=2&&sortItems.page<sortItems.newArrayList.length-3){
-			sortItems.newPagination(sortItems.page)
+		if(sortItems.pageIndex>=2&&sortItems.pageIndex<sortItems.newArrayList.length-3){
+			sortItems.newPagination(sortItems.pageIndex)
 			$(`.next-page`).removeClass('active');
-			$(`.pag-${sortItems.page}`).parent().addClass('active');
+			$(`.pag-${sortItems.pageIndex}`).parent().addClass('active');
 		}else{
-			sortItems.renderPage(sortItems.page, pagination)
+			sortItems.renderPage(sortItems.pageIndex, pagination)
 		}
 	})
 	sortItems.delEventDown();
@@ -253,10 +256,11 @@ SortItems.prototype.renderPage = function(page, pagination){
 			default:
 				break;
 		}
-	})
+	});
 };
 SortItems.prototype.deleventShowbtn = function(){
-	$(".btn-content-request").unbind('click')
+	$(".btn-content-request").unbind('click');
+	$(".btn-cp-mt-ls").unbind('click');
 }
 SortItems.prototype.reqAPIApp = function(data, event){
 	try {
@@ -269,6 +273,14 @@ SortItems.prototype.reqAPIApp = function(data, event){
 	}
 }
 SortItems.prototype.eventShowbtn = function(){
+	$(".btn-cp-mt-ls").click(function(event) {
+		let linkText = $(event.currentTarget).parent().children("p").text();
+		var $tagCp = $("<input/>");
+		$("body").append($tagCp);
+		$tagCp.val(linkText).select();
+		document.execCommand("copy");
+		$tagCp.remove();
+	});
 	$(".btn-content-request").click(function(event) {
 		$(`.${event.currentTarget.classList[1]}`).unbind('click');
 		$(`.${event.currentTarget.classList[1]}`).children("i").removeClass('fa-shopping-cart').addClass('fa-spinner fa-pulse');
@@ -304,7 +316,7 @@ SortItems.prototype.download = function(filename){
 	var text = "";
 	let affID = this.admin;
     $.each(this.list,function(index, el) {
-        text+= `http://${window.location.href.split("//")[1].split("/")[0]}/checkparameter/?offer_id=${el.index}&aff_id=${affID.isID}|${el.countrySet}|${el.platformSet.toUpperCase()}\r\n`;
+        text+= `http://${window.location.href.split("//")[1].split("/")[0]}/checkparameter/?offer_id=${el.index}&aff_id=${affID.isID}|${el.countrySet.split("|").join(",")}|${el.platformSet.toUpperCase()}\r\n`;
     });
     var blob = new Blob([text],{type:"octet/stream"});
     var url  = window.URL.createObjectURL(blob);
@@ -314,7 +326,6 @@ SortItems.prototype.download = function(filename){
     sortItems.eventDown();
 };
 sortItems.getAPI();
-
 filterBtn.click(function(event) {
 	if(platform.val()!=="all"||sortCountry.val()!=="all"){
 		sortItems.searchMethod = true;
@@ -340,11 +351,11 @@ filterBtn.click(function(event) {
 			$.post('/filter', data , function(res, textStatus, xhr) {
 				table.empty();
 				filterBtn.children().removeClass("fa-spin fa-refresh").addClass('fa-search');
-				sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
+				sortItems.setData(res.offerList, res.admin, res.admin.pending, sortItems.approved)
 				if(res.offerList.length===500){
 					sortItems.countStart += 500;
 					sortItems.countEnd += 500;
-					filterRq(data)
+					filterRq()
 				}
 			});
 		}
@@ -365,7 +376,6 @@ btnSearch.click(function(event) {
 		btnSearch.children().removeClass("fa-search").addClass('fa-spin fa-refresh');
 		$.post('/search', data, function(res, textStatus, xhr) {
 			table.empty();
-			console.log(res)
 			btnSearch.children().removeClass("fa-spin fa-refresh").addClass('fa-search');
 			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
 		});

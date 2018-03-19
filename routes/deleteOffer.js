@@ -8,24 +8,30 @@ const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.post('/', function(req, res, next) {
-	
+	if(req.user){
 	  	try {
+	  		function deleteOff(db) {
+	  			// db.userlist.find({""}).toArray()
+	  		}
+			var query = {
+					"idFacebook": req.user.id
+ 				}
  			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-						db.collection("useradd").findOne(req.body, (err, result)=>{
-							if(result){
-								res.send(true)
-							}else{
-								res.send(false)
-							}
-						})				
-					
-					assert.equal(null,err);
-					db.close();
-				});
+					db.collection('userlist').findOne(query, (err,result)=>{
+						if(result.admin){
+							deleteOff(db);
+						}else{
+							res.redirect("/")
+						}
+					});
+			});
 		} catch(e) {
 			res.redirect("/")
 		}
+	}else{
+		res.redirect("/")
+	}
 });
 
 module.exports = router;

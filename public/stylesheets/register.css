@@ -25,6 +25,9 @@ label{
 	display: none;
 	padding-bottom: .5em;
 }
+.flex-label{
+	display: flex;
+}
 .setWith{
 	width: 100%;
 	padding: .75em 1em;
@@ -33,6 +36,16 @@ label{
 	margin-bottom: 1em;
 	border-radius: .25em;
 	border: 1px solid #999;
+}
+.account{
+	margin-top: .15em;
+}
+h6{
+	font-weight: 500;
+	font-size: 1.2em;
+}
+.sub-account-ip{
+	font-size: .75em;
 }
 .body-page{
 	width: 100%;
@@ -80,6 +93,9 @@ label{
 .header-logo{
 	height: 50px;
 }
+.mg-left-3{
+	margin-left: 3em;
+}
 @media screen and (min-width: 720px){
 	h1{
 		font-size: 2em;
@@ -105,6 +121,9 @@ label{
 	}
 	label{
 		display: block;
+	}
+	.flex-label{
+		display: flex;
 	}
 	body .header-logo-item-320px{
 		max-width: 100%;
@@ -137,9 +156,4 @@ label{
 	body .header-logo-item-320px:hover{
 		background-size: 11%;
 	}
-}
-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
 }

@@ -9,16 +9,12 @@ router.get('/:parameter', function(req, res, next) {
 	if(req.params.parameter==="eventdata"&&req.query.transaction_id!==undefined){
 		try {
 			function savePostback(data, db) {
-				let queryConversion = {
-					"isConversion" : true
+				let dataConversion = {
+					"isConversion" : true,
+					"seconds"	   : new Date().getTime(),
+					"conversion"   : data
 				}
-				let dataUpdate = {
-					$push : {
-						"conversion" : data[0]
-					}
-				};
-				console.log(data)
-				db.collection("userlist").updateOne(queryConversion,dataUpdate, (err, result)=>{
+				db.collection("userlist").insertOne(dataConversion, (err, result)=>{
 						if(!err){
 							res.send(JSON.stringify({"message": "Ok!"}))
 						}
@@ -31,9 +27,19 @@ router.get('/:parameter', function(req, res, next) {
 			}
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-					db.collection('userlist').findOne(query, (err,result)=>{
-						var search = result.report.filter(function(item) {
-							return item.key === req.query.transaction_id;
+					db.collection('userlist').find(query).toArray((err,result)=>{
+						var dataResponse = [];
+						result.forEach( function(element, index) {
+							if(element.report.length!==undefined){
+								element.report.forEach( function(click, i) {	
+									dataResponse.push(click)
+								});
+							}else{
+								dataResponse.push(element.report)
+							}
+						});
+						var search = dataResponse.filter(function(item) {
+							return item.key.trim() === req.query.transaction_id.trim();
 						});
 						if(search.length>0){
 							savePostback(search, db)

@@ -63,7 +63,8 @@ var addNewOffer = require('./routes/addNewOffer');
 var logout = require('./routes/logout');
 var advertiser = require('./routes/advertiser');
 var Monetization = require('./routes/monetization');
-var setAuto = require("./autoRequest");
+var viaSdk = require('./routes/viaSdk');
+// var setAuto = require("./autoRequest");
 
 var app = express();
 
@@ -84,6 +85,7 @@ app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
 app.use('/equals', equals);
 app.use('/advertiser', advertiser);
 app.use('/monetization', Monetization);
+app.use('/sdk-via', viaSdk);
 app.use('/requesttestlink', requestTestLink);
 app.use(session(
                 { secret: 'coppycat',

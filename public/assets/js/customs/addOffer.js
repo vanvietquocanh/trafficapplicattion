@@ -224,7 +224,7 @@ AddOffer.prototype.customOfferReturn = function(custom){
 	$("#description").val(custom.descriptionSet);
 	$("#netName").val(custom.nameNetworkSet);
 };
-AddOffer.prototype.delEvent = function(argument){
+AddOffer.prototype.delEvent = function(){
 	$(".btn-edit-offer").unbind('click');
 	$(".btn-del-offer").unbind('click');
 };
@@ -319,7 +319,9 @@ $("#Confirm").click((e)=>{
 			if(addoffer.indexEdit===-1){
 				addoffer.data.push(dataSetToNetwork);
 			}else{
+				var index = addoffer.data[addoffer.indexEdit].index;
 				addoffer.data[addoffer.indexEdit] = dataSetToNetwork;
+				dataSetToNetwork.index = index;
 				edit = "edit";
 			}
 			var dataSend = {
@@ -327,7 +329,6 @@ $("#Confirm").click((e)=>{
 				method : edit,
 				index : addoffer.indexEdit
 			}
-			console.log(dataSend)
 			$("#Confirm").html("<i class='fa fa-spinner fa-pulse'></i>");
 			addoffer.updateReq(dataSend)
 		}

@@ -1,3 +1,14 @@
+.custom-master-side{
+	color: #fff;
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+.btn-cp-mt-ls{
+	margin-right: 5px;
+	border: none;
+	border-radius: .2em;
+	background: #3498db;
+}
 .user-box-add{
 	display: flex;
 	width: 100%;

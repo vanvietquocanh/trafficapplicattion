@@ -13,18 +13,20 @@ router.post('/', function(req, res, next) {
 			"dataAPITrackinglink" : true
 		}
 		function responData(db, isAdmin) {
-			db.collection('userlist').findOne(query1,(err, result)=>{
+			db.collection('userlist').find(query1).toArray((err, result)=>{
 				var dataFilter = [];
-				result.offerList.forEach( function(element, index) {
-					if(isNaN(req.body.query)){
-						if(element.nameSet.trim().toLowerCase().indexOf(req.body.query.trim().toLowerCase())!==-1){
-							element.index = index;
-							dataFilter.push(element)
+				result.forEach( function(list, i) {
+					list.offerList.forEach((element, index)=>{
+						if(isNaN(req.body.query)){
+							if(element.nameSet.trim().toLowerCase().indexOf(req.body.query.trim().toLowerCase())!==-1){
+								dataFilter.push(element)
+							}
+						}else{
+							if(element.index === req.body.query){
+								dataFilter.push(element)
+							}
 						}
-					}else{
-						element.index = index;
-						dataFilter.push(element)
-					}
+					})
 				});
 				var dataRes = {
 					admin  	 : {
@@ -35,6 +37,7 @@ router.post('/', function(req, res, next) {
 					},
 					offerList: dataFilter
 				}
+				db.close();
 				res.send(dataRes)
 			})
 		}
@@ -46,7 +49,6 @@ router.post('/', function(req, res, next) {
 				db.collection('userlist').findOne(query, function(err,result){
 					responData(db,result)
 				assert.equal(null,err);
-				db.close();
 			});
 		});
 	} catch(e) {

@@ -11,12 +11,14 @@ router.get('/', function(req, res, next) {
 	        return req.headers["x-real-ip"];
 	}
 	function save(dataUpdate, link) {
-		var queryUpdate = {
-			"isReportClick" : true
+		var data = {
+			"isReportClick" : true,
+			"seconds" 	    : new Date().getTime(),
+			"report" 	 	: dataUpdate
 		}
 		mongo.connect(pathMongodb, (err, db)=>{
 			assert.equal(null,err);
-			db.collection('userlist').updateOne(queryUpdate, dataUpdate, {upsert:true}, function(err,result){
+			db.collection('userlist').insertOne(data, function(err,result){
 				res.redirect(link)
 				res.end();
 			assert.equal(null,err);
@@ -33,26 +35,23 @@ router.get('/', function(req, res, next) {
 		var strToday = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()} - ${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
 		var strRandom = randomstring.generate();
 		if(person.master){
-			data.paySet = Math.round((data.paySet/100*20)*100)/100;
+			data.paySet = Math.round((data.paySet/100*7)*100)/100;
 		}
 		var dataUpdate = {
-			$push : {
-				"report" : {
-					"appName"    : data.nameSet,
-					"name"	 	 : person.profile.displayName,
-		            "idOffer"    : req.query.offer_id,
-		            "id"	 	 : req.query.aff_id,
-		            "time"		 : strToday,
-		            "country"    : data.countrySet,
-		            "ip"	 	 : ip,
-		            "agent"		 : req.headers['user-agent'],
-		            "key" 		 : strRandom,
-		            "pay"	  	 : data.paySet,
-		            "platfrom"	 : data.platformSet,
-		            "networkName": data.nameNetworkSet,
-		            "idOfferNet" : data.offeridSet
-				}
-			}
+			"appName"    : data.nameSet,
+			"name"	 	 : person.profile.displayName,
+            "idOffer"    : req.query.offer_id,
+            "id"	 	 : req.query.aff_id,
+            "time"		 : strToday,
+            "seconds"    : today.getTime(),
+            "country"    : data.countrySet,
+            "ip"	 	 : ip,
+            "agent"		 : req.headers['user-agent'],
+            "key" 		 : strRandom,
+            "pay"	  	 : data.paySet,
+            "platfrom"	 : data.platformSet,
+            "networkName": data.nameNetworkSet,
+            "idOfferNet" : data.offeridSet
 		}
 		mongo.connect(pathMongodb,function(err,db){
 			assert.equal(null,err);
@@ -75,8 +74,11 @@ router.get('/', function(req, res, next) {
 	}
 	try {
 		function checkPostback(app, person) {
-			request.get(`http://ip-api.com/json/${req.headers["x-real-ip"]}`,(err, response, body)=>{
-				if(app.countrySet.indexOf(JSON.parse(body).countryCode)!==-1){
+				console.log("+++++++++++++++++++++++++++++++++++");
+				console.log(req.headers["x-real-ip"]);
+				console.log("+++++++++++++++++++++++++++++++++++");
+			// request.get(`http://ip-api.com/json/${req.headers["x-real-ip"]}`,(err, response, body)=>{
+				// if(app.countrySet.indexOf(JSON.parse(body).countryCode)!==-1){
 					if(person.member){
 						if(person.request.length>0){
 							let data = person.request.filter(function(items) {
@@ -90,14 +92,13 @@ router.get('/', function(req, res, next) {
 						}else{
 							res.redirect("/");
 						}
-					}else if(person.master){
-						let data = app;
-						redirectAPI(app, data, person)
+					}else if(person.master||person.admin){
+						redirectAPI(app, app, person)
 					}
-				}else{
-					res.send("We're sorry, this offer is not currently available. Please try again later or contact customer support for further information")
-				}
-			})
+				// }else{
+				// 	res.send("We're sorry, this offer is not currently available. Please try again later or contact customer support for further information")
+				// }
+			// })
 		}
 	} catch(e) {
 		console.log(e);
@@ -106,10 +107,18 @@ router.get('/', function(req, res, next) {
 		var querySearchOffer = {
 			"dataAPITrackinglink" : true
 		}
-		db.collection('userlist').findOne(querySearchOffer, function(err,result){
-				checkPostback(result.offerList[req.query.offer_id], profile)
-			assert.equal(null,err);
-			db.close();
+		db.collection('userlist').find(querySearchOffer).toArray((err,result)=>{
+			if(!err){
+				for(var j = 0; j<result.length;j++){
+					for(var i =0; i<result[j].offerList.length; i++){
+						if(result[j].offerList[i].index == req.query.offer_id){
+							checkPostback(result[j].offerList[i], profile);
+						}
+					}
+				}
+			}else{
+				res.redirect("/")
+			}
 		})
 	}
 	try {
@@ -129,7 +138,6 @@ router.get('/', function(req, res, next) {
 						res.redirect("/")
 					}
 				assert.equal(null,err);
-				db.close();
 			});
 		});
 	} catch(e) {

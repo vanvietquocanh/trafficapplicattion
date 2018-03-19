@@ -39,17 +39,33 @@ router.post('/', function(req, res, next) {
 				var query = {
 					"isConversion": true
 				}
-				db.collection('userlist').findOne(query, (err,result)=>{
-					var dataResponse = [];
-						result.conversion.forEach(function(val, index) {
-							if(orderRes(val, condition)){
-								dataResponse.push(val)
-							}
-						});
-						res.send(dataResponse)
-					assert.equal(null,err);
-					db.close();
-				});
+				try {
+					db.collection('userlist').find(query).toArray((err,result)=>{
+						var dataResponse = [];
+						if(result!==undefined){
+							result.forEach( function(element, index) {
+								if(element.conversion.length!==undefined){
+									if(element.conversion.length>0){
+										element.conversion.forEach( function(click, i) {
+											if(orderRes(click, condition)){		
+												dataResponse.push(click)
+											}		
+										});
+									}
+								}else{
+									if(orderRes(element.report, condition)){
+										dataResponse.push(element.report)
+									}
+								}
+							});
+							res.send(dataResponse.splice(req.body.countStart, 500))
+							assert.equal(null,err);
+							db.close();
+						}
+					});
+				} catch(e) {
+					res.redirect("/")
+				}
 			}
 			var userRequest = {
 				"idFacebook" : req.user.id

@@ -12,14 +12,24 @@ router.post('/', function(req, res, next) {
 		var query1 = {
 			"dataAPITrackinglink" : true
 		}
+		function preFixCountry(country1, country2){
+			console.log();
+			if (country2.split("|").length===2){
+				return country1.trim().toLowerCase().indexOf(country2.split("|")[0]) !== -1
+					|| country1.trim().toLowerCase().indexOf(country2.split("|")[1]) !== -1;		
+			}else{
+				return country1.trim().toLowerCase().indexOf(country2) !== -1;
+			}
+		}
 		function responData(db, isAdmin) {
-			db.collection('userlist').findOne(query1,(err, result)=>{
+			db.collection('userlist').find(query1).toArray((err, result)=>{
 				var dataFilter = [];
-				result.offerList.forEach( function(items, index) {
-					if(items.platformSet.toLowerCase().indexOf(req.body.OS.toLowerCase())!==-1 && items.countrySet.toLowerCase().indexOf(req.body.country)!== -1){
-						items.index = index;
-						dataFilter.push(items)
-					}
+				result.forEach( function(app, index) {
+					app.offerList.forEach( function(items, i) {
+						if(items.platformSet.toLowerCase().indexOf(req.body.OS.toLowerCase())!==-1 && preFixCountry(items.countrySet, req.body.country)){
+							dataFilter.push(items)
+						}
+					});
 				});
 				var dataRes = {
 					admin  	 : {

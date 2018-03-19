@@ -282,6 +282,7 @@ body {
     font-size: 20px;
     padding-top: .7em;
     line-height: 1.4em;
+    padding-bottom: 6em;
     font-weight: 300; }
   body .slectorSilder {
     padding: 3em 1.75em; }
@@ -447,6 +448,9 @@ body {
     height: 136px; }
   body .footer {
     margin: 0;
+    width: 100%;
+    display: flex; 
+    flex-wrap: wrap;
     text-align: left; }
     body .footer-logo {
       padding-left: 1em; }
@@ -454,6 +458,8 @@ body {
         width: 30%; }
     body .footer .copyright {
       padding-left: 2em;
+      width: 100%;
+      text-align: center;
       padding-top: 1em; }
   body .footer-widgets {
     display: flex;
