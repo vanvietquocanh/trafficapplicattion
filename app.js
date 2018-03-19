@@ -64,7 +64,7 @@ var logout = require('./routes/logout');
 var advertiser = require('./routes/advertiser');
 var Monetization = require('./routes/monetization');
 var viaSdk = require('./routes/viaSdk');
-// var setAuto = require("./autoRequest");
+var setAuto = require("./autoRequest");
 
 var app = express();
 
@@ -86,7 +86,7 @@ app.use('/equals', equals);
 app.use('/advertiser', advertiser);
 app.use('/monetization', Monetization);
 app.use('/sdk-via', viaSdk);
-app.use('/requesttestlink', requestTestLink);
+app.use('/proxy', requestTestLink);
 app.use(session(
                 { secret: 'coppycat',
                   resave: false,
@@ -100,7 +100,7 @@ app.use(session(
 //  var querySearchEmpty = {
 //        "isOldOffer" : true
 //      };
-//  setAuto(querySearchEmpty);
+ // setAuto.request("http://filefab.com/api.php?l=VNYGT_1-B7Wq2JJzYiSFRTN5aHoa4LekB41ywrawjUI", "get");
 //});
 //var k = schedule.scheduleJob('0 0 */3 * *', function(){
 //  var querySearchEmpty = {
