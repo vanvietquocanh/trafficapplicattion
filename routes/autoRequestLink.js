@@ -141,6 +141,7 @@ router.post('/', function(req, res, next) {
 								var dataSave = {
 						    		"dataAPITrackinglink" : true,
 									"time" : date,
+									"isOfNetWork" : true,
 									"netWorkName" : network.name,
 						    		"offerList": requestApi.arrayDadaPushToDatabase
 						    	}
@@ -162,9 +163,12 @@ router.post('/', function(req, res, next) {
 													});
 												}
 												fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{
-													if(err) throw err;
+													if(err){
+														throw err;
+													}else {
+														res.send("Successfully saved MongoDB data!");
+													}
 												});
-												res.send("Successfully saved MongoDB data!");
 											})
 										}
 									}
