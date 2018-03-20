@@ -106,9 +106,9 @@ SortItems.prototype.createHtml = function(){
 				                        <ul class="fix-margin "><a class="upper-case text-block" href="">${val.offerType}</a></ul>
 				                    </div>
 				                    <div class="content-info flex-left last-info line-1366 click-show-${index} goals-bnt content-flex">
-				                        <ul class="fix-margin custom-margin-respone">
-				                            <li class="flex-left">KPIs<a class="box-green">!</a></li>
-											<ul class="fix-margin-content-goals">
+				                        <ul class="fix-margin custom-margin-respone">`;
+				elementHtml +=		`<li class="flex-left">KPIs<a class="box-green">!</a><p class="styleCapSetApp">Cap : ${val.capSet}</p></li>
+									<ul class="fix-margin-content-goals">
 												<a style='display: none; line-height: 1.2em;'>${val.descriptionSet}</a>
 											</ul>
 				                        </ul>

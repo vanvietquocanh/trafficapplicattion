@@ -1,3 +1,13 @@
+.styleCapSetApp{
+	padding-left: 4em;
+	color: #111;
+}
+.colorBlue{
+	background: #71b6f9;
+}
+.colorRed{
+	background: red;
+}
 .custom-master-side{
 	color: #fff;
 	padding-top: 3px;

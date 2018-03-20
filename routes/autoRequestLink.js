@@ -23,7 +23,7 @@ router.post('/', function(req, res, next) {
 	RequestAPI.prototype.loopOrder = function(respon, network) {
 		var value;
 		network.custom.data.split(",").forEach( function(element, index) {
-			if(typeof JSON.parse(respon.body)[`${element}`] !== "Array"&&JSON.parse(respon.body)[`${element}`].length>0){
+			if(JSON.parse(respon.body)[`${element}`].length>0){
 				value = true;
 			}else{
 				value = false;
@@ -95,13 +95,10 @@ router.post('/', function(req, res, next) {
 									}
 								})
 							})
-							requestApi.arIndexDel.forEach( function(element, index) {
-								requestApi.arrayDadaPushToDatabase.splice(element, 1)
-							});
+							for(var i = requestApi.arIndexDel.length; i >= 0; i--){
+								requestApi.arrayDadaPushToDatabase.splice(requestApi.arIndexDel[i], 1)
+							}
 							var countLengthOfferList = requestApi.dataSave.length;
-							requestApi.arrayDadaPushToDatabase.forEach((element, index)=>{
-								element.index = index + countLengthOfferList;
-							});
 							var dataSave = {
 								"dataAPITrackinglink" : true,
 								"time" : date,
