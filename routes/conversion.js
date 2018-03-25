@@ -17,9 +17,7 @@ router.get("/",(req, res, next)=>{
 					db.collection('userlist').findOne(query,function(err,result){
 						var download,memSel, myOffer;
 						if(result.admin){
-							myOffer = 		`<li class="has_sub">
-						                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
-						                    </li>`;
+							myOffer = 		``;
 							download     = `<li class="has_sub">
 				                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
 				                            </li>
@@ -30,14 +28,18 @@ router.get("/",(req, res, next)=>{
 						                        <a href="/download" class="waves-effect"><i class="fa fa-download" hidden="true"></i> <span> Download </span></a>
 						                    </li>`;
 						    memSel 	 	= `<select class="select-drop-blue sel-mem" name="members" id="members"><option value='all'>Members</option></select>`;
+						    addOffer  = `<li class="has_sub">
+					                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
+					                    </li>`;
 						}else{
 							download = ""
 							myOffer  = `<li class="has_sub">
 			                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
 			                            </li>`;
 			                memSel    =``;
+			                addOffer  = ``; 
 						}
-						    renderPage(download, memSel, myOffer)
+						    renderPage(download, memSel, myOffer, addOffer)
 						assert.equal(null,err);
 						db.close();
 					});
@@ -55,7 +57,8 @@ router.get("/",(req, res, next)=>{
 				"admin" : admin,
 				"download": download,
 				"memSel" : memSel,
-				"myOffer": myOffer
+				"myOffer": myOffer,
+				"addOffer": addOffer
 			})
 	  	}
 	}else{

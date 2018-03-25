@@ -8,21 +8,40 @@ const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.post('/', function(req, res, next) {
-	
 	  	try {
  			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-						db.collection("useradd").findOne(req.body, (err, result)=>{
-							if(result){
-								res.send(true)
-							}else{
-								res.send(false)
+				var update = {
+					$set:{
+						"status": !(req.body.status.toLowerCase()==="false")?true:false
+					}
+				};
+				var query = {
+					"username" : req.body.username, 
+					"status" : !((req.body.status.toLowerCase()==="false")?false:true)
+				}
+				db.collection("useradd").findOne(query, (err, result)=>{
+					if(req.body.ipAddress!==undefined){
+						if(result){
+							if(result.password===req.body.password&&result.ipAddress.split(",").indexOf(req.body.ipAddress)!==-1){
+								function callBack() {
+									db.close();
+									return res.send(true);
+								};
+								db.collection("useradd").updateOne(query, update, (err,result)=>{
+									if(!err) {
+										callBack();
+									}
+								})
 							}
-						})				
-					
-					assert.equal(null,err);
-					db.close();
-				});
+						}else{
+							res.send("error");
+						}
+					}else{
+						res.redirect("/");
+					}
+				})				
+			});
 		} catch(e) {
 			res.redirect("/")
 		}

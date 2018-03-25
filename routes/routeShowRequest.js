@@ -16,11 +16,9 @@ router.get('/', function(req, res, next) {
  			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
-						var download, myOffer;
+						var download, myOffer, addOffer;
 						if(result.admin){
-							myOffer  = `<li class="has_sub">
-						                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
-						                    </li>`;
+							myOffer  = ``;
 							download     = `<li class="has_sub">
 				                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
 				                            </li>
@@ -30,7 +28,10 @@ router.get('/', function(req, res, next) {
 											<li class="has_sub">
 						                        <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 						                    </li>`;
-						    renderPage(download, myOffer)
+						    addOffer =  `<li class="has_sub">
+						                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
+						                    </li>`;
+						    renderPage(download, myOffer, addOffer)
 						}else{
 							res.redirect("/")
 						}
@@ -41,7 +42,7 @@ router.get('/', function(req, res, next) {
 		} catch(e) {
 			res.redirect("/")
 		}
-	  	function renderPage(download, myOffer) {
+	  	function renderPage(download, myOffer, addOffer) {
 	  		var admin =`<li>
 		       			<a href="/admin" class="waves-effect"><i class="zmdi zmdi-view-dashboard"></i> <span> Dashboard </span> </a>
 		    		</li>`;
@@ -50,7 +51,8 @@ router.get('/', function(req, res, next) {
 				"avatar"  : req.user.photos[0].value,
 				"admin"   : admin,
 				"download": download,
-				"myOffer" : myOffer
+				"myOffer" : myOffer,
+				"addOffer": addOffer
 			})
 	  	}
 	}else{

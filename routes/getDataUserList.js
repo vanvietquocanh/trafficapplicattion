@@ -17,7 +17,7 @@ router.post('/', function(req, res, next) {
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
 						if(result.admin){
-							db.collection("useradd").find().toArray((err, result)=>{
+							db.collection("useradd").find({"isUser":true}).toArray((err, result)=>{
 								if(!err){
 									res.send(result)
 								}else{

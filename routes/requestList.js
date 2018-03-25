@@ -39,7 +39,6 @@ router.post('/', function(req, res, next) {
 									if(result.length>0){
 										result.forEach(function(element, index) {
 											element.request.forEach( function(ele, i) {
-												console.log(ele);
 												if(order(ele)){
 													data.push(ele)
 												}

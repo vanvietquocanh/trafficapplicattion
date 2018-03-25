@@ -5,6 +5,7 @@ const assert = require('assert');
 var store = require('app-store-scraper');
 const pathMongodb = require("./pathDb");
 var gplay = require('google-play-scraper');
+var request = require("request");
 
 /* GET home page. */
 router.post('/', function(req, res, next) {
@@ -46,7 +47,16 @@ router.post('/', function(req, res, next) {
 					"message" : "error",
 					"url"	  : req.body.url
 				}
-				res.send(error)
+				request(req.body.url, (err, data, xhr)=>{
+					if(data){
+						var app = {};
+						app.icon   = data.body.split("picture")[1].split(`src="`)[1].split(`"`)[0];
+						app.title  = data.body.split("product-header__title")[1].split("\n")[1].trim();
+						res.send(app);
+					}else if(err){
+						res.send("error");
+					}
+				})
 			})
 		}else{
 			var error = {

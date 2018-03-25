@@ -7,7 +7,7 @@ const pathMongodb = require("./pathDb");
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	if(req.user){
-		// try{
+		try{
 				var query = {
 					"idFacebook": req.user.id
  				}
@@ -35,13 +35,14 @@ router.get('/', function(req, res, next) {
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
-						function renderPage(route, admin, download, myOffer){
+						function renderPage(route, admin, download, myOffer, addOffer){
 							res.render(route,{
 								"name"    : req.user.displayName,
 								"avatar"  : req.user.photos[0].value,
 								"admin"   : admin,
 								"download": download,
-								"myOffer" : myOffer
+								"myOffer" : myOffer,
+								"addOffer": addOffer
 							})
 							res.end();
 						}
@@ -63,12 +64,14 @@ router.get('/', function(req, res, next) {
 				                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
 				                            </li>`
 								download = ``;
-		                            renderPage("profile",admin, download, myOffer)
+								let addOffer = ``;
+		                            renderPage("profile",admin, download, myOffer, addOffer)
 							}else if(result.admin){
-								let myOffer = 	`<li class="has_sub">
+								let myOffer  = 	``;
+							    let addOffer = `<li class="has_sub">
 							                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
-							                    </li>`
-		                        renderPage("index", admin, download, myOffer)
+							                    </li>`;
+		                        renderPage("index", admin, download, myOffer, addOffer)
 							}else{
 								res.render("error",{
 									error:{
@@ -94,10 +97,10 @@ router.get('/', function(req, res, next) {
 						db.close();
 					});
 			});
-		// }catch(e){
-		// 	res.redirect("/")
-		// 	res.end();
-		// }
+		}catch(e){
+			res.redirect("/")
+			res.end();
+		}
 	}else{
 		res.redirect("/")
 		res.end();

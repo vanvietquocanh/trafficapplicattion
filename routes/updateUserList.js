@@ -17,7 +17,14 @@ router.post('/', function(req, res, next) {
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
 						if(result.admin){
-							db.collection("useradd").insertOne(req.body, (err, result)=>{
+							var data = {
+								"isUser"   : true,
+								"username" : req.body.username,
+								"password" : req.body.password,
+								"ipAddress": req.body.ipAddress,
+								"status"   : false
+							};
+							db.collection("useradd").insertOne(data, (err, result)=>{
 								if(!err){
 									res.send(req.body);
 								}else{

@@ -1,3 +1,4 @@
+
 .styleCapSetApp{
 	padding-left: 4em;
 	color: #111;
@@ -57,7 +58,9 @@
 }
 .prev-fix-user-box{
 	padding-bottom: 0;
+	padding-left: 0;
 	margin-bottom: 0;
+	text-align: center;
 }
 .after-fix-user-box{
 	border-top: 1px solid #444;
@@ -67,6 +70,7 @@
 .user-box-list{
 	border-right: 1px solid #222;
 	width: 40%;
+	text-align: center;
 	list-style: none;
 }
 .user-box-list-items{
@@ -76,6 +80,7 @@
 .fx-pad{
 	padding: 0;
 	width: 50%;
+	text-align: center;
 }
 .icon-items{
 	border: none;

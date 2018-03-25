@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalble=no">
         <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc.">
         <meta name="author" content="Coderthemes">
 
@@ -184,10 +185,15 @@
                         <ul>
                           <li class="text-muted menu-title">Navigation</li>
                             <%-admin%>
-                            <li>
-                                <a href="/offers" class="waves-effect"><i class="fa fa-list" hidden="true"></i> <span> All Offers </span> </a>
+                            <li class="parent parent-focus"><a><i class="fa fa-suitcase"></i> <span>Offers</span></a>
+                                <ul class="children">
+                                    <li>
+                                        <a href="/offers" class="waves-effect"><i class="fa fa-list" hidden="true"></i> <span> All Offers </span> </a>
+                                    </li>
+                                    <%-myOffer%>
+                                </ul>
                             </li>
-                            <%-myOffer%>
+                            <%- addOffer%>
                             <li class="has_sub">
                                 <a href="/reportclick" class="waves-effect"><i class="fa fa-file-text-o" aria-hidden="true"></i><span> Report Click </span></span></a>
                             </li>
@@ -446,7 +452,7 @@
         <script src="assets/js/jquery.app.js"></script>
         <script src="assets/js/customs/adminApi.js"></script>
           <script>
-            $("#btn-logout").children().css({"color":"#98a6ad"})
+            $("#btn-logout").children().css({"color":"#98a6ad"});
         </script>
     </body>
 </html>

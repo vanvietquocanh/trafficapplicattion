@@ -27,10 +27,12 @@ router.get('/', function(req, res, next) {
 						                        <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 						                    </li>
 						                    `;
-						    myOffer = `<li class="has_sub">
+						    addOffer = `<li class="has_sub">
 					                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 					                    </li>`;
+					        myOffer  = "";
 						}else{
+							addOffer  = "";
 							memSel 	  = ``;
 							download  = ``;
 							myOffer   = `<li class="has_sub">
@@ -55,6 +57,7 @@ router.get('/', function(req, res, next) {
 				"admin"   : admin,
 				"download": download,
 				"myOffer" : myOffer,
+				"addOffer": addOffer,
 				"memSel"  : memSel
 			})
 	  	}

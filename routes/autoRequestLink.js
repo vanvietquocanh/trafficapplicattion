@@ -61,6 +61,7 @@ router.post('/', function(req, res, next) {
 				dataChecker[z][`${Object.keys(network.custom)[j].trim()}`] = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 				delete dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 			}
+			dataChecker[z].countSmart = 0;
 			dataChecker[z].index = new Number(indexOfferNext) + z;
 			requestApi.arrayDadaPushToDatabase.push(dataChecker[z])
 		}//this is loop change keys of value;

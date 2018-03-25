@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalble=no">
         <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc.">
         <meta name="author" content="Coderthemes">
         <link rel="shortcut icon" href="assets/images/favicon.ico">
@@ -106,11 +107,15 @@
                         <ul>
                           <li class="text-muted menu-title">Navigation</li>
                             <%-admin%>
-
-                            <li>
-                                <a href="/offers" class="waves-effect"><i class="fa fa-list" hidden="true"></i> <span> All Offers </span> </a>
+                            <li class="parent parent-focus"><a><i class="fa fa-suitcase"></i> <span>Offers</span></a>
+                                <ul class="children">
+                                    <li>
+                                        <a href="/offers" class="waves-effect"><i class="fa fa-list" hidden="true"></i> <span> All Offers </span> </a>
+                                    </li>
+                                    <%- myOffer%>
+                                </ul>
                             </li>
-                            <%- myOffer%>
+                            <%- addOffer %>
                             <li class="has_sub">
                                 <a href="/reportclick" class="waves-effect"><i class="fa fa-file-text-o" aria-hidden="true"></i><span> Report Click </span></span></a>
                             </li>
@@ -168,7 +173,8 @@
                                                                                 <div class="col-sm-12">
                                                                                    <ul class="user-box-add prev-fix-user-box">
                                                                                    		<li class="user-box-list"><a class="user-box-list-items">Name</a></li>
-                                                                                   		<li class="user-box-list"><a class="user-box-list-items">Password</a></li>
+                                                                                        <li class="user-box-list"><a class="user-box-list-items">Password</a></li>
+                                                                                   		<li class="user-box-list"><a class="user-box-list-items">IP Address</a></li>
                                                                                    		<li class="user-box-list icon-items">
                                                                                    			<ul class="fx-pad"><a class="">Edit</a></ul>
                                                                                    			<ul class="fx-pad"><a class="">Delete</a></ul>
@@ -179,7 +185,8 @@
                                                                                    </div>
                                                                                    <ul class="user-box-add after-fix-user-box">
                                                                                    		<li class="user-box-list"><input class="ip-add ip-add-name" id="name" placeholder="Name" type="text"></li>
-                                                                                   		<li class="user-box-list"><input class="ip-add ip-add-pass" id="pass" placeholder="Password" type="text"></li>
+                                                                                        <li class="user-box-list"><input class="ip-add ip-add-pass" id="pass" placeholder="Password" type="text"></li>
+                                                                                   		<li class="user-box-list"><input class="ip-add ip-add-ip" id="ipAddress" placeholder="ipAddress" type="text"></li>
                                                                                    		<li class="user-box-list icon-items">
                                                                                    			<button class="fa btn-addUser icon-user" id="addUser"></button>
                                                                                    		</li>
