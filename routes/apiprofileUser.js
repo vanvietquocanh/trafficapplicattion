@@ -10,34 +10,24 @@ const pathMongodb = require("./pathDb");
 router.post('/', function(req, res, next) {
 	if(req.user){
 		try{
-			var arrayList = [];
-			var dataSend = [];
-			var totalPay = 0;
-			var totalConversion = 0;
+			var data = {};
+			var query = {
+				id : `${req.user.id}`
+			}
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-					db.collection('conversion').find().toArray(function(err,result){
-						result.forEach((ele, i)=>{
-							if(req.user.id === ele.id){
-								totalConversion++;
-								totalPay = totalPay+ele.pay;
-							}
-							arrayList.push(ele);
-						})
-						for(var i = arrayList.length-1; i > arrayList.length-11; i--) {
-							if(i>-1){
-								dataSend.push(arrayList[i])
-							}
-						}
-						var data = {
-							"conversion"	  : dataSend,
-							"total"  		  : totalPay,
-							"totalConversion" : totalConversion,
-						};
-						res.send(data)
-					assert.equal(null,err);
-					db.close();
+					db.collection("conversion").aggregate({$match:query},{$group:{_id:null,total:{$sum:"$pay"}}},(err,totalPay)=>{
+						data.totalPay = totalPay[0].total;
+					})
+					db.collection("conversion").count(query,(err,totalConversion)=>{
+						data.totalConversion = totalConversion;
+					})
+					db.collection('conversion').find().limit(10).sort({$natural:-1}).toArray(function(err,result){
+						data.dataSend = result;
+						res.send(data);
 					});
+				assert.equal(null,err);
+				db.close();
 			});
 		}catch(e){
 			res.redirect("/")

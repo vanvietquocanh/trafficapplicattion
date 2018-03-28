@@ -8,8 +8,9 @@ Profile.prototype.setData = function(data){
 };
 Profile.prototype.setup = function(){
 	var elementHtml = "";	
-	var total = parseFloat(profile.data.total);
-	this.data.conversion.forEach( function(element, index) {
+	var totalPay = parseFloat(profile.data.totalPay);
+	console.log(this.data);
+	this.data.dataSend.forEach( function(element, index) {
 		elementHtml += `<tr role="row" class="odd fixcenter sel-items" style="color: #222">
 						<td class="sorting_1" tabindex="0" style="color: #222">${element.id}</td>
 						<td class="sorting_1" tabindex="0" style="color: #222">${element.appName}</td>
@@ -23,8 +24,8 @@ Profile.prototype.setup = function(){
 					</tr>`;
 	});
 	
-	$("#total").val(total)
-	$("#total-paid").html(total)
+	$("#total").val(totalPay)
+	$("#total-paid").html(totalPay)
 	$("#conversion").html(profile.data.totalConversion)
 	$("#just-finished").append(elementHtml);
 };

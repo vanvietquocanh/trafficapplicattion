@@ -25,8 +25,10 @@ router.get('/:parameter', function(req, res, next) {
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 				db.collection('report').findOne(query,(err,result)=>{
-					if(!err){
+					if(!err&&result){
 						savePostback(result, db)
+					}else{
+						res.send("error")
 					}
 				});
 			});

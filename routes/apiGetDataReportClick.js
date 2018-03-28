@@ -36,8 +36,10 @@ router.post('/', function(req, res, next) {
 				}
 				mongo.connect(pathMongodb,function(err,db){
 					assert.equal(null,err);
+					console.log(query);
 						db.collection('report').find(query).skip(Number(req.body.countStart)).limit(500).sort({$natural:-1}).toArray((err,result)=>{
 							if(!err){
+								console.log(result);
 								res.send(result);
 							}else{
 								res.send(err)

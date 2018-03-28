@@ -16,7 +16,7 @@ router.get('/', function(req, res, next) {
 					db.collection('userlist').findOne(query,function(err,result){
 						var download, myOffer, memSel, selNetworks;
 						if(result.admin){
-							db.collection("userlist").findOne({"isNetwork": true }, (err, result)=>{
+							db.collection("network").findOne({"isNetwork": true }, (err, result)=>{
 								selNetworks = `<select class="select-drop-blue sel-mem" name="sel-Networks" id="sel-Networks">
                                                 <option value="all">Network List</option>`;
 								result.NetworkList.forEach( function(element, index) {
