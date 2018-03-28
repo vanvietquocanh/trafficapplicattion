@@ -19,7 +19,7 @@ router.post('/', function(req, res, next) {
 			}
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-					db.collection('userlist').updateOne(query,data, {upsert: true},function(err,result){
+					db.collection('network').updateOne(query,data, {upsert: true},function(err,result){
 						if(!err){
 							res.send(true)
 						}else {

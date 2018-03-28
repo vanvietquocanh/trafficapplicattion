@@ -9,37 +9,24 @@ const pathMongodb = require("./pathDb");
 /* GET home page. */
 router.post('/', function(req, res, next) {
 	try {
-		var query1 = {
-			"dataAPITrackinglink" : true
-		}
 		function responData(db, isAdmin) {
-			db.collection('userlist').find(query1).toArray((err, result)=>{
-				var dataFilter = [];
-				var dataArray = [];
-				result.forEach( function(element, index) {
-					element.offerList.forEach( function(el, i) {
-						dataArray.push(el);
-					});
-				});
-				for(var k = new Number(req.body.start); k < new Number(req.body.end); k++){
-					if(dataArray[k]){
-						dataFilter.push(dataArray[k])
-					}else{
-						break;
+			db.collection('offer').find().skip(Number(req.body.start)).limit(500).toArray((err, result)=>{
+				if(!err){
+					var dataRes = {
+						mes : true,
+						admin  	 : {
+							isMaster : (isAdmin.master||isAdmin.admin)?true:false,
+							isAdmin  : isAdmin.admin,
+							isID 	 : isAdmin.idFacebook,
+							pending  : isAdmin.request,
+							approved : isAdmin.approved
+						},
+						offerList: result
 					}
+					res.send(dataRes)
+				}else{
+					res.send("err");
 				}
-				var dataRes = {
-					mes : true,
-					admin  	 : {
-						isMaster : (isAdmin.master||isAdmin.admin)?true:false,
-						isAdmin  : isAdmin.admin,
-						isID 	 : isAdmin.idFacebook,
-						pending  : isAdmin.request,
-						approved : isAdmin.approved
-					},
-					offerList: dataFilter
-				}
-				res.send(dataRes)
 			})
 		}
 		var query = {

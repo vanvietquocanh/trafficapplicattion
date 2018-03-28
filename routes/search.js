@@ -9,25 +9,14 @@ const pathMongodb = require("./pathDb");
 /* GET home page. */
 router.post('/', function(req, res, next) {
 	try {
-		var query1 = {
-			"dataAPITrackinglink" : true
-		}
 		function responData(db, isAdmin) {
-			db.collection('userlist').find(query1).toArray((err, result)=>{
-				var dataFilter = [];
-				result.forEach( function(list, i) {
-					list.offerList.forEach((element, index)=>{
-						if(isNaN(req.body.query)){
-							if(element.nameSet.trim().toLowerCase().indexOf(req.body.query.trim().toLowerCase())!==-1){
-								dataFilter.push(element)
-							}
-						}else{
-							if(element.index == req.body.query){
-								dataFilter.push(element)
-							}
-						}
-					})
-				});
+			var query = {};
+			if(isNaN(req.body.query)){
+				query.nameSet = new RegExp(`${req.body.query.trim()}`,"i");
+			}else{
+				query.index = Number(req.body.query);
+			}
+			db.collection('offer').find(query).toArray((err, result)=>{
 				var dataRes = {
 					admin  	 : {
 						isAdmin  : isAdmin.admin,
@@ -35,7 +24,7 @@ router.post('/', function(req, res, next) {
 						pending  : isAdmin.request,
 						approved : isAdmin.approved
 					},
-					offerList: dataFilter
+					offerList: result
 				}
 				db.close();
 				res.send(dataRes)

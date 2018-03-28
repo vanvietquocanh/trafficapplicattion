@@ -10,35 +10,22 @@ const pathMongodb = require("./pathDb");
 router.post('/', function(req, res, next) {
 	if(req.user){
 		try{
-				var query = {
-					"isConversion": true
- 				}
- 				var arrayList = [];
- 				var dataSend = [];
-				var totalPay = 0;
-				var totalConversion = 0;
+			var arrayList = [];
+			var dataSend = [];
+			var totalPay = 0;
+			var totalConversion = 0;
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-					db.collection('userlist').find(query).toArray(function(err,result){
+					db.collection('conversion').find().toArray(function(err,result){
 						result.forEach((ele, i)=>{
-							if(ele.conversion.length===1){
-								if(req.user.id === ele.conversion[0].id){
-									totalConversion++;
-									totalPay+=ele.conversion[0].pay;
-								}
-								arrayList.push(ele.conversion[0]);
-							}else{
-								ele.conversion.forEach( function(element, index) {
-									if(req.user.id === ele.conversion[0].id){
-										totalConversion++;
-										totalPay+=ele.conversion[0].pay;
-									}
-									arrayList.push(element);
-								});
+							if(req.user.id === ele.id){
+								totalConversion++;
+								totalPay = totalPay+ele.pay;
 							}
+							arrayList.push(ele);
 						})
 						for(var i = arrayList.length-1; i > arrayList.length-11; i--) {
-							if(i>0){
+							if(i>-1){
 								dataSend.push(arrayList[i])
 							}
 						}

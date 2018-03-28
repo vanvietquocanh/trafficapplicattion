@@ -18,14 +18,18 @@ router.post('/', function(req, res, next) {
 				var query = {
 					"isOfferCustom": true
 				}
-				db.collection('userlist').findOne(query, (err,result)=>{
+				db.collection('offer').findOne(query, (err,result)=>{
 					var dataResponse = [];
-					result.offerList.forEach(function(val, index) {
-						if(orderRes(val)){
-							dataResponse.push(val)
-						}
-					});
+					if(result!==null&&result.offerList.length>0){
+						result.offerList.forEach(function(val, index) {
+							if(orderRes(val)){
+								dataResponse.push(val)
+							}
+						});
 						res.send(dataResponse.splice(req.body.start, 500))
+					}else{
+						res.send("")
+					}
 					assert.equal(null,err);
 					db.close();
 				});

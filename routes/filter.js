@@ -9,28 +9,22 @@ const pathMongodb = require("./pathDb");
 /* GET home page. */
 router.post('/', function(req, res, next) {
 	try {
-		var query1 = {
-			"dataAPITrackinglink" : true
-		}
-		function preFixCountry(country1, country2){
-			console.log();
-			if (country2.split("|").length===2){
-				return country1.trim().toLowerCase().indexOf(country2.split("|")[0]) !== -1
-					|| country1.trim().toLowerCase().indexOf(country2.split("|")[1]) !== -1;		
+		function preFixCountry(country1){
+			if (country1.split("|").length===2){
+				return {$or:[{countrySet: new RegExp(`${country1.split("|")[0]}`,"i")}, {countrySet:new RegExp(`${country1.split("|")[0]}`,"i")}]};		
 			}else{
-				return country1.trim().toLowerCase().indexOf(country2) !== -1;
+				return {countrySet : new RegExp(country1,"i")};
 			}
 		}
 		function responData(db, isAdmin) {
-			db.collection('userlist').find(query1).toArray((err, result)=>{
-				var dataFilter = [];
-				result.forEach( function(app, index) {
-					app.offerList.forEach( function(items, i) {
-						if(items.platformSet.toLowerCase().indexOf(req.body.OS.toLowerCase())!==-1 && preFixCountry(items.countrySet, req.body.country)){
-							dataFilter.push(items)
-						}
-					});
-				});
+			var query1 = {};
+			if(req.body.country){
+				query1 = preFixCountry(req.body.country.toUpperCase());
+			}
+			if(req.body.OS){
+				query1.platformSet = req.body.OS.toLowerCase();
+			}
+			db.collection('offer').find(query1).skip(Number(req.body.start)).limit(500).toArray((err, result)=>{
 				var dataRes = {
 					admin  	 : {
 						isAdmin  : isAdmin.admin,
@@ -38,7 +32,7 @@ router.post('/', function(req, res, next) {
 						pending  : isAdmin.request,
 						approved : isAdmin.approved
 					},
-					offerList: dataFilter
+					offerList: result
 				}
 				db.close();
 				res.send(dataRes)

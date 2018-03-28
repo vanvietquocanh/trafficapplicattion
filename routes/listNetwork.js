@@ -14,7 +14,7 @@ router.post('/', function(req, res, next) {
 			}
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-					db.collection('userlist').findOne(query, function(err,result){
+					db.collection('network').findOne(query, function(err,result){
 						if(!err){
 							res.send(result)
 						}else {

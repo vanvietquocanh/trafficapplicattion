@@ -226,9 +226,11 @@ API.prototype.getNetworkList = function(){
 		api.setNetwork(data);
 		renderNetwork.empty();
 		api.removeEvent();
-		api.netWork.NetworkList.forEach( function(val, index) {
-			api.attachedNetworkToDom(val, index)
-		});
+		if(api.netWork.NetworkList!==undefined&&api.netWork.NetworkList.length>0){
+			api.netWork.NetworkList.forEach( function(val, index) {
+				api.attachedNetworkToDom(val, index)
+			});
+		}
 		api.addEventEditer();
 	});
 };

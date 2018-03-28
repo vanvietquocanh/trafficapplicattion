@@ -31,19 +31,19 @@ router.post('/', function(req, res, next) {
 		});
 		return value;
 	};
-	RequestAPI.prototype.callRequestGet = (network, db, query) =>{
+	RequestAPI.prototype.callRequestGet = (network, db) =>{
 		try {
 			request.get({
 			    url: network.link
 			}, function (err, respon) {
 				if(requestApi.loopOrder(respon, network)){
-			   		requestApi.changeData(network, db, query, respon.body)
+			   		requestApi.changeData(network, db, respon.body)
 				}else{
-					requestApi.callRequestGet(network, db, query);
+					requestApi.callRequestGet(network, db);
 				}
 			});
 		} catch(e) {
-			requestApi.callRequestGet(network, db, query);
+			requestApi.callRequestGet(network, db);
 		}
 	}
 	RequestAPI.prototype.changeKeyOject = function(respon, network, indexOfferNext) {
@@ -61,31 +61,26 @@ router.post('/', function(req, res, next) {
 				dataChecker[z][`${Object.keys(network.custom)[j].trim()}`] = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 				delete dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 			}
-			dataChecker[z].countSmart = 0;
 			dataChecker[z].index = new Number(indexOfferNext) + z;
 			requestApi.arrayDadaPushToDatabase.push(dataChecker[z])
 		}//this is loop change keys of value;
 	};
-	RequestAPI.prototype.changeData = (network, db, query, respon) =>{
-			db.collection("userlist").find({"dataAPITrackinglink":true}).toArray((err, result)=>{
+	RequestAPI.prototype.changeData = (network, db, respon) =>{
+			db.collection("offer").find().toArray((err, result)=>{
 				var date = new Date().getTime();
 				var indexOfferNext = 0;
 		    	if(result.length>0){
-		    		result.forEach( function(element, index) {
-			    		element.offerList.forEach( function(app, i) {
-							if(indexOfferNext < app.index){
-								indexOfferNext = app.index;
-							}
-			    		});
+		    		result.forEach( function(app, index) {
+						if(indexOfferNext < app.index){
+							indexOfferNext = app.index;
+						}
 			    	});
 		    	}
 				if(!err){
 					if(result.length>1){
-						if(result[0].offerList.length>0||result[1].offerList.length>0){
+						if(result.length>0||result.length>0){
 							result.forEach( function(element, index) {
-								element.offerList.forEach( function(app, i) {
-									requestApi.totalArray.push(app);
-								});
+								requestApi.totalArray.push(element);
 							});
 							requestApi.dataSave = requestApi.totalArray;
 							requestApi.changeKeyOject(respon, network, indexOfferNext);
@@ -100,59 +95,14 @@ router.post('/', function(req, res, next) {
 								requestApi.arrayDadaPushToDatabase.splice(requestApi.arIndexDel[i], 1)
 							}
 							var countLengthOfferList = requestApi.dataSave.length;
-							var dataSave = {
-								"dataAPITrackinglink" : true,
-								"time" : date,
-								"isOfNetWork" : true,
-								"netWorkName" : network.name,
-					    		"offerList" : requestApi.arrayDadaPushToDatabase
-					    	}
-					    	db.collection('userlist').insertOne(dataSave, (err,result)=>{
-					    		if(!err){
-					    			if(requestApi.countRequest===requestApi.countCustomInNetwork){
-										db.collection("userlist").find({"dataAPITrackinglink" : true}).toArray((err, result)=>{
-											if(result.length>1){
-												result.forEach( function(element, index) {
-													element.offerList.forEach( function(app, id) {
-														var countryFix;
-														if(app.countrySet.length>3){
-															countryFix = app.countrySet.split("|").join(',');
-														}else{
-															countryFix = app.countrySet;
-														}
-														requestApi.textWrite += `http://${req.headers.host}/checkparameter/?offer_id=${app.index}&aff_id=${req.user.id}|${countryFix}|${app.platformSet.toUpperCase()}\r\n`;
-													});
-												});
-											}
-											fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{
-												if(err) throw err;
-											});
-											res.send("Successfully saved MongoDB data!");
-										})
-									}
-					    		}else{
-					    			res.send("Error connect Database. Please retry!!!")
-					    		}
-							})
-						}
-					}else{
-						if(respon!==undefined){
-						    try{
-								requestApi.changeKeyOject(respon, network, indexOfferNext);
-								var dataSave = {
-						    		"dataAPITrackinglink" : true,
-									"time" : date,
-									"isOfNetWork" : true,
-									"netWorkName" : network.name,
-						    		"offerList": requestApi.arrayDadaPushToDatabase
-						    	}
-								db.collection('userlist').insertOne(dataSave ,(err,result)=>{
-									if(!err){
-										if(requestApi.countRequest===requestApi.countCustomInNetwork){
-											db.collection("userlist").find({"dataAPITrackinglink" : true}).toArray((err, result)=>{
+							if(requestApi.arrayDadaPushToDatabase.length>0){
+						    	db.collection('offer').insertMany(requestApi.arrayDadaPushToDatabase, (err,result)=>{
+						    		if(!err){
+						    			if(requestApi.countRequest===requestApi.countCustomInNetwork){
+											db.collection("offer").find({"dataAPITrackinglink" : true}).toArray((err, result)=>{
 												if(result.length>1){
 													result.forEach( function(element, index) {
-														element.offerList.forEach( function(app, id) {
+														element.forEach( function(app, id) {
 															var countryFix;
 															if(app.countrySet.length>3){
 																countryFix = app.countrySet.split("|").join(',');
@@ -164,54 +114,88 @@ router.post('/', function(req, res, next) {
 													});
 												}
 												fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{
-													if(err){
-														throw err;
-													}else {
-														res.send("Successfully saved MongoDB data!");
-													}
+													if(err) throw err;
 												});
+												res.send("Successfully saved MongoDB data!");
 											})
 										}
-									}
+						    		}else{
+						    			console.log(err)
+						    			res.send("Error connect Database. Please retry!!!")
+						    		}
 								})
+							}
+						}
+					}else{
+						if(respon!==undefined){
+						    try{
+								requestApi.changeKeyOject(respon, network, indexOfferNext);
+								if(requestApi.arrayDadaPushToDatabase.length>0){
+									db.collection('offer').insertMany(requestApi.arrayDadaPushToDatabase ,(err,result)=>{
+										if(!err){
+											if(requestApi.countRequest===requestApi.countCustomInNetwork){
+												db.collection("userlist").find({"dataAPITrackinglink" : true}).toArray((err, result)=>{
+													if(result.length>1){
+														result.forEach( function(element, index) {
+															element.offerList.forEach( function(app, id) {
+																var countryFix;
+																if(app.countrySet.length>3){
+																	countryFix = app.countrySet.split("|").join(',');
+																}else{
+																	countryFix = app.countrySet;
+																}
+																requestApi.textWrite += `http://${req.headers.host}/checkparameter/?offer_id=${app.index}&aff_id=${req.user.id}|${countryFix}|${app.platformSet.toUpperCase()}\r\n`;
+															});
+														});
+													}
+													fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{
+														if(err){
+															throw err;
+														}else {
+															res.send("Successfully saved MongoDB data!");
+														}
+													});
+												})
+											}
+										}else{
+											console.log(err)
+										}
+									})
+								}
 							}catch(e){
 								res.send("Error connect Database. Please retry!!!")
 							}
-							
 						}
 					}
 				}
 		})
 	}
-	RequestAPI.prototype.callRequestPost = (network, db, query) =>{
+	RequestAPI.prototype.callRequestPost = (network, db) =>{
 		try {
 			request.post({
 			    url: network.link
 			}, function (err, respon) {
 				countRequestAuto++;
 				if(requestApi.loopOrder(respon, network)){
-			   		requestApi.changeData(network, db, query, respon.body)
+			   		requestApi.changeData(network, db, respon.body)
 				}else{
-					requestApi.callRequestPost(network, db, query);
+					requestApi.callRequestPost(network, db);
 				}
 			});
 		} catch(e) {
-			requestApi.callRequestPost(network, db, query);
+			requestApi.callRequestPost(network, db);
 		}
 	}
 	RequestAPI.prototype.requetEmpty = (network, db) =>{
-		var query = {
-						"dataAPITrackinglink" : true
-					}
 		network.forEach((api, index)=>{
 			if(api.custom){
 				requestApi.countCustomInNetwork++;
 				switch (api.method) {
 					case "GET":
-							requestApi.callRequestGet(api, db, query)
+							requestApi.callRequestGet(api, db)
 						break;
 					case "POST":
-							requestApi.callRequestPost(api, db, query)
+							requestApi.callRequestPost(api, db)
 						break;
 				}
 			}
@@ -222,7 +206,7 @@ router.post('/', function(req, res, next) {
 			let query = {
 				"isNetwork" : true
 			}
-			db.collection("userlist").findOne(query, (err, result)=>{
+			db.collection("network").findOne(query, (err, result)=>{
 				requestApi.requetEmpty(result.NetworkList, db)
 			})
 		}

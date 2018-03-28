@@ -12,56 +12,36 @@ router.post('/', function(req, res, next) {
 				var date = data.split(" - ")[0].split(":").concat(data.split(" - ")[1].split("/"));
 				return new Date(date[5], date[4]-1, date[3], date[0], date[1], date[2]).getTime();
 			}
-			function orderRes(val, condition) {
-				var conditionDate;
-				if(req.body.startDate!==""||req.body.endDate!==""){
-					conditionDate = req.body.endDate>=changeTime(val.time)
-								 && req.body.startDate<= changeTime(val.time);
-				}else {
-					conditionDate = true;
-				}
-				if(condition){
-					return val.platfrom.toLowerCase().indexOf(req.body.platform.toLowerCase())!==-1 
-						&& val.country.toLowerCase().indexOf(req.body.country.toLowerCase())!==-1
-						&& val.name.toLowerCase().indexOf(req.body.member)!==-1
-						&& (val.appName.toLowerCase().indexOf(req.body.querySearch)!==-1 || val.idOffer.indexOf(req.body.querySearch)!==-1)
-						&& conditionDate;
+			function preFixCountry(country1){
+				if (country1.split("|").length===2){
+					return {$or:[{country: new RegExp(`${country1.split("|")[0]}`,"i")}, {country:new RegExp(`${country1.split("|")[0]}`,"i")}]};		
 				}else{
-					return val.id == req.user.id
-						&& val.platfrom.toLowerCase().indexOf(req.body.platform.toLowerCase())!==-1 
-						&& val.country.toLowerCase().indexOf(req.body.country.toLowerCase())!==-1
-						&& val.name.toLowerCase().indexOf(req.body.member)!==-1
-						&& (val.appName.toLowerCase().indexOf(req.body.querySearch)!==-1 || val.idOffer.indexOf(req.body.querySearch)!==-1)
-						&& conditionDate;
+					return {country : new RegExp(country1,"i")};
 				}
 			}
 			function responseReportClick(condition, db) {
-				var query = {
-					"isConversion": true
+				var query = {};
+				if(req.body.country){
+					query = preFixCountry(req.body.country.toUpperCase());
+				}
+				if(req.body.platform){
+					query.platfrom = new RegExp(req.body.platform, "i") ;
+				}
+				if(req.body.querySearch){
+					query.appName = new RegExp(req.body.querySearch,"i")
+				}
+				if(condition.master||condition.member){
+					query.name = condition.profile.displayName;
 				}
 				try {
-					db.collection('userlist').find(query).toArray((err,result)=>{
-						var dataResponse = [];
-						if(result!==undefined){
-							result.forEach( function(element, index) {
-								if(element.conversion.length!==undefined){
-									if(element.conversion.length>0){
-										element.conversion.forEach( function(click, i) {
-											if(orderRes(click, condition)){		
-												dataResponse.push(click)
-											}		
-										});
-									}
-								}else{
-									if(orderRes(element.report, condition)){
-										dataResponse.push(element.report)
-									}
-								}
-							});
-							res.send(dataResponse.splice(req.body.countStart, 500))
-							assert.equal(null,err);
-							db.close();
+					db.collection('conversion').find(query).skip(Number(req.body.countStart)).limit(500).sort({$natural:-1}).toArray((err,result)=>{
+						if(!err){
+							res.send(result);
+						}else{
+							res.send(err)
 						}
+						assert.equal(null,err);
+						db.close();
 					});
 				} catch(e) {
 					res.redirect("/")
@@ -74,7 +54,7 @@ router.post('/', function(req, res, next) {
 				assert.equal(null, err);
 					db.collection("userlist").findOne(userRequest, (err,result)=>{
 						if(!err){
-							responseReportClick(result.admin, db)
+							responseReportClick(result, db)
 						}
 					})
 			})

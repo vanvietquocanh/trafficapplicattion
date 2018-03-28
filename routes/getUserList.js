@@ -21,7 +21,9 @@ router.get('/', function(req, res, next) {
 								"isUser" : true
 							};
 							db.collection('useradd').find(querysearchUser).toArray((err, result)=> {
-								res.send(result)
+								if(!err){
+									res.send(result)
+								}
 							});					
 						}else{
 							res.redirect("/")

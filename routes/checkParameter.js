@@ -7,23 +7,14 @@ const pathMongodb = require("./pathDb");
 var request = require("request");
 var geoip = require('geoip-lite');
 router.get('/', function(req, res, next) {
-	function getClientAddress(request){ 
-	    with(request)
-	        return req.headers["x-real-ip"];
-	}
 	function save(dataUpdate, link) {
-		var data = {
-			"isReportClick" : true,
-			"seconds" 	    : new Date().getTime(),
-			"report" 	 	: dataUpdate
-		}
-			mongo.connect(pathMongodb, (err, db)=>{
-				assert.equal(null,err);
-				db.collection('userlist').insertOne(data, function(err,result){
-					res.redirect(link)
-					res.end();
-				assert.equal(null,err);
-				db.close();
+		mongo.connect(pathMongodb, (err, db)=>{
+			assert.equal(null,err);
+			db.collection('report').insertOne(dataUpdate, function(err,result){
+				res.redirect(link)
+				res.end();
+			assert.equal(null,err);
+			db.close();
 			})		
 		})
 	}
@@ -31,7 +22,7 @@ router.get('/', function(req, res, next) {
 		var queryNetwork = {
 			"isNetwork" : true
 		}
-		var ip = getClientAddress(req);
+		var ip = req.headers["x-real-ip"];
 		var today = new Date();
 		var strToday = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()} - ${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
 		var strRandom = randomstring.generate();
@@ -54,24 +45,28 @@ router.get('/', function(req, res, next) {
             "networkName": data.nameNetworkSet,
             "idOfferNet" : data.offeridSet
 		}
-		mongo.connect(pathMongodb,function(err,db){
-			assert.equal(null,err);
-				db.collection('userlist').findOne(queryNetwork, function(err,result){
-					if(!err){
-						if(result.NetworkList.length!==0){
-							for(let x = 0; x < result.NetworkList.length; x++){
-								if(app.nameNetworkSet.toLowerCase().indexOf(result.NetworkList[x].name.toLowerCase())!==-1){
-									var link = `${app.urlSet}+&${result.NetworkList[x].postback}=${strRandom}`;
-										save(dataUpdate,link)
-									break;
+		try {
+			mongo.connect(pathMongodb,function(err,db){
+				assert.equal(null,err);
+					db.collection('network').findOne(queryNetwork, function(err,result){
+						if(!err){
+							if(result.NetworkList.length!==0){
+								for(let x = 0; x < result.NetworkList.length; x++){
+									if(app.nameNetworkSet.toLowerCase().indexOf(result.NetworkList[x].name.toLowerCase())!==-1){
+										var link = `${app.urlSet}+&${result.NetworkList[x].postback}=${strRandom}`;
+											save(dataUpdate,link)
+										break;
+									}
 								}
 							}
 						}
-					}
-				assert.equal(null,err);
-				db.close();
+					assert.equal(null,err);
+					db.close();
+				});
 			});
-		});
+		} catch(e) {
+			console.log(e);
+		}
 	}
 	try {
 		function checkIpAddress(app, geoVal){
@@ -104,45 +99,25 @@ router.get('/', function(req, res, next) {
 		console.log(e);
 	}
 	function checkInCvr(app, person, db) {
-		db.collection("userlist").find({"isConversion":true}).toArray((err, result)=>{
-			var data = [];
-			var equalsCVR = [];
-			result.forEach( function(element, i) {
-				element.conversion.forEach( function(ele, index) {
-					data.push(ele)
-				});
-			});
-			if(data.length>0){
-				data.forEach( function(ele, index) {
-					if(ele.idOffer == req.query.offer_id && ele.ip == req.headers["x-real-ip"]){
-						equalsCVR.push(ele)
-					}
-					if(data.length-1===index){
-						if(equalsCVR.length === 0){
-							checkPostback(app, person, db);
-						}else{
-							res.send("This blacklisted ip is already banned from our system. Please contact to your ISP for re-cleaning it")
-						}
-					}
-				});
-			}else{
+		var query = {
+			ip  	: req.headers["x-real-ip"],
+			idOffer : req.query.offer_id
+		}
+		db.collection("conversion").find(query).toArray((err, result)=>{
+			if(result.length === 0){
 				checkPostback(app, person, db);
+			}else{
+				res.send("This blacklisted ip is already banned from our system. Please contact to your ISP for re-cleaning it")
 			}
 		})
 	}
 	function checkApp(profile, db) {
 		var querySearchOffer = {
-			"dataAPITrackinglink" : true
+			"index" : Number(req.query.offer_id)
 		}
-		db.collection('userlist').find(querySearchOffer).toArray((err,result)=>{
+		db.collection('offer').findOne(querySearchOffer, (err,result)=>{
 			if(!err){
-				for(var j = 0; j<result.length;j++){
-					for(var i =0; i<result[j].offerList.length; i++){
-						if(result[j].offerList[i].index == req.query.offer_id){
-							checkInCvr(result[j].offerList[i], profile, db);
-						}
-					}
-				}
+				checkInCvr(result, profile, db);
 			}else{
 				res.redirect("/")
 			}
@@ -154,7 +129,7 @@ router.get('/', function(req, res, next) {
 		}
 		mongo.connect(pathMongodb,function(err,db){
 			assert.equal(null,err);
-				db.collection('userlist').findOne(query, function(err,result){
+				db.collection('userlist').findOne(query, function(err,result){	
 					if(!err){
 						if(result.profile){
 							checkApp(result, db)

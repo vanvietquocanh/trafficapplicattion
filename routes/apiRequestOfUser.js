@@ -20,7 +20,7 @@ router.post('/', function(req, res, next) {
 	 		var strToday = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()} - ${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-					db.collection('userlist').find(queryAPp).toArray(function(err,result){
+					db.collection('offer').find(queryAPp).toArray(function(err,result){
 						if(!err&&result.length>0){
 							var dataSet;
 							result.forEach( function(element, index) {

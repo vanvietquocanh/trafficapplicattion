@@ -9,53 +9,39 @@ const pathMongodb = require("./pathDb");
 router.post('/', function(req, res, next) {
 	if(req.user){
 		try {
+			function preFixCountry(country1){
+				if (country1.split("|").length===2){
+					return {$or:[{country: new RegExp(`${country1.split("|")[0]}`,"i")}, {country:new RegExp(`${country1.split("|")[0]}`,"i")}]};		
+				}else{
+					return {country : new RegExp(country1,"i")};
+				}
+			}
 			function changeTime(data) {
 				var date = data.split(" - ")[0].split(":").concat(data.split(" - ")[1].split("/"));
 				return new Date(date[5], date[4]-1, date[3], date[0], date[1], date[2]).getTime();
 			}
-			function orderRes(val, condition) {
-				var conditionDate;
-				if(req.body.startDate!==""||req.body.endDate!==""){
-					conditionDate = req.body.endDate>=changeTime(val.time)
-								 && req.body.startDate<= changeTime(val.time);
-				}else {
-					conditionDate = true;
-				}
-				if(condition.admin){
-					return val.platfrom.toString().toLowerCase().indexOf(req.body.platform.toLowerCase())!==-1 
-						&& val.country.toString().toLowerCase().indexOf(req.body.country.toLowerCase())!==-1
-						&& (val.appName.toString().toLowerCase().indexOf(req.body.querySearch)!==-1 || val.idOffer.indexOf(req.body.querySearch)!==-1)
-						&& conditionDate
-				}else{
-					return val.id === req.user.id
-						&& val.platfrom.toString().toLowerCase().indexOf(req.body.platform.toLowerCase())!==-1 
-						&& val.country.toString().toLowerCase().indexOf(req.body.country.toLowerCase())!==-1
-						&& (val.appName.toString().toLowerCase().indexOf(req.body.querySearch)!==-1 || val.idOffer.indexOf(req.body.querySearch)!==-1)
-						&& conditionDate;
-				}
-			}
 			function responseReportClick(condition) {
-				var query = {
-					"isReportClick": true
+				var query = {};
+				if(req.body.country){
+					query = preFixCountry(req.body.country.toUpperCase());
+				}
+				if(req.body.platform){
+					query.platfrom = new RegExp(req.body.platform, "i") ;
+				}
+				if(req.body.querySearch){
+					query.appName = new RegExp(req.body.querySearch,"i")
+				}
+				if(condition.master||condition.member){
+					query.name = condition.profile.displayName;
 				}
 				mongo.connect(pathMongodb,function(err,db){
 					assert.equal(null,err);
-						db.collection('userlist').find(query).toArray((err,result)=>{
-							var dataResponse = [];
-							result.forEach( function(element, index) {
-								if(element.report.length!==undefined){
-									element.report.forEach( function(click, i) {
-										if(orderRes(click, condition)){		
-											dataResponse.push(click)
-										}		
-									});
-								}else{
-									if(orderRes(element.report, condition)){
-										dataResponse.push(element.report)
-									}
-								}
-							});
-							res.send(dataResponse.splice(req.body.countStart, 500))
+						db.collection('report').find(query).skip(Number(req.body.countStart)).limit(500).sort({$natural:-1}).toArray((err,result)=>{
+							if(!err){
+								res.send(result);
+							}else{
+								res.send(err)
+							}
 						assert.equal(null,err);
 						db.close();
 					});

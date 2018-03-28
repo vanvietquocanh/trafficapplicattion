@@ -9,7 +9,7 @@ var platform = $('#os');
 var addoffer = new AddOffer();
 var fromAddOffer = $(".custNet");
 function AddOffer() {
-	this.data;
+	this.data = [];
 	this.arrayList = [];
 	this.page = 0;
 	this.countStart = 0;

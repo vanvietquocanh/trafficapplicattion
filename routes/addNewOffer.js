@@ -17,7 +17,7 @@ router.post('/', function(req, res, next) {
 			}
 			function updateDB(db) {
 				var dataOffer = 0;
-				db.collection('userlist').find(querySearchOffer).toArray((err,resultOfferList)=>{
+				db.collection('offer').find(querySearchOffer).toArray((err,resultOfferList)=>{
 					if(!err){
 						resultOfferList.forEach( function(list, index) {
 							list.offerList.forEach( function(app, i) {
@@ -45,7 +45,7 @@ router.post('/', function(req, res, next) {
 								}
 							}
 						}
-						db.collection('userlist').updateOne(query, dataSet,(err,result)=>{
+						db.collection('offer').updateOne(query, dataSet,(err,result)=>{
 							if(!err){
 								res.send(req.body)
 							}else{

@@ -29,21 +29,21 @@ router.get('/:value', function(req, res, next) {
 			CVR.prototype.connectMongo = function() {
 				mongo.connect(pathMongodb, (err, db)=>{
 					assert.equal(null, err);
-					db.collection("userlist").find(offerList).toArray((err, result)=>{
+					db.collection("offer").find(offerList).toArray((err, result)=>{
 						if(!err){
 							result.forEach(function(element, index) {
 								element.offerList.forEach(function(ele, i) {
 									cvr.listOffer.push(ele)
 								});
 							});
-							db.collection("userlist").find(queryConversion).toArray((err,result)=>{
+							db.collection("conversion").find(queryConversion).toArray((err,result)=>{
 								if(!err){
 									result.forEach(function(element, index) {
 										element.conversion.forEach(function(ele, i) {
 											cvr.conversion.push(ele)
 										});
 									});
-									db.collection("userlist").find(queryClick).toArray((err, result)=>{
+									db.collection("report").find(queryClick).toArray((err, result)=>{
 										if(!err){
 											result.forEach(function(element, index) {
 												if(element.report.length!==undefined){
