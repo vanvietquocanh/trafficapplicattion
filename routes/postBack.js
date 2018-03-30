@@ -9,6 +9,7 @@ router.get('/:parameter', function(req, res, next) {
 	if(req.params.parameter==="eventdata"&&req.query.transaction_id!==undefined){
 		try {
 			function savePostback(data, db) {
+				data.enable = false;
 				db.collection("conversion").insertOne(data, (err, result)=>{
 					if(!err){
 						res.send(JSON.stringify({"message": "Ok!"}))

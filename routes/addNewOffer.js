@@ -9,47 +9,18 @@ const pathMongodb = require("./pathDb");
 router.post('/', function(req, res, next) {
 	if(req.user){
 		try {
-			var query = {
-				"isOfferCustom": true
-			}
-			var querySearchOffer = {
-				"dataAPITrackinglink" : true
-			}
 			function updateDB(db) {
 				var dataOffer = 0;
-				db.collection('offer').find(querySearchOffer).toArray((err,resultOfferList)=>{
+				db.collection('offer').find().sort({index:-1}).limit(1).toArray((err,resultOfferList)=>{
 					if(!err){
-						resultOfferList.forEach( function(list, index) {
-							list.offerList.forEach( function(app, i) {
-								if(dataOffer < app.index){
-									dataOffer = app.index;
-								}
-							});
-						});
-						var dataSet;
-						if(req.body.data !== undefined){
-							req.body.data.forEach( function(element, index) {
-								if(element.index===undefined){
-									element.index = new Number(dataOffer)+1;
-								}
-							});
-							dataSet = {
-								$set : {
-									offerList : req.body.data
-								}
-							}
-						}else{
-							dataSet = {
-								$set : {
-									offerList : []
-								}
-							}
+						if(resultOfferList.length>0){
+							req.body.data[0].index = resultOfferList[0].index;
 						}
-						db.collection('offer').updateOne(query, dataSet,(err,result)=>{
+						db.collection('offer').insertOne(req.body.data[0], (err,result)=>{
 							if(!err){
 								res.send(req.body)
 							}else{
-
+								res.send(err)
 							}
 						});
 					}
@@ -62,7 +33,7 @@ router.post('/', function(req, res, next) {
 				assert.equal(null, err);
 					db.collection("userlist").findOne(userRequest, (err,result)=>{
 						if(result.admin){
-						 updateDB(db)
+							updateDB(db)
 						}else {
 							res.redirect("/")
 						}

@@ -301,6 +301,7 @@ $("#Confirm").click((e)=>{
 	if($("#netName").val()&&$("#OfferID").val()&&$("#Platform").val()&&$("#Thumbnail").val()&&$("#Name").val()&&$("#Url").val()&&$("#Payout").val()&&$("#Cap").val()&&$("#Country").val()){
 		if(confirmAddCustom){
 			var dataSetToNetwork = {
+				isOfferCustom  : true,
 				offeridSet     : $("#OfferID").val(),
 				platformSet    : $("#Platform").val(),
 				imgSet     	   : $("#Thumbnail").val(),
@@ -325,7 +326,7 @@ $("#Confirm").click((e)=>{
 				edit = "edit";
 			}
 			var dataSend = {
-				data : addoffer.data,
+				data : addoffer.data[addoffer.data.length-1],
 				method : edit,
 				index : addoffer.indexEdit
 			}
@@ -352,6 +353,11 @@ addBtn.click(function(event) {
 	$("#netName").val("");
 	addoffer.indexEleClick = -1;
 	fromAddOffer.fadeIn('slow');
+});
+search.keypress(function(event) {
+	if(event.key==="Enter"||event.keyCode===13){
+		btnSearch.click();
+	}
 });
 btnSearch.click(function(event) {
 	addoffer.searchMethod = true;

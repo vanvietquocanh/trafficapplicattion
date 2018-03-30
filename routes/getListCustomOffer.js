@@ -9,29 +9,35 @@ const pathMongodb = require("./pathDb");
 router.post('/', function(req, res, next) {
 	if(req.user){
 		try {
-			function orderRes(val) {
-				return val.platformSet.toLowerCase().indexOf(req.body.filter.platform.toLowerCase())!==-1 
-					&& val.countrySet.toLowerCase().indexOf(req.body.filter.country.toLowerCase())!==-1
-					&& val.nameSet.toLowerCase().indexOf(req.body.search)!==-1
-			}
 			function responseReportClick(db) {
 				var query = {
-					"isOfferCustom": true
+					"isOfferCustom": "true"
 				}
-				db.collection('offer').findOne(query, (err,result)=>{
-					var dataResponse = [];
-					if(result!==null&&result.offerList.length>0){
-						result.offerList.forEach(function(val, index) {
-							if(orderRes(val)){
-								dataResponse.push(val)
-							}
-						});
-						res.send(dataResponse.splice(req.body.start, 500))
+				if(req.body.filter.platform){
+					query.platformSet = new RegExp(req.body.filter.platform,"i")
+				}
+				if(req.body.filter.country){
+					query.countrySet = new RegExp(req.body.search,"i")
+				}
+				if(req.body.search){
+					if(isNaN(req.body.search)){
+						query.nameSet = new RegExp(req.body.search,"i");
 					}else{
-						res.send("")
+						query.index = new RegExp(req.body.search,"i")
 					}
-					assert.equal(null,err);
-					db.close();
+				}
+				console.log(query);
+				db.collection('offer').find(query).skip(Number(req.body.start)).limit(500).toArray((err,result)=>{
+						console.log(result, err);
+					if(!err){
+						if(result.length>0){
+							res.send(result)
+						}else{
+							res.send("")
+						}
+						assert.equal(null,err);
+						db.close();
+					}
 				});
 			}
 			var userRequest = {

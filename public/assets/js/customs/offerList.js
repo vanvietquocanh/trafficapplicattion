@@ -175,6 +175,7 @@ SortItems.prototype.countPage = function(){
 	sortItems.renderPage(sortItems.page, paginationString);
 };
 SortItems.prototype.newPagination = function(page){
+	sortItems.deleventShowbtn();
 	var paginationString = `<ul class="pagination auto-pagination pull-right m-t-lg">
                                 <li class="prev-page disabled">
                                 	<a class="pagination-items">‹</a>
@@ -237,7 +238,6 @@ SortItems.prototype.renderPage = function(page, pagination){
 		}
 	})
 	sortItems.delEventDown();
-	sortItems.deleventShowbtn();
 	sortItems.eventDown();
 	sortItems.eventShowbtn();
 	sortItems.pending.forEach((items, index)=>{
@@ -360,6 +360,11 @@ filterBtn.click(function(event) {
 			});
 		}
 		filterRq()
+	}
+});
+search.keypress(function(event) {
+	if(event.key==="Enter"||event.keyCode===13){
+		btnSearch.click();
 	}
 });
 btnSearch.click(function(event) {

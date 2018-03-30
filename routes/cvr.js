@@ -7,17 +7,8 @@ const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.get('/:value', function(req, res, next) {
-	if(req.params.value==="data"){
+	if(req.params.value==="cvr"){
 		try {
-			var queryConversion = {
-				"isConversion" : true
-			}
-			var queryClick = {
-				"isReportClick": true
-			}
-			var offerList = {
-				"dataAPITrackinglink" : true
-			}
 			var cvr = new CVR();
 			function CVR(){
 				this.conversion = [];
@@ -29,30 +20,20 @@ router.get('/:value', function(req, res, next) {
 			CVR.prototype.connectMongo = function() {
 				mongo.connect(pathMongodb, (err, db)=>{
 					assert.equal(null, err);
-					db.collection("offer").find(offerList).toArray((err, result)=>{
+					db.collection("offer").find().toArray((err, result)=>{
 						if(!err){
 							result.forEach(function(element, index) {
-								element.offerList.forEach(function(ele, i) {
-									cvr.listOffer.push(ele)
-								});
+								cvr.listOffer.push(element)
 							});
-							db.collection("conversion").find(queryConversion).toArray((err,result)=>{
+							db.collection("conversion").find().toArray((err,result)=>{
 								if(!err){
 									result.forEach(function(element, index) {
-										element.conversion.forEach(function(ele, i) {
-											cvr.conversion.push(ele)
-										});
+										cvr.conversion.push(element)
 									});
-									db.collection("report").find(queryClick).toArray((err, result)=>{
+									db.collection("report").find().toArray((err, result)=>{
 										if(!err){
 											result.forEach(function(element, index) {
-												if(element.report.length!==undefined){
-													element.report.forEach(function(ele, i) {
-														cvr.click.push(ele)
-													});
-												}else{
-													cvr.click.push(element.report)
-												}
+												cvr.click.push(element)
 											});
 											cvr.checkInConversion()
 										}
@@ -97,7 +78,7 @@ router.get('/:value', function(req, res, next) {
 							countCVR++;
 						}
 					}
-					arrayCheck[arrayCheck.length-1].cvr = parseFloat(Math.round(countCVR/arrayCheck[arrayCheck.length-1].click*100000)/1000)+"%";
+					arrayCheck[arrayCheck.length-1].cvr = (Math.round(countCVR/arrayCheck[arrayCheck.length-1].click*100),2).toFixed(2)+"%";
 					if(j===data.length-1){
 						cvr.checkLinkApp(arrayCheck)
 					}
@@ -106,10 +87,11 @@ router.get('/:value', function(req, res, next) {
 			CVR.prototype.checkLinkApp = function(data) {
 				var dataResponClient = [];
 				data.forEach(function(element, index) {
+					console.log(element)
 					cvr.listOffer.forEach( function(ele, i) {
-						if(cvr.orderLead(element,ele)){
+						if(cvr.orderLead(element,ele)&&i===0){
 							element.link = `https://${req.headers.host}//checkparameter/?offer_id=${i}&aff_id={FacebookID}`
-							dataResponClient.push(element)
+							dataResponClient.push(element);
 						}
 					});
 				});
@@ -132,6 +114,8 @@ router.get('/:value', function(req, res, next) {
 		} catch(e) {
 			console.log(e);
 		}
+	}else{
+		res.send("error")
 	}
 });
 

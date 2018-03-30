@@ -43,7 +43,8 @@ router.get('/', function(req, res, next) {
             "pay"	  	 : data.paySet,
             "platfrom"	 : data.platformSet,
             "networkName": data.nameNetworkSet,
-            "idOfferNet" : data.offeridSet
+            "idOfferNet" : data.offeridSet,
+            "previewLink": data.prevLink,
 		}
 		try {
 			mongo.connect(pathMongodb,function(err,db){
@@ -101,10 +102,11 @@ router.get('/', function(req, res, next) {
 	function checkInCvr(app, person, db) {
 		var query = {
 			ip  	: req.headers["x-real-ip"],
-			idOffer : req.query.offer_id
+			idOffer : req.query.offer_id,
+			enable  : false
 		}
 		db.collection("conversion").find(query).toArray((err, result)=>{
-			if(result.length === 0){
+			if(result.length === 0&&app!==null){
 				checkPostback(app, person, db);
 			}else{
 				res.send("This blacklisted ip is already banned from our system. Please contact to your ISP for re-cleaning it")

@@ -49,7 +49,6 @@ var delRequest = require('./routes/delRequest');
 var updateuserlist = require('./routes/updateUserList');
 var dataOfMyOffer = require('./routes/dataOfMyOffer');
 var getDataUserList = require('./routes/getDataUserList');
-// var equalsOfferId = require('./routes/equalsOfferId');
 // var equals = require('./routes/equals');
 var device = require('./routes/device');
 var clickAuto = require('./routes/clickAuto');
@@ -57,9 +56,9 @@ var checkApplication = require('./routes/checkapplication');
 var cvr = require('./routes/cvr');
 var addOffer = require('./routes/addOffer');
 var postRequestSttUser = require('./routes/post.request.sttUser');
+var listConversionIp = require('./routes/listConversionIp');
 var getListCustomOffer = require('./routes/getListCustomOffer');
 var delUser = require('./routes/delUser');
-var smartLink = require('./routes/smartLink');
 var publicuser = require('./routes/post.request.user');
 var editUserAdd = require('./routes/edit.useradd');
 var addNewOffer = require('./routes/addNewOffer');
@@ -68,7 +67,9 @@ var advertiser = require('./routes/advertiser');
 var Monetization = require('./routes/monetization');
 var viaSdk = require('./routes/viaSdk');
 var getport = require('./routes/getport');
+var getDataLead = require("./routes/getDataLead")
 var setAuto = require("./autoRequest");
+var smartLink = require('./smartLink');
 
 var app = express();
 
@@ -88,7 +89,8 @@ app.use('/request', cvr);
 app.use('/checkapplication', checkApplication);
 app.use('/checkstt', postRequestSttUser);
 // app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
-// app.use('/equals', equals);
+app.use('/list', listConversionIp);
+app.use("/getoffer", getDataLead);
 app.use('/get', getport);
 app.use('/advertiser', advertiser);
 app.use('/monetization', Monetization);
@@ -116,6 +118,7 @@ app.use(session(
 //      };
 //  setAuto(querySearchEmpty);
 //});
+smartLink();
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new FacebookStrategy(infoAPI, function(accessToken, refreshToken, profile, done) {

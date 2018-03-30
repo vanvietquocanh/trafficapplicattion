@@ -61,7 +61,7 @@ SortItems.prototype.setDataReport = function(data){
 SortItems.prototype.renderReport = function() {
 	table.empty();
 	var lengthofListReportClick = this.dataReportClick.length;
-	for(let x = this.dataReportClick.length-1; x >= 0; x--){
+	for(let x = 0; x < this.dataReportClick.length; x++){
 		var elementHtml = `<tr role="row" class="odd fixcenter sel-items" style="color: #111">
 							<td class="sorting_1" tabindex="0" style="color: #111">${sortItems.dataReportClick[x].id}</td>
 							<td class="sorting_1" tabindex="0" style="color: #111">${sortItems.dataReportClick[x].appName}</td>

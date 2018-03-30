@@ -10,25 +10,29 @@ const pathMongodb = require("./pathDb");
 router.post('/', function(req, res, next) {
 	var requestApi = new RequestAPI();
 	function RequestAPI() {
-		this.countRequest = 0;
-		this.countCustomInNetwork = 0;
 		this.arrayDadaPushToDatabase = [];
-		this.arIndexDel = [];
-		this.dataSave;
+		this.countCustomInNetwork = 0;
 		this.textWrite = "";
-		this.dataTotal = [];
 		this.lengthArray = 0;
+		this.lengthOfNet = 0;
 		this.totalArray = [];
+		this.max = 0;
+		this.netIndex = 0;
+		this.arIndexDel = [];
+		this.allNetwork;
+		this.countRequest = 0;
 	}
 	RequestAPI.prototype.loopOrder = function(respon, network) {
-		var value;
-		network.custom.data.split(",").forEach( function(element, index) {
-			if(JSON.parse(respon.body)[`${element}`].length>0){
-				value = true;
-			}else{
-				value = false;
-			}
-		});
+		var value = false;
+		if(respon.body!==undefined){
+			network.custom.data.split(",").forEach( function(element, index) {
+				if(JSON.parse(respon.body)[`${element}`].length>0){
+					value = true;
+				}else{
+					value = false;
+				}
+			});
+		}
 		return value;
 	};
 	RequestAPI.prototype.callRequestGet = (network, db) =>{
@@ -36,19 +40,20 @@ router.post('/', function(req, res, next) {
 			request.get({
 			    url: network.link
 			}, function (err, respon) {
-				if(requestApi.loopOrder(respon, network)){
-			   		requestApi.changeData(network, db, respon.body)
-				}else{
-					requestApi.callRequestGet(network, db);
+				if(respon){
+					if(requestApi.loopOrder(respon, network)){
+				   		requestApi.changeData(network, db, respon.body);
+					}else{
+						requestApi.callRequestGet(network, db);
+					}
 				}
 			});
 		} catch(e) {
 			requestApi.callRequestGet(network, db);
 		}
 	}
-	RequestAPI.prototype.changeKeyOject = function(respon, network, indexOfferNext) {
-		requestApi.arrayDadaPushToDatabase = [];
-		requestApi.countRequest++;
+	RequestAPI.prototype.changeKeyOject = function(respon, network, max) {
+		console.log(max)
 		var data = JSON.parse(respon);
 		var dataChecker = data;
 		requestApi.lengthArray += data.length;
@@ -61,110 +66,76 @@ router.post('/', function(req, res, next) {
 				dataChecker[z][`${Object.keys(network.custom)[j].trim()}`] = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 				delete dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 			}
-			dataChecker[z].index = new Number(indexOfferNext) + z;
+			max++;
+			dataChecker[z].index = max;
+			dataChecker[z].isNetwork = true; 
 			requestApi.arrayDadaPushToDatabase.push(dataChecker[z])
 		}//this is loop change keys of value;
+		requestApi.countRequest++;
+		requestApi.max = max;
+	};
+	RequestAPI.prototype.writeFileText = function(db) {
+		db.collection("offer").find().toArray((err, result)=>{
+			if(result!==undefined){
+				result.forEach( function(element, index) {
+					var countryFix;
+					if(element.countrySet.length>3){
+						countryFix = element.countrySet.split("|").join(',');
+					}else{
+						countryFix = element.countrySet;
+					}
+					requestApi.textWrite += `http://${req.headers.host}/checkparameter/?offer_id=${element.index}&aff_id=${req.user.id}|${countryFix}|${element.platformSet.toUpperCase()}\r\n`;
+				});
+			}
+			fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{
+				if(err){
+					throw err;
+				}else {
+					res.send("Successfully saved MongoDB data!");
+				}
+			});
+			db.close();
+		})
 	};
 	RequestAPI.prototype.changeData = (network, db, respon) =>{
-			db.collection("offer").find().toArray((err, result)=>{
-				var date = new Date().getTime();
-				var indexOfferNext = 0;
-		    	if(result.length>0){
-		    		result.forEach( function(app, index) {
-						if(indexOfferNext < app.index){
-							indexOfferNext = app.index;
-						}
-			    	});
-		    	}
+		requestApi.countCustomInNetwork++;
+			db.collection("offer").find().sort({index:-1}).limit(1).toArray((err, result)=>{
 				if(!err){
-					if(result.length>1){
-						if(result.length>0||result.length>0){
-							result.forEach( function(element, index) {
-								requestApi.totalArray.push(element);
-							});
-							requestApi.dataSave = requestApi.totalArray;
-							requestApi.changeKeyOject(respon, network, indexOfferNext);
-							requestApi.arrayDadaPushToDatabase.forEach((items, index)=>{ 
-								requestApi.dataSave.forEach((el, i)=>{
-									if(items.offeridSet === el.offeridSet&&items.nameNetworkSet === el.nameNetworkSet&& items.nameSet === el.nameSet){
-										requestApi.arIndexDel.push(index);
-									}
+					if(result.length===0&&requestApi.countCustomInNetwork===1){
+						requestApi.max = 0;
+						requestApi.changeKeyOject(respon, network, requestApi.max);
+					}else{
+						if(requestApi.countCustomInNetwork===1){
+							requestApi.max = Number(result[0].index);
+						}
+						requestApi.changeKeyOject(respon, network, requestApi.max);
+					}
+					if(requestApi.lengthOfNet === requestApi.countRequest){
+						if(result.length===0){
+							db.collection("offer").insertMany(requestApi.arrayDadaPushToDatabase, (err,result)=>{
+								if(!err){
+									requestApi.writeFileText(db);
+								}
+							})
+						}else{
+							var indexOfferNext = Number(result[0].index);
+							db.collection("offer").find().toArray((err, result)=>{
+								requestApi.arrayDadaPushToDatabase.forEach((items, index)=>{ 
+									result.forEach((el, i)=>{
+										if(items.offeridSet === el.offeridSet&&items.nameNetworkSet === el.nameNetworkSet&& items.nameSet === el.nameSet){
+											requestApi.arIndexDel.push(index);
+										}
+									})
 								})
 							})
 							for(var i = requestApi.arIndexDel.length; i >= 0; i--){
 								requestApi.arrayDadaPushToDatabase.splice(requestApi.arIndexDel[i], 1)
 							}
-							var countLengthOfferList = requestApi.dataSave.length;
-							if(requestApi.arrayDadaPushToDatabase.length>0){
-						    	db.collection('offer').insertMany(requestApi.arrayDadaPushToDatabase, (err,result)=>{
-						    		if(!err){
-						    			if(requestApi.countRequest===requestApi.countCustomInNetwork){
-											db.collection("offer").find({"dataAPITrackinglink" : true}).toArray((err, result)=>{
-												if(result.length>1){
-													result.forEach( function(element, index) {
-														element.forEach( function(app, id) {
-															var countryFix;
-															if(app.countrySet.length>3){
-																countryFix = app.countrySet.split("|").join(',');
-															}else{
-																countryFix = app.countrySet;
-															}
-															requestApi.textWrite += `http://${req.headers.host}/checkparameter/?offer_id=${app.index}&aff_id=${req.user.id}|${countryFix}|${app.platformSet.toUpperCase()}\r\n`;
-														});
-													});
-												}
-												fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{
-													if(err) throw err;
-												});
-												res.send("Successfully saved MongoDB data!");
-											})
-										}
-						    		}else{
-						    			console.log(err)
-						    			res.send("Error connect Database. Please retry!!!")
-						    		}
-								})
-							}
-						}
-					}else{
-						if(respon!==undefined){
-						    try{
-								requestApi.changeKeyOject(respon, network, indexOfferNext);
-								if(requestApi.arrayDadaPushToDatabase.length>0){
-									db.collection('offer').insertMany(requestApi.arrayDadaPushToDatabase ,(err,result)=>{
-										if(!err){
-											if(requestApi.countRequest===requestApi.countCustomInNetwork){
-												db.collection("userlist").find({"dataAPITrackinglink" : true}).toArray((err, result)=>{
-													if(result.length>1){
-														result.forEach( function(element, index) {
-															element.offerList.forEach( function(app, id) {
-																var countryFix;
-																if(app.countrySet.length>3){
-																	countryFix = app.countrySet.split("|").join(',');
-																}else{
-																	countryFix = app.countrySet;
-																}
-																requestApi.textWrite += `http://${req.headers.host}/checkparameter/?offer_id=${app.index}&aff_id=${req.user.id}|${countryFix}|${app.platformSet.toUpperCase()}\r\n`;
-															});
-														});
-													}
-													fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{
-														if(err){
-															throw err;
-														}else {
-															res.send("Successfully saved MongoDB data!");
-														}
-													});
-												})
-											}
-										}else{
-											console.log(err)
-										}
-									})
+							db.collection("offer").insertMany(requestApi.arrayDadaPushToDatabase, (err, result)=>{
+								if(!err){
+									requestApi.writeFileText(db);
 								}
-							}catch(e){
-								res.send("Error connect Database. Please retry!!!")
-							}
+							})
 						}
 					}
 				}
@@ -187,19 +158,21 @@ router.post('/', function(req, res, next) {
 		}
 	}
 	RequestAPI.prototype.requetEmpty = (network, db) =>{
-		network.forEach((api, index)=>{
-			if(api.custom){
-				requestApi.countCustomInNetwork++;
-				switch (api.method) {
+		network.forEach( function(element, index) {
+			if(element.custom){
+				requestApi.lengthOfNet++;
+			}
+			if(network[requestApi.netIndex].custom){
+				switch (network[requestApi.netIndex].method) {
 					case "GET":
-							requestApi.callRequestGet(api, db)
+							requestApi.callRequestGet(network[requestApi.netIndex], db)
 						break;
 					case "POST":
-							requestApi.callRequestPost(api, db)
+							requestApi.callRequestPost(network[requestApi.netIndex], db)
 						break;
 				}
 			}
-		})
+		});
 	}
 	try{
 		RequestAPI.prototype.findLinkAPI = (db) =>{
@@ -207,6 +180,7 @@ router.post('/', function(req, res, next) {
 				"isNetwork" : true
 			}
 			db.collection("network").findOne(query, (err, result)=>{
+				requestApi.allNetwork = result.NetworkList;
 				requestApi.requetEmpty(result.NetworkList, db)
 			})
 		}

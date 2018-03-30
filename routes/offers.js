@@ -14,7 +14,7 @@ router.get('/', function(req, res, next) {
  			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
-						var download, myOffer, memSel, selNetworks;
+						var download, myOffer, memSel, selNetworks, addOffer;
 						if(result.admin){
 							db.collection("network").findOne({"isNetwork": true }, (err, result)=>{
 								selNetworks = `<select class="select-drop-blue sel-mem" name="sel-Networks" id="sel-Networks">
@@ -32,14 +32,23 @@ router.get('/', function(req, res, next) {
 												<li class="has_sub">
 							                        <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 							                    </li>`;
-							    myOffer = ``;
+							    myOffer = `<li class="has_sub">
+				                                <a href="/leadoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Lead Offers </span></span></a>
+				                            </li>`;
 							    memSel  = ``;
 							    addOffer = `<li class="has_sub">
 						                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 						                    </li>`;
-								renderPage(download, myOffer, memSel, selNetworks, addOffer)
 							})
-						}else{
+						}else if(result.master){
+							download = "";
+							myOffer  = `<li class="has_sub">
+				                                <a href="/leadoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Lead Offers </span></span></a>
+				                            </li>`;
+							addOffer = "";
+			                memSel   = "";
+							selNetworks  = "";
+						}else if(result.member){
 							download = "";
 							myOffer  = `<li class="has_sub">
 				                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
@@ -47,8 +56,8 @@ router.get('/', function(req, res, next) {
 							addOffer = "";
 			                memSel   = "";
 							selNetworks  = "";
-							renderPage(download, myOffer, memSel, selNetworks, addOffer)
 						}
+							renderPage(download, myOffer, memSel, selNetworks, addOffer)
 						assert.equal(null,err);
 						db.close();
 					});
