@@ -30,7 +30,9 @@ router.get('/', function(req, res, next) {
 											<li class="has_sub">
 												<a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 						                    </li>`;
-						    myOffer      = "";
+						    myOffer      = `<li class="has_sub">
+				                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+				                            </li>`;
 						    renderPage(download, myOffer, addOffer)
 						}else{
 							res.redirect("/")

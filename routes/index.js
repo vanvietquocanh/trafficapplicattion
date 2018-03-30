@@ -59,15 +59,25 @@ router.get('/', function(req, res, next) {
 		                        				<li class="has_sub">
 					                                <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 					                            </li>`;
-							if(result.member||result.master){
+							if(result.master){
+								var myOffer = `<li class="has_sub">
+					                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+					                            </li>`
+								download = ``;
+								let addOffer = ``;
+		                        renderPage("profile",admin, download, myOffer, addOffer)
+							}else if(result.member){
+								offerLive = "";
 								var myOffer = `<li class="has_sub">
 				                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
 				                            </li>`
 								download = ``;
 								let addOffer = ``;
-		                            renderPage("profile",admin, download, myOffer, addOffer)
+		                        renderPage("profile",admin, download, myOffer, addOffer)
 							}else if(result.admin){
-								let myOffer  = 	``;
+								let myOffer  = 	`<li class="has_sub">
+					                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+					                            </li>`;
 							    let addOffer = `<li class="has_sub">
 							                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 							                    </li>`;

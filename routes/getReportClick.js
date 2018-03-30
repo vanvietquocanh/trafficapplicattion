@@ -17,7 +17,7 @@ router.get('/', function(req, res, next) {
 						var download, myOffer, memSel;
 						if(result.admin){
 							memSel = `<select class="select-drop-blue sel-mem" name="members" id="members"><option value='all'>Members</option></select>`;
-							download     = `<li class="has_sub">
+							download  = `<li class="has_sub">
 				                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
 				                            </li>
 				                            <li class="has_sub">
@@ -30,14 +30,23 @@ router.get('/', function(req, res, next) {
 						    addOffer = `<li class="has_sub">
 					                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 					                    </li>`;
-					        myOffer  = "";
-						}else{
+					        myOffer  =  `<li class="has_sub">
+			                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+			                            </li>`;
+						}else if(result.member){
 							addOffer  = "";
 							memSel 	  = ``;
 							download  = ``;
 							myOffer   = `<li class="has_sub">
 			                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
 			                            </li>`
+						}else if(result.master){
+							addOffer  = "";
+							memSel 	  = ``;
+							download  = ``;
+							myOffer   = `<li class="has_sub">
+			                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+			                            </li>`;
 						}
 						    renderPage(download, myOffer, memSel)
 						assert.equal(null,err);

@@ -18,7 +18,9 @@ router.get('/', function(req, res, next) {
 					db.collection('userlist').findOne(query,function(err,result){
 						var download, myOffer, addOffer;
 						if(result.admin){
-							myOffer  = ``;
+							myOffer  	 = `<li class="has_sub">
+				                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+				                            </li>`;
 							download     = `<li class="has_sub">
 				                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
 				                            </li>

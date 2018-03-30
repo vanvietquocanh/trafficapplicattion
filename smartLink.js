@@ -32,7 +32,7 @@ var smartLink = function () {
 				"Country"  : ele.countrySet,
 				"User"	   : "vanvietquocanh",
 				"Pass"	   : "aksjdhqwlwrhoqihewna",
-				"Ipaddress": "159.89.206.69"
+				"Ipaddress": "128.199.163.213"
 			};
 			countRequest++;
 			fetch('http://159.89.206.69:5000/api/Offer', { 
@@ -48,12 +48,14 @@ var smartLink = function () {
 				json.link = `http://rockettraffic.org/checkparameter/?offer_id=${ele.index}&aff_id={idFacebook}`;
 				json.nameApp = ele.nameSet;
 				json.package = ele.package;
+				console.log(json)
 				callback(json);
 			});
 		}
 		function callback(data) {
 			countResponse++;
 			if(regexp.test(data.message)){
+				console.log(data,"======================")
 				var query = {
 					index : Number(data.index)
 				}
@@ -97,7 +99,7 @@ var smartLink = function () {
 						}
 					}
 				}
-				loop(dataCheck);
+				// loop(dataCheck);
 			});
 		});
 	} catch(e) {

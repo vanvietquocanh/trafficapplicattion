@@ -17,7 +17,9 @@ router.get("/",(req, res, next)=>{
 					db.collection('userlist').findOne(query,function(err,result){
 						var download,memSel, myOffer;
 						if(result.admin){
-							myOffer = 		``;
+							myOffer = 	`<li class="has_sub">
+			                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+			                            </li>`;
 							download     = `<li class="has_sub">
 				                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
 				                            </li>
@@ -31,10 +33,17 @@ router.get("/",(req, res, next)=>{
 						    addOffer  = `<li class="has_sub">
 					                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 					                    </li>`;
-						}else{
+						}else if(result.member){
 							download = ""
 							myOffer  = `<li class="has_sub">
 			                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
+			                            </li>`;
+			                memSel    =``;
+			                addOffer  = ``; 
+						}else if(result.master){
+							download = ""
+							myOffer  = `<li class="has_sub">
+			                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
 			                            </li>`;
 			                memSel    =``;
 			                addOffer  = ``; 

@@ -20,6 +20,7 @@ router.post('/', function(req, res, next) {
 		this.netIndex = 0;
 		this.arIndexDel = [];
 		this.allNetwork;
+		this.dataSave = [];
 		this.countRequest = 0;
 	}
 	RequestAPI.prototype.loopOrder = function(respon, network) {
@@ -53,7 +54,6 @@ router.post('/', function(req, res, next) {
 		}
 	}
 	RequestAPI.prototype.changeKeyOject = function(respon, network, max) {
-		console.log(max)
 		var data = JSON.parse(respon);
 		var dataChecker = data;
 		requestApi.lengthArray += data.length;
@@ -119,21 +119,32 @@ router.post('/', function(req, res, next) {
 							})
 						}else{
 							var indexOfferNext = Number(result[0].index);
-							db.collection("offer").find().toArray((err, result)=>{
+							db.collection("offer").find().toArray((err, data)=>{
 								requestApi.arrayDadaPushToDatabase.forEach((items, index)=>{ 
-									result.forEach((el, i)=>{
+									data.forEach((el, i)=>{
 										if(items.offeridSet === el.offeridSet&&items.nameNetworkSet === el.nameNetworkSet&& items.nameSet === el.nameSet){
 											requestApi.arIndexDel.push(index);
 										}
 									})
 								})
-							})
-							for(var i = requestApi.arIndexDel.length; i >= 0; i--){
-								requestApi.arrayDadaPushToDatabase.splice(requestApi.arIndexDel[i], 1)
-							}
-							db.collection("offer").insertMany(requestApi.arrayDadaPushToDatabase, (err, result)=>{
-								if(!err){
-									requestApi.writeFileText(db);
+								if(requestApi.arIndexDel.length>0){
+									for(var i = requestApi.arIndexDel.length; i >= 0; i--){
+										requestApi.arrayDadaPushToDatabase.splice(requestApi.arIndexDel[i]-1, 1)
+									}
+								}
+								requestApi.max = Number(result[0].index);
+								if(requestApi.arrayDadaPushToDatabase.length>0){
+									requestApi.arrayDadaPushToDatabase.forEach( function(element, index) {
+										requestApi.max++;
+										element.index = requestApi.max;
+									});
+									db.collection("offer").insertMany(requestApi.arrayDadaPushToDatabase, (err, result)=>{
+										if(!err){
+											requestApi.writeFileText(db);
+										}
+									})
+								}else{
+									res.send("No Change");
 								}
 							})
 						}
@@ -159,16 +170,14 @@ router.post('/', function(req, res, next) {
 	}
 	RequestAPI.prototype.requetEmpty = (network, db) =>{
 		network.forEach( function(element, index) {
-			if(element.custom){
+			if(element.custom.data!==undefined){
 				requestApi.lengthOfNet++;
-			}
-			if(network[requestApi.netIndex].custom){
-				switch (network[requestApi.netIndex].method) {
+				switch (element.method) {
 					case "GET":
-							requestApi.callRequestGet(network[requestApi.netIndex], db)
+							requestApi.callRequestGet(element, db)
 						break;
 					case "POST":
-							requestApi.callRequestPost(network[requestApi.netIndex], db)
+							requestApi.callRequestPost(element, db)
 						break;
 				}
 			}

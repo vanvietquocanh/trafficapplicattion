@@ -33,21 +33,23 @@ router.get('/', function(req, res, next) {
 							                        <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 							                    </li>`;
 							    myOffer = `<li class="has_sub">
-				                                <a href="/leadoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Lead Offers </span></span></a>
+				                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
 				                            </li>`;
 							    memSel  = ``;
 							    addOffer = `<li class="has_sub">
 						                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 						                    </li>`;
+								renderPage(download, myOffer, memSel, selNetworks, addOffer)
 							})
 						}else if(result.master){
 							download = "";
 							myOffer  = `<li class="has_sub">
-				                                <a href="/leadoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Lead Offers </span></span></a>
+				                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
 				                            </li>`;
 							addOffer = "";
 			                memSel   = "";
 							selNetworks  = "";
+							renderPage(download, myOffer, memSel, selNetworks, addOffer)
 						}else if(result.member){
 							download = "";
 							myOffer  = `<li class="has_sub">
@@ -56,8 +58,8 @@ router.get('/', function(req, res, next) {
 							addOffer = "";
 			                memSel   = "";
 							selNetworks  = "";
-						}
 							renderPage(download, myOffer, memSel, selNetworks, addOffer)
+						}
 						assert.equal(null,err);
 						db.close();
 					});

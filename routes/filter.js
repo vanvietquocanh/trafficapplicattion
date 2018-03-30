@@ -11,7 +11,7 @@ router.post('/', function(req, res, next) {
 	try {
 		function preFixCountry(country1){
 			if (country1.split("|").length===2){
-				return {$or:[{countrySet: new RegExp(`${country1.split("|")[0]}`,"i")}, {countrySet:new RegExp(`${country1.split("|")[0]}`,"i")}]};		
+				return {$or:[{countrySet: new RegExp(`${country1.split("|")[0]}`,"i")}, {countrySet:new RegExp(`${country1.split("|")[1]}`,"i")}]};		
 			}else{
 				return {countrySet : new RegExp(country1,"i")};
 			}
