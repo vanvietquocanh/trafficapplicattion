@@ -17,7 +17,11 @@ router.post('/', function(req, res, next) {
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection("conversion").aggregate({$match:query},{$group:{_id:null,total:{$sum:"$pay"}}},(err,totalPay)=>{
-						data.totalPay = totalPay[0].total;
+						if(totalPay.length>0){
+							data.totalPay = totalPay[0].total;
+						}else{
+							data.totalPay = 0;
+						}
 					})
 					db.collection("conversion").count(query,(err,totalConversion)=>{
 						data.totalConversion = totalConversion;

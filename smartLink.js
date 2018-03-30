@@ -12,6 +12,7 @@ var smartLink = function () {
 	try {
 		var count = 0;
 		var regexp = /itunes.apple.com|market|play.google.com/i;
+		var reAli = /alibaba/i;
 		var dataCheck = {};
 		var countRequest = 0;
 		var countResponse = 0;
@@ -48,14 +49,14 @@ var smartLink = function () {
 				json.link = `http://rockettraffic.org/checkparameter/?offer_id=${ele.index}&aff_id={idFacebook}`;
 				json.nameApp = ele.nameSet;
 				json.package = ele.package;
-				console.log(json)
+				json.country = ele.countrySet;
+				json.platform = ele.platformSet;
 				callback(json);
 			});
 		}
 		function callback(data) {
 			countResponse++;
-			if(regexp.test(data.message)){
-				console.log(data,"======================")
+			if(regexp.test(data.message)&&!(reAli.test(data.message))){
 				var query = {
 					index : Number(data.index)
 				}
@@ -99,7 +100,7 @@ var smartLink = function () {
 						}
 					}
 				}
-				// loop(dataCheck);
+				loop(dataCheck);
 			});
 		});
 	} catch(e) {

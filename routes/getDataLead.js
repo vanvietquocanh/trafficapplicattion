@@ -9,9 +9,16 @@ const pathMongodb = require("./pathDb");
 router.get('/:parameter', function(req, res, next) {
 	if(req.params.parameter==="live"){
 		mongo.connect(pathMongodb,(err,db)=>{
-			db.collection("offerLead").find().toArray((err, result)=>{
+			var query = {}
+			if(req.query.platform !== undefined&& req.query.platform != null){
+				query.platform = new RegExp(req.query.platform, "i");
+			}
+			if(req.query.country !== undefined && req.query.country != null){
+				query.country = new RegExp(req.query.country, "i");
+			}
+			db.collection("offerLead").find(query).toArray((err, result)=>{
 				if(!err){
-					res.send(result)
+					res.send(result);
 				}
 			})
 		})
