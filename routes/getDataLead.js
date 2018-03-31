@@ -17,6 +17,7 @@ router.get('/:parameter', function(req, res, next) {
 			if(req.query.country !== undefined && req.query.country != null){
 				query.country = new RegExp(req.query.country, "i");
 			}
+			console.log(query);
 			db.collection("offerLead").find(query).toArray((err, result)=>{
 				if(!err){
 					res.send(result);

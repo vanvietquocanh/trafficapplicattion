@@ -71,6 +71,7 @@ var smartLink = function () {
 			});
 		}
 		function callback(data) {
+			console.log(data)
 			countResponse++;
 			if(regexp.test(data.message)){
 				data.statusLead = true;
@@ -113,7 +114,7 @@ var smartLink = function () {
 						}
 					}
 				}
-				loop(dataCheck);
+				// loop(dataCheck);
 			});
 		});
 	} catch(e) {
