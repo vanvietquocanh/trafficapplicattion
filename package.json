@@ -17,6 +17,7 @@
     "geoip-lite": "^1.2.1",
     "google-play-scraper": "^5.0.0",
     "letsencrypt": "^2.1.8",
+    "mobile-detect": "^1.4.1",
     "mongodb": "^2.2.33",
     "morgan": "~1.9.0",
     "node-fetch": "^2.1.1",

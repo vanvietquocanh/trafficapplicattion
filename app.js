@@ -48,6 +48,7 @@ var updatePay = require('./routes/updatePay');
 var delRequest = require('./routes/delRequest');
 var updateuserlist = require('./routes/updateUserList');
 var dataOfMyOffer = require('./routes/dataOfMyOffer');
+var getSmartLink = require('./routes/smartLink');
 var getDataUserList = require('./routes/getDataUserList');
 // var equals = require('./routes/equals');
 var device = require('./routes/device');
@@ -96,7 +97,7 @@ app.use('/advertiser', advertiser);
 app.use('/monetization', Monetization);
 app.use('/sdk-via', viaSdk);
 app.use('/getcountry', getCountry);
-app.use('/smart', smartLink);
+app.use('/smartlink', getSmartLink);
 app.use(session(
                 { secret: 'coppycat',
                   resave: false,

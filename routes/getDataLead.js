@@ -9,7 +9,8 @@ const pathMongodb = require("./pathDb");
 router.get('/:parameter', function(req, res, next) {
 	if(req.params.parameter==="live"){
 		mongo.connect(pathMongodb,(err,db)=>{
-			var query = {}
+			var query = {};
+			query.statusLead = true;
 			if(req.query.platform !== undefined&& req.query.platform != null){
 				query.platform = new RegExp(req.query.platform, "i");
 			}

@@ -26,16 +26,28 @@ var smartLink = function () {
 		country.forEach( function(element, index) {
 			query["$or"].push({countrySet: new RegExp(element,"i")});
 		});
+		function updateDB(data) {
+			var query = {
+				index : Number(data.index)
+			}
+			mongo.connect(pathMongodb,(err, db)=>{
+				if(!err){
+					db.collection("offerLead").updateOne(query, data,{ upsert: true},(err, result)=>{
+					});
+				}
+			})
+		}
 		function converPost(ele) {
 			var data = {
-				"Url"	   : `http://rockettraffic.org/checkparameter/?offer_id=${ele.index}&aff_id=181879769070526`,
-				"Os"	   : ele.platformSet,
-				"Country"  : ele.countrySet,
-				"User"	   : "vanvietquocanh",
-				"Pass"	   : "aksjdhqwlwrhoqihewna",
-				"Ipaddress": "128.199.163.213"
+				"Url"	     : `http://rockettraffic.org/checkparameter/?offer_id=${ele.index}&aff_id=181879769070526`,
+				"Os"	     : ele.platformSet,
+				"Country"    : ele.countrySet,
+				"User"	     : "vanvietquocanh",
+				"Pass"	     : "aksjdhqwlwrhoqihewna",
+				"Ipaddress"  : "159.89.206.69"
 			};
 			countRequest++;
+			console.log(data)
 			fetch('http://159.89.206.69:5000/api/Offer', { 
 			    method : 'POST',
 			    body   :    JSON.stringify(data),
@@ -45,6 +57,7 @@ var smartLink = function () {
 			})
 			.then(res => res.json())
 			.then(json => {
+				console.log(json)
 				json.index = Number(ele.index);
 				json.link = `http://rockettraffic.org/checkparameter/?offer_id=${ele.index}&aff_id={idFacebook}`;
 				json.nameApp = ele.nameSet;
@@ -52,20 +65,20 @@ var smartLink = function () {
 				json.country = ele.countrySet;
 				json.platform = ele.platformSet;
 				callback(json);
+			})
+			.catch(err=>{
+				
 			});
 		}
 		function callback(data) {
 			countResponse++;
-			if(regexp.test(data.message)&&!(reAli.test(data.message))){
-				var query = {
-					index : Number(data.index)
-				}
-				mongo.connect(pathMongodb,(err, db)=>{
-					if(!err){
-						db.collection("offerLead").updateOne(query, data,{ upsert: true},(err, result)=>{
-						});
-					}
-				})
+			if(regexp.test(data.message)){
+				data.statusLead = true;
+				json.countRequest = 0;
+				updateDB(data);
+			}else{
+				data.statusLead = false;
+				updateDB(data);
 			}
 			if(countRequest === countResponse){
 				loop(dataCheck);
