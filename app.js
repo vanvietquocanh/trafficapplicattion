@@ -75,7 +75,6 @@ var totalcvr = require("./routes/totalcvr")
 var viewsLiveOffer = require("./routes/viewsLiveOffer")
 var insertLiveLink = require("./routes/insertLiveLink");
 var setAuto = require("./autoRequest");
-const checklive = require("./routes/checklive");
 
 
 var app = express();

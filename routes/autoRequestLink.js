@@ -5,12 +5,10 @@ const mongo = require('mongodb');
 const assert = require('assert');
 const fs = require("fs");
 
-const checklive = require("./checklive")
 const pathMongodb = require("./pathDb");
 
 
 router.post('/', function(req, res, next) {
-	checklive().abort();
 	req.io.sockets.emit("offerlive123", "hello123");
 	var requestApi = new RequestAPI();
 	function RequestAPI() {
