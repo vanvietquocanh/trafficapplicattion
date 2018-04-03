@@ -11,19 +11,28 @@ router.get('/', function(req, res, next) {
 			var query = {
 					"idFacebook": req.user.id
  				}
+ 			var netName = {};
  			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
-						var download, myOffer, memSel, selNetworks, addOffer;
-						if(result.admin){
-							db.collection("network").findOne({"isNetwork": true }, (err, result)=>{
-								selNetworks = `<select class="select-drop-blue sel-mem" name="sel-Networks" id="sel-Networks">
+						var download, myOffer, memSel, addOffer;
+						var selNetworks = `<select class="select-drop-blue sel-mem" name="sel-Networks" id="sel-Networks">
                                                 <option value="all">Network List</option>`;
-								result.NetworkList.forEach( function(element, index) {
-									selNetworks += `<option value="${element.name}">${element.name}</option>`;
-								});
-								selNetworks += `</select>`
+						db.collection("network").findOne({"isNetwork": true }, (err, net)=>{
+							net.NetworkList.forEach( function(element, index) {
+								if(netName[`${element.name}`]===undefined){
+									netName[`${element.name}`] = element.name;
+								}
+							});
+							Object.keys(netName).forEach( function(element, index) {
+								selNetworks += `<option value="${element}">${element}</option>`;
+							});
+							selNetworks += `</select>`;
+							if(result.admin){
 								download     = `<li class="has_sub">
+				                                	<a href="/totalcvr" class="waves-effect"><i class="fa fa-credit-card-alt"></i> <span> Total Conversion </span></a>
+				                            	</li>
+				                            	<li class="has_sub">
 					                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
 					                            </li>
 					                            <li class="has_sub">
@@ -40,28 +49,26 @@ router.get('/', function(req, res, next) {
 						                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 						                    </li>`;
 								renderPage(download, myOffer, memSel, selNetworks, addOffer)
-							})
-						}else if(result.master){
-							download = "";
-							myOffer  = `<li class="has_sub">
-				                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
-				                            </li>`;
-							addOffer = "";
-			                memSel   = "";
-							selNetworks  = "";
-							renderPage(download, myOffer, memSel, selNetworks, addOffer)
-						}else if(result.member){
-							download = "";
-							myOffer  = `<li class="has_sub">
-				                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
-				                            </li>`;
-							addOffer = "";
-			                memSel   = "";
-							selNetworks  = "";
-							renderPage(download, myOffer, memSel, selNetworks, addOffer)
-						}
-						assert.equal(null,err);
-						db.close();
+							}else if(result.master){
+								download = "";
+								myOffer  = `<li class="has_sub">
+					                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+					                            </li>`;
+								addOffer = "";
+				                memSel   = "";
+								renderPage(download, myOffer, memSel, selNetworks, addOffer)
+							}else if(result.member){
+								download = "";
+								myOffer  = `<li class="has_sub">
+					                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
+					                            </li>`;
+								addOffer = "";
+				                memSel   = "";
+								renderPage(download, myOffer, memSel, selNetworks, addOffer)
+							}
+							assert.equal(null,err);
+							db.close();
+						})
 					});
 			});
 		} catch(e) {

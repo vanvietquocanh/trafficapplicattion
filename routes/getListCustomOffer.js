@@ -26,7 +26,6 @@ router.post('/', function(req, res, next) {
 						query.index = new RegExp(req.body.search,"i")
 					}
 				}
-				console.log(query);
 				db.collection('offer').find(query).skip(Number(req.body.start)).limit(500).toArray((err,result)=>{
 						console.log(result, err);
 					if(!err){

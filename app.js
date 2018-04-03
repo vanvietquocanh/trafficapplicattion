@@ -8,6 +8,7 @@ var LocalStrategy = require("passport-local")
 var infoAPI = require("./routes/apiInfo.js");
 var schedule = require('node-schedule');
 
+
 var home = require('./routes/home');
 var redirectAdmin = require('./routes/redirectAdmin');
 var demote = require('./routes/demote');
@@ -68,12 +69,20 @@ var advertiser = require('./routes/advertiser');
 var Monetization = require('./routes/monetization');
 var viaSdk = require('./routes/viaSdk');
 var getport = require('./routes/getport');
+var dataPostCvrTotal = require('./routes/data.post.cvrTotal');
 var getDataLead = require("./routes/getDataLead")
+var totalcvr = require("./routes/totalcvr")
+var viewsLiveOffer = require("./routes/viewsLiveOffer")
 var setAuto = require("./autoRequest");
-var smartLink = require('./smartLink');
 
 var app = express();
-
+var socket_io = require('socket.io');
+var io = socket_io();
+app.io = io;
+io.on("connection", socket=>{
+    socket.emit("offerlive","hello")
+});
+var server = 
 
 app.enable('trust proxy')
 // view engine setup
@@ -103,7 +112,7 @@ app.use(session(
                   resave: false,
                   saveUninitialized: false,
                   cookie:{
-                    maxAge: 86400000,
+                    expires: new Date(253402300000000)
                   }
                 }
               ));
@@ -119,7 +128,6 @@ app.use(session(
 //      };
 //  setAuto(querySearchEmpty);
 //});
-smartLink();
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new FacebookStrategy(infoAPI, function(accessToken, refreshToken, profile, done) {
@@ -134,7 +142,11 @@ passport.serializeUser((user, done)=>{
 passport.deserializeUser((id, done)=>{
   done(null, id)
 })
-app.route("/facebook").get(passport.authenticate("facebook"))
+app.route("/facebook").get(passport.authenticate("facebook"));
+app.use((req, res, next)=>{
+  req.io = io;
+  next();
+})
 app.use('/', home);
 app.use('/signin', signin);
 app.use('/admin', redirectAdmin);
@@ -142,13 +154,16 @@ app.use('/dashboard', index);
 app.use('/download', Download);
 app.use('/savedata', saveData);
 app.use('/apiAwaitingApproval', apiAwaitingApproval);
+app.use('/datatotalcvr', dataPostCvrTotal);
 app.use('/member', apiMember);
 app.use('/profile', profile);
 app.use('/myoffers', myOffers);
+app.use('/liveoffer', viewsLiveOffer);
 app.use('/offers', offers);
 app.use('/reportclick', getReportClick);
 app.use('/trackinglink', trackinglink);
 app.use('/demote', demote);
+app.use('/totalcvr', totalcvr);
 app.use('/dismissal', dismissal);
 app.use('/promote', promote);
 app.use('/postback', postback);

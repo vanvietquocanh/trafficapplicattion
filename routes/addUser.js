@@ -22,6 +22,9 @@ router.get('/', function(req, res, next) {
 						                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 						                    </li>`
 							download     = `<li class="has_sub">
+				                                <a href="/totalcvr" class="waves-effect"><i class="fa fa-credit-card-alt"></i> <span> Total Conversion </span></a>
+				                            </li>
+				                            <li class="has_sub">
 				                                <a href="/userrequest" class="waves-effect"><i class="fa fa-envelope-o"></i> <span> User request </span></a>
 				                            </li>
 				                            <li class="has_sub">

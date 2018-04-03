@@ -10,6 +10,7 @@ var sortCountry = $("#country");
 var tagDownload = $("#download-btn");
 var rowsTable = $("fixcenter");
 var members = $("#members");
+var selNetworks = $("#sel-Networks");
 var search = $('#search');
 var btnSearch = $("#btn-search");
 var requestItems;
@@ -335,16 +336,21 @@ filterBtn.click(function(event) {
 		filterBtn.children().removeClass("fa-search").addClass('fa-spin fa-refresh');
 		var OS = "";
 		var country = "";
+		var network = "";
 		if(platform.val()!=="all"){
 			OS = platform.val();
 		}
 		if(sortCountry.val()!=="all"){
 			country = sortCountry.val();
 		}
+		if(selNetworks.val()!=="all"){
+			network = selNetworks.val();
+		}
 		function filterRq() {
 			let data = {
 				OS 		: OS,
 				country : country,
+				netWork : network,
 				start: sortItems.countStart,
 				end  : sortItems.countEnd
 			}

@@ -5,9 +5,12 @@ const mongo = require('mongodb');
 const assert = require('assert');
 const fs = require("fs");
 
+const checklive = require("./checklive")
 const pathMongodb = require("./pathDb");
 
+
 router.post('/', function(req, res, next) {
+	req.io.sockets.emit("offerlive123", "hello123");
 	var requestApi = new RequestAPI();
 	function RequestAPI() {
 		this.arrayDadaPushToDatabase = [];
@@ -91,6 +94,10 @@ router.post('/', function(req, res, next) {
 				if(err){
 					throw err;
 				}else {
+					checklive();
+					setTimeout(()=>{
+						checklive().abort();
+					},10000)
 					res.send("Successfully saved MongoDB data!");
 				}
 			});
@@ -200,7 +207,7 @@ router.post('/', function(req, res, next) {
 			assert.equal(null,err);
 				db.collection('userlist').findOne(query,function(err,result){
 					if(result.admin){
-						requestApi.findLinkAPI(db)
+						requestApi.findLinkAPI(db);
 					}else{
 						res.send("Mày đéo phải admin");
 					}
