@@ -9,10 +9,7 @@ const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 
-var smartLink = function () {
-	setInterval(()=>{
-		console.log('11')
-	},1000)
+var smartLink = function (condition) {
 	try {
 		var count = 0;
 		var regexp = /itunes.apple.com|market|play.google.com/i;
@@ -36,7 +33,7 @@ var smartLink = function () {
 			}
 			mongo.connect(pathMongodb,(err, db)=>{
 				if(!err){
-					db.collection("offerLead").updateOne(query, data,{ upsert: true},(err, result)=>{
+					db.collection("offerLead").updateOne(query, data,{ upsert: true },(err, result)=>{
 					});
 				}
 			})
@@ -51,17 +48,15 @@ var smartLink = function () {
 				"Ipaddress"  : "159.89.206.69"
 			};
 			countRequest++;
-			console.log(data)
 			fetch('http://159.89.206.69:5000/api/Offer', { 
 			    method : 'POST',
-			    body   :    JSON.stringify(data),
+			    body   : JSON.stringify(data),
 			    headers: { 
 			    	'Content-Type': 'application/json'
 			    },
 			})
 			.then(res => res.json())
 			.then(json => {
-				console.log(json)
 				json.index = Number(ele.index);
 				json.link = `http://rockettraffic.org/checkparameter/?offer_id=${ele.index}&aff_id={idFacebook}`;
 				json.nameApp = ele.nameSet;
@@ -117,7 +112,7 @@ var smartLink = function () {
 						}
 					}
 				}
-				// loop(dataCheck);
+				loop(dataCheck);
 			});
 		});
 	} catch(e) {

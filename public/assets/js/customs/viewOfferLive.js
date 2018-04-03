@@ -14,7 +14,7 @@ var search = $('#search');
 var btnSearch = $("#btn-search");
 var requestItems;
 $(()=>{
-	var socket = io("http://128.199.163.213/");
+	var socket = io("http://rockettraffic.org/");
 	socket.on('offerlive', function (data) {
 		console.log(data)
 	});
@@ -36,26 +36,8 @@ function SortItems() {
 	this.checkboxGroup = [];
 }
 SortItems.prototype.getAPI = function(){
-	$.ajax({
-		url: 'http://rockettraffic.org/getoffer/live',
-		type: 'GET',
-		dataType: 'application/json',
-		headers : {
-			"Access-Control-Allow-Origin" : "http://159.89.206.69:3000/"
-		}
-	})
-	.done(function() {
-		console.log("success");
-	})
-	.fail(function() {
-		console.log("error");
-	})
-	.always(function() {
-		console.log("complete");
-	});
-
-	requestItems = $.get("http://rockettraffic.org/", function(res) {
-		console.log(re)
+	requestItems = $.get("/getoffer/live", function(res) {
+		console.log(res)
 		if(res.mes){
 			sortItems.setMaster(res.admin.isMaster)
 			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
@@ -319,64 +301,64 @@ SortItems.prototype.download = function(filename){
     tagDownload.children().children().removeClass("fa-spinner fa-pulse").addClass('fa-download')
     sortItems.eventDown();
 };
-// sortItems.getAPI();
-// filterBtn.click(function(event) {
-// 	if(platform.val()!=="all"||sortCountry.val()!=="all"){
-// 		sortItems.searchMethod = true;
-// 		requestItems.abort();
-// 		sortItems.countStart = 0;
-// 		sortItems.countEnd = 500;
-// 		filterBtn.children().removeClass("fa-search").addClass('fa-spin fa-refresh');
-// 		var OS = "";
-// 		var country = "";
-// 		if(platform.val()!=="all"){
-// 			OS = platform.val();
-// 		}
-// 		if(sortCountry.val()!=="all"){
-// 			country = sortCountry.val();
-// 		}
-// 		function filterRq() {
-// 			let data = {
-// 				OS 		: OS,
-// 				country : country,
-// 				start: sortItems.countStart,
-// 				end  : sortItems.countEnd
-// 			}
-// 			$.post('/filter', data , function(res, textStatus, xhr) {
-// 				table.empty();
-// 				filterBtn.children().removeClass("fa-spin fa-refresh").addClass('fa-search');
-// 				sortItems.setData(res.offerList, res.admin, res.admin.pending, sortItems.approved)
-// 				if(res.offerList.length===500){
-// 					sortItems.countStart += 500;
-// 					sortItems.countEnd += 500;
-// 					filterRq()
-// 				}
-// 			});
-// 		}
-// 		filterRq()
-// 	}
-// });
-// search.keypress(function(event) {
-// 	if(event.key==="Enter"||event.keyCode===13){
-// 		btnSearch.click();
-// 	}
-// });
-// btnSearch.click(function(event) {
-// 	if(search.val()!=""){
-// 		sortItems.searchMethod = true;
-// 		requestItems.abort();
-// 		sortItems.countStart = 0;
-// 		sortItems.countEnd = 500;
-// 		var data = {
-// 			query: search.val(),
-// 			start: sortItems.countStart,
-// 			end  : sortItems.countEnd
-// 		}
-// 		btnSearch.children().removeClass("fa-search").addClass('fa-spin fa-refresh');
-// 		$.post('/search', data, function(res, textStatus, xhr) {
-// 			table.empty();
-// 			btnSearch.children().removeClass("fa-spin fa-refresh").addClass('fa-search');
-// 			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
-// 		});
-// 	}
-// });
+sortItems.getAPI();
+filterBtn.click(function(event) {
+	if(platform.val()!=="all"||sortCountry.val()!=="all"){
+		sortItems.searchMethod = true;
+		requestItems.abort();
+		sortItems.countStart = 0;
+		sortItems.countEnd = 500;
+		filterBtn.children().removeClass("fa-search").addClass('fa-spin fa-refresh');
+		var OS = "";
+		var country = "";
+		if(platform.val()!=="all"){
+			OS = platform.val();
+		}
+		if(sortCountry.val()!=="all"){
+			country = sortCountry.val();
+		}
+		function filterRq() {
+			let data = {
+				OS 		: OS,
+				country : country,
+				start: sortItems.countStart,
+				end  : sortItems.countEnd
+			}
+			$.post('/filter', data , function(res, textStatus, xhr) {
+				table.empty();
+				filterBtn.children().removeClass("fa-spin fa-refresh").addClass('fa-search');
+				sortItems.setData(res.offerList, res.admin, res.admin.pending, sortItems.approved)
+				if(res.offerList.length===500){
+					sortItems.countStart += 500;
+					sortItems.countEnd += 500;
+					filterRq()
+				}
+			});
+		}
+		filterRq()
+	}
+});
+search.keypress(function(event) {
+	if(event.key==="Enter"||event.keyCode===13){
+		btnSearch.click();
+	}
+});
+btnSearch.click(function(event) {
+	if(search.val()!=""){
+		sortItems.searchMethod = true;
+		requestItems.abort();
+		sortItems.countStart = 0;
+		sortItems.countEnd = 500;
+		var data = {
+			query: search.val(),
+			start: sortItems.countStart,
+			end  : sortItems.countEnd
+		}
+		btnSearch.children().removeClass("fa-search").addClass('fa-spin fa-refresh');
+		$.post('/search', data, function(res, textStatus, xhr) {
+			table.empty();
+			btnSearch.children().removeClass("fa-spin fa-refresh").addClass('fa-search');
+			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
+		});
+	}
+});

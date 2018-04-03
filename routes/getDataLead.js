@@ -12,13 +12,12 @@ router.get('/:parameter', function(req, res, next) {
 			var query = {};
 			query.statusLead = true;
 			if(req.query.platform !== undefined&& req.query.platform != null){
-				query.platform = new RegExp(req.query.platform, "i");
+				query.os = new RegExp(req.query.platform, "i");
 			}
 			if(req.query.country !== undefined && req.query.country != null){
 				query.country = new RegExp(req.query.country, "i");
 			}
-			console.log(query);
-			db.collection("offerLead").find(query).toArray((err, result)=>{
+			db.collection(req.query.platform+req.query.country).find(query).toArray((err, result)=>{
 				if(!err){
 					res.send(result);
 				}

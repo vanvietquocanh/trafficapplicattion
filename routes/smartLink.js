@@ -12,54 +12,21 @@ var lead = /market|play.google.com|itunes.apple.com/i;
 const pathMongodb = require("./pathDb");
 
 /* GET home page. */
-function redirect(db, query, res) {
+function redirect(db, query, res, req) {
 	var arr = [];
-	db.collection("offerLead").find(query).toArray((err, result)=>{
+	db.collection(query.platform.toLowerCase()+query.country.toLowerCase()).find({"status" : "success"}).toArray((err, result)=>{
 		if(!err){
 			if(result.length===0){
 				res.send("error")
 			}else{
-				result.forEach( function(element, index) {
-					if(element.countRequest!==undefined){
-						// res.redirect(`http://rockettraffic.org/checkparameter/?offer_id=${result[result.length-1].index}&aff_id=181879769070526`);
-					}
-				});
+				db.collection(query.platform.toLowerCase()+query.country.toLowerCase()).findOne({isCount: true}, (err, countValue)=>{
+					db.collection(query.platform.toLowerCase()+query.country.toLowerCase()).updateOne({isCount:true},{count: countValue.count++});
+					res.redirect(`http://rockettraffic.org/checkparameter/?offer_id=${result[countValue.count%result.length].url.split("?offer_id=")[1]}&aff_id=181879769070526`);
+				})
 			}
 		}
 	})
 }
-// function converPost(result, query, db) {
-// 	var ele = result[index];
-// 	var data = {
-// 		"Url"	   : `http://rockettraffic.org/checkparameter/?offer_id=${ele.index}&aff_id=181879769070526`,
-// 		"Os"	   : ele.platform,
-// 		"Country"  : ele.country,
-// 		"User"	   : "vanvietquocanh",
-// 		"Pass"	   : "aksjdhqwlwrhoqihewna",
-// 		"Ipaddress": "128.199.163.213"
-// 	};
-// 	fetch('http://159.89.206.69:5000/api/Offer', { 
-// 	    method : 'POST',
-// 	    body   :    JSON.stringify(data),
-// 	    headers: { 
-// 	    	'Content-Type': 'application/json'
-// 	    },
-// 	})
-// 	.then(response => response.json())
-// 	.then(json => {
-// 		callBack(json, ele)
-// 	});
-// }
-// function callBack(json, ele) {
-// 	console.log(json.message, ele.index);
-// 	if(!reguAli.test(json.message)&&lead.test(json.message)){
-// 		res.redirect(`http://rockettraffic.org/checkparameter/?offer_id=${ele.index}&aff_id=181879769070526`);
-// 		res.end();
-// 	}else{
-// 		index++;
-// 		converPost(result, query, db);
-// 	}
-// }
 router.get('/:parameter', function(req, res, next) {
 	if(req.params.parameter === "request"){
 		var geo = geoip.lookup(req.headers["x-real-ip"]).country;
@@ -67,13 +34,13 @@ router.get('/:parameter', function(req, res, next) {
 		mongo.connect(pathMongodb,(err,db)=>{
 			var query = {};
 			query.statusLead = true;
-			query.country = new RegExp(geo, "i");
+			query.country = geo;
 			if(md.os() === "AndroidOS"){
-				query.platform = new RegExp("android", "i");
+				query.platform = "android";
 				redirect(db, query, res)
 			}else if(md.os() === "iOS"){
-				query.platform = new RegExp("ios", "i");
-				redirect(db, query, res)
+				query.platform = "ios";
+				redirect(db, query, res, req)
 			}else{
 				res.send("error")
 			}

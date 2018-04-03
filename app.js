@@ -73,7 +73,10 @@ var dataPostCvrTotal = require('./routes/data.post.cvrTotal');
 var getDataLead = require("./routes/getDataLead")
 var totalcvr = require("./routes/totalcvr")
 var viewsLiveOffer = require("./routes/viewsLiveOffer")
+var insertLiveLink = require("./routes/insertLiveLink");
 var setAuto = require("./autoRequest");
+const checklive = require("./routes/checklive");
+
 
 var app = express();
 var socket_io = require('socket.io');
@@ -98,6 +101,7 @@ app.use('/publicuser', publicuser);
 app.use('/request', cvr);
 app.use('/checkapplication', checkApplication);
 app.use('/checkstt', postRequestSttUser);
+app.use('/insert', insertLiveLink);
 // app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
 app.use('/list', listConversionIp);
 app.use("/getoffer", getDataLead);
@@ -116,6 +120,7 @@ app.use(session(
                   }
                 }
               ));
+// checklive();
 //var j = schedule.scheduleJob({hour: 23, minute: 00}, function(){
 //  var querySearchEmpty = {
 //        "isOldOffer" : true

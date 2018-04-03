@@ -10,6 +10,7 @@ const pathMongodb = require("./pathDb");
 
 
 router.post('/', function(req, res, next) {
+	checklive().abort();
 	req.io.sockets.emit("offerlive123", "hello123");
 	var requestApi = new RequestAPI();
 	function RequestAPI() {
@@ -94,10 +95,6 @@ router.post('/', function(req, res, next) {
 				if(err){
 					throw err;
 				}else {
-					checklive();
-					setTimeout(()=>{
-						checklive().abort();
-					},10000)
 					res.send("Successfully saved MongoDB data!");
 				}
 			});

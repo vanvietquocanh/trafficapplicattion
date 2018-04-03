@@ -30,7 +30,7 @@ router.get('/:parameter', function(req, res, next) {
 			"us" : "107.181.72.101:10268",
 			"gb" : "78.157.202.44:10268",
 			"ca" : "66.78.23.99:10268",
-			"cn" : "167.88.102.79:38325|tieuhuy|anhhuydeptrai1"
+			"cn" : "167.88.102.79:38325"
 		};
 		if(data[req.query.country.toLowerCase()] !== undefined){
 			var dataRespon = {};
