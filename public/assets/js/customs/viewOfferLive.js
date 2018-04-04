@@ -28,129 +28,125 @@ function SortItems() {
 	this.arrayList = [];
 	this.admin;
 	this.page = 0;
+	this.countryIndexIos = 0;
+	this.countryIndexAndroid = 0;
 	this.searchMethod = false;
 	this.countStart = 0;
 	this.countEnd = 500;
 	this.newArrayList = [];
 	this.master;
 	this.checkboxGroup = [];
+	this.country = ["au", "kr", "de", "in", "id", "tw", "jp", "vn", "th", "br", "es", "tr", "ru", "fr", "sa", "ae", "kw", "mx", "cn", "us", "gb","uk"];
 }
-SortItems.prototype.getAPI = function(){
-	requestItems = $.get("/getoffer/live", function(res) {
-		console.log(res)
-		if(res.mes){
-			sortItems.setMaster(res.admin.isMaster)
-			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
-			if(res.offerList.length===500&&!sortItems.searchMethod){
-				sortItems.countStart += 500;
-				sortItems.countEnd += 500;
-				sortItems.getAPI();
+SortItems.prototype.getAPIAndroid = function(){
+	if(sortItems.countryIndexAndroid<sortItems.country.length){
+		requestItems = $.get(`/getoffer/live?country=${this.country[this.countryIndexAndroid]}&platform=android`, function(res) {
+			if(res.length>0){
+				res.forEach( function(element, index) {
+					sortItems.setData(element)
+				});
 			}
-		}else {
-			sortItems.setData(res.offerList, res.admin, res.admin.pending, res.admin.approved)
-		}
-	});
-};
-SortItems.prototype.setMaster = function(master){
-	this.master = master;
-};
-SortItems.prototype.setData = function(data, user, pending, approved){
-	this.pending = pending;
-	this.approved = approved;
-	if(sortItems.countStart===0){
-		this.pending = pending;
-		this.approved = approved;
-		this.list = data;
-		this.admin = user;
-		table.empty();
-		sortItems.newArrayList = [];
-		sortItems.createHtml();		
-	}else{
-		$.each(data, function(index, val) {
-			sortItems.list.push(val)
+			sortItems.countryIndexAndroid++;
+			sortItems.getAPIAndroid();
+			sortItems.createHtml();
 		});
-		table.empty();
-		sortItems.createHtml();
 	}
 };
+SortItems.prototype.getAPIIOS = function() {
+	if(sortItems.countryIndexIos<sortItems.country.length){
+		requestItems = $.get(`/getoffer/live?country=${this.country[this.countryIndexIos]}&platform=ios`, function(res) {
+			if(res.length>0){
+				res.forEach( function(element, index) {
+					sortItems.setData(element)
+				});
+			}
+			sortItems.countryIndexIos++;
+			sortItems.getAPIIOS();
+			sortItems.createHtml();
+		});
+	}
+};
+SortItems.prototype.setData = function(data){
+	this.arrayList.push(data);
+};
 SortItems.prototype.createHtml = function(){
-	var affID = this.admin;
-	$.each(this.list, function(index, val) {
-		var pathRedirect = `http://${window.location.href.split("//")[1].split("/")[0]}/checkparameter/?offer_id=${val.index}&aff_id=${affID.isID}`;
-		var elementHtml =  `<div class="offerItems">
-				            <ul class="offerItems-nonePd block-img">
-				                <img class="image-logo" src="${val.imgSet}" alt="">
-				                <div class="respon-checkbox">
-				                    <div class="checkbox checkbox-primary">
-				                        <input class="checkbox-group" id="checkbox-${val.index}" type="checkbox" name="offer" value="${val.index}">
-				                        <label for="checkbox-${val.index}">
-				                        </label>
-				                    </div>
-				                </div>
-				            </ul>
-				            <ul class="offerItems-nonePd block-name-platform">
-				            <ul class="container-name-platform fix-margin">`;
-		switch (val.platformSet) {
-			case "android":
-				elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/android.png" alt=""></li>`;
-				break;
-			case "ios":
-				elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/apple.png" alt=""></li>`;
-				break;
-		}
-				elementHtml += `<li class="style-list-of-items style-name-app"><a class="text-nameApp">${val.nameSet}</a></li>
-				                </ul>
-				                <li class="style-list-of-items flex-items fixline-text">
-				                    <div class="content-info flex-left id-prevlink content-flex">
-				                        <ul class="fix-margin custom-margin-respone">
-				                        	<a class="text-block">#${val.index}</a>
-				                        </ul>
-				                        <ul class="fix-margin custom-margin-respone"><a class="paytext">$${new Number(val.paySet)}</a></ul>
-				                    </div>
-				                    <div class="content-info flex-left id-prevlink content-flex">
-				                        <ul class="fix-margin "><a class="color-green prelink" target="_blank" href="${val.prevLink}"><i class="fa fa-external-link-square"></i>Preview</a></ul>
-				                        <ul class="fix-margin "><a class="upper-case text-block" href="">${val.offerType}</a></ul>
-				                    </div>
-				                    <div class="content-info flex-left last-info line-1366 click-show-${index} goals-bnt content-flex">
-				                        <ul class="fix-margin custom-margin-respone">`;
-				elementHtml +=		`<li class="flex-left">KPIs<a class="box-green">!</a><p class="styleCapSetApp">Cap : ${val.capSet}</p></li>
-									<ul class="fix-margin-content-goals">
-												<a style='display: none; line-height: 1.2em;'>${val.descriptionSet}</a>
-											</ul>
-				                        </ul>
-				                    </div>
-				                    <div class="content-info maxwidth-size line-1366 content-flex country-size-block">
-				                        <ul class="offerItems-nonePd fix-margin flex-left country-size">
-				                            <li class="style-list-of-items">
-				                                <a class="upper-case text-block">${val.countrySet}</a>
-				                            </li>
-				                            <li class="style-list-of-items">`;
-		if(val.categorySet===""){
-				elementHtml +=		`<a class="">${val.categorySet}</a>`;
-		}else{
-				elementHtml +=		`<a class="boxcategory">${val.categorySet}</a>`;
-		}
-				elementHtml +=		`</li>
-				                        </ul>
-				                    </div>
-				                    <div class="content-info center-btn content-flex resize-btn">
-				                        <ul class="offerItems-nonePd container-btn" style='display: flex; width:100%;'>`;
-		if(!(sortItems.master)){
-				elementHtml += 		`<button class="btn-content-request requestapp-${index}">
-				                                <i class="fa fa-shopping-cart m-r-xs icon-btn"></i>
-				                                <p class="text-btn">Request offer</p>
-				                            </button>`
-		}else{
-				elementHtml +=  	`<button class="cp-${index} btn-cp-mt-ls"><i class="fa fa-copy custom-master-side"/></button><p style="width:100px;">${pathRedirect}</p>`
-		}                            
-				elementHtml += 	 	   `</ul>
-				                    </div>
-				                </li>
-				            </ul>
-				        </div>`;
-		sortItems.arrayList.push(elementHtml)
-	});
-	sortItems.countPage();
+	if(sortItems.countryIndexAndroid===sortItems.country.length-1&&sortItems.countryIndexIos===sortItems.country.length-1){
+		$.each(this.arrayList, function(index, val) {
+			var elementHtml =  `<div class="offerItems">
+					            <ul class="offerItems-nonePd block-img">
+					                <img class="image-logo" src="${val.imgSet}" alt="">
+					                <div class="respon-checkbox">
+					                    <div class="checkbox checkbox-primary">
+					                        <input class="checkbox-group" id="checkbox-${val.index}" type="checkbox" name="offer" value="${val.index}">
+					                        <label for="checkbox-${val.index}">
+					                        </label>
+					                    </div>
+					                </div>
+					            </ul>
+					            <ul class="offerItems-nonePd block-name-platform">
+					            <ul class="container-name-platform fix-margin">`;
+			switch (val.platformSet) {
+				case "android":
+					elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/android.png" alt=""></li>`;
+					break;
+				case "ios":
+					elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/apple.png" alt=""></li>`;
+					break;
+			}
+					elementHtml += `<li class="style-list-of-items style-name-app"><a class="text-nameApp">${val.nameSet}</a></li>
+					                </ul>
+					                <li class="style-list-of-items flex-items fixline-text">
+					                    <div class="content-info flex-left id-prevlink content-flex">
+					                        <ul class="fix-margin custom-margin-respone">
+					                        	<a class="text-block">#${val.index}</a>
+					                        </ul>
+					                        <ul class="fix-margin custom-margin-respone"><a class="paytext">$${new Number(val.paySet)}</a></ul>
+					                    </div>
+					                    <div class="content-info flex-left id-prevlink content-flex">
+					                        <ul class="fix-margin "><a class="color-green prelink" target="_blank" href="${val.prevLink}"><i class="fa fa-external-link-square"></i>Preview</a></ul>
+					                        <ul class="fix-margin "><a class="upper-case text-block" href="">${val.offerType}</a></ul>
+					                    </div>
+					                    <div class="content-info flex-left last-info line-1366 click-show-${index} goals-bnt content-flex">
+					                        <ul class="fix-margin custom-margin-respone">`;
+					elementHtml +=		`<li class="flex-left">KPIs<a class="box-green">!</a><p class="styleCapSetApp">Cap : ${val.capSet}</p></li>
+										<ul class="fix-margin-content-goals">
+													<a style='display: none; line-height: 1.2em;'>${val.descriptionSet}</a>
+												</ul>
+					                        </ul>
+					                    </div>
+					                    <div class="content-info maxwidth-size line-1366 content-flex country-size-block">
+					                        <ul class="offerItems-nonePd fix-margin flex-left country-size">
+					                            <li class="style-list-of-items">
+					                                <a class="upper-case text-block">${val.countrySet}</a>
+					                            </li>
+					                            <li class="style-list-of-items">`;
+			if(val.categorySet===""){
+					elementHtml +=		`<a class="">${val.categorySet}</a>`;
+			}else{
+					elementHtml +=		`<a class="boxcategory">${val.categorySet}</a>`;
+			}
+					elementHtml +=		`</li>
+					                        </ul>
+					                    </div>
+					                    <div class="content-info center-btn content-flex resize-btn">
+					                        <ul class="offerItems-nonePd container-btn" style='display: flex; width:100%;'>`;
+			if(!(sortItems.master)){
+					elementHtml += 		`<button class="btn-content-request requestapp-${index}">
+					                                <i class="fa fa-shopping-cart m-r-xs icon-btn"></i>
+					                                <p class="text-btn">Request offer</p>
+					                            </button>`
+			}else{
+					elementHtml +=  	`<button class="cp-${index} btn-cp-mt-ls"><i class="fa fa-copy custom-master-side"/></button><p style="width:100px;">${pathRedirect}</p>`
+			}                            
+					elementHtml += 	 	   `</ul>
+					                    </div>
+					                </li>
+					            </ul>
+					        </div>`;
+			sortItems.arrayList.push(elementHtml)
+		});
+		sortItems.countPage();
+	}
 };
 SortItems.prototype.countPage = function(){
 	sortItems.newArrayList = [];
@@ -245,24 +241,24 @@ SortItems.prototype.renderPage = function(page, pagination){
 	})
 	sortItems.delEventDown();
 	sortItems.eventDown();
-	sortItems.eventShowbtn();
-	sortItems.pending.forEach((items, index)=>{
-		switch (items.adConfirm) {
-			case "true":
-				$(`.requestapp-${items.offerId}`).children("i").removeClass('fa-shopping-cart').addClass('fa-unlock');
-				$(`.requestapp-${items.offerId}`).css("background","#4b7bec");
-				$(`.requestapp-${items.offerId}`).children("p").html("Approval");
-				$(`.requestapp-${items.offerId}`).unbind("click");
-				break;
-			case "false":
-				$(`.requestapp-${items.offerId}`).children("i").removeClass('fa-shopping-cart').addClass('fa-spinner fa-pulse');
-				$(`.requestapp-${items.offerId}`).css("background","#10c469");
-				$(`.requestapp-${items.offerId}`).children("p").html("Pending");
-				$(`.requestapp-${items.offerId}`).unbind("click");
-			default:
-				break;
-		}
-	});
+	// sortItems.eventShowbtn();
+	// sortItems.pending.forEach((items, index)=>{
+	// 	switch (items.adConfirm) {
+	// 		case "true":
+	// 			$(`.requestapp-${items.offerId}`).children("i").removeClass('fa-shopping-cart').addClass('fa-unlock');
+	// 			$(`.requestapp-${items.offerId}`).css("background","#4b7bec");
+	// 			$(`.requestapp-${items.offerId}`).children("p").html("Approval");
+	// 			$(`.requestapp-${items.offerId}`).unbind("click");
+	// 			break;
+	// 		case "false":
+	// 			$(`.requestapp-${items.offerId}`).children("i").removeClass('fa-shopping-cart').addClass('fa-spinner fa-pulse');
+	// 			$(`.requestapp-${items.offerId}`).css("background","#10c469");
+	// 			$(`.requestapp-${items.offerId}`).children("p").html("Pending");
+	// 			$(`.requestapp-${items.offerId}`).unbind("click");
+	// 		default:
+	// 			break;
+	// 	}
+	// });
 };
 SortItems.prototype.deleventShowbtn = function(){
 	$(".btn-content-request").unbind('click');
@@ -301,7 +297,8 @@ SortItems.prototype.download = function(filename){
     tagDownload.children().children().removeClass("fa-spinner fa-pulse").addClass('fa-download')
     sortItems.eventDown();
 };
-sortItems.getAPI();
+sortItems.getAPIAndroid();
+sortItems.getAPIIOS();
 filterBtn.click(function(event) {
 	if(platform.val()!=="all"||sortCountry.val()!=="all"){
 		sortItems.searchMethod = true;

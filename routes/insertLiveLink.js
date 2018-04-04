@@ -42,6 +42,8 @@ router.post('/:param', function(req, res, next) {
 							}
 						}
 						req.body.lead = req.body.lead.split(".");
+						req.body.url = req.body.url.split(" ").join("&");
+						req.body.dataOffer = offer;
 						db.collection(namedb).updateOne(query, req.body, { upsert:true }, function(err,result){
 								if(!err){
 									res.send("ok");
