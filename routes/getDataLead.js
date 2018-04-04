@@ -7,22 +7,18 @@ const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.get('/:parameter', function(req, res, next) {
-	if(req.params.parameter==="live"){
+	if(req.params.parameter==="live"&&req.query.country!==undefined&&req.query.platform!==undefined){
 		mongo.connect(pathMongodb,(err,db)=>{
 			var query = {};
-			query.statusLead = true;
-			if(req.query.platform !== undefined&& req.query.platform != null){
-				query.os = new RegExp(req.query.platform, "i");
-			}
-			if(req.query.country !== undefined && req.query.country != null){
-				query.country = new RegExp(req.query.country, "i");
-			}
-			db.collection(req.query.platform+req.query.country).find(query).toArray((err, result)=>{
+			query.status = "success";
+			db.collection(req.query.country+req.query.platform).find(query).toArray((err, result)=>{
 				if(!err){
 					res.send(result);
 				}
 			})
 		})
+	}else{
+		res.redirect("/")
 	}
 });
 

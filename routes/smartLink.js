@@ -14,14 +14,15 @@ const pathMongodb = require("./pathDb");
 /* GET home page. */
 function redirect(db, query, res, req) {
 	var arr = [];
-	db.collection(query.platform.toLowerCase()+query.country.toLowerCase()).find({"status" : "success"}).toArray((err, result)=>{
+	var dbname = query.country.toLowerCase()+query.platform.toLowerCase();
+	db.collection(dbname).find({"status" : "success"}).toArray((err, result)=>{
 		if(!err){
 			if(result.length===0){
-				res.send("error")
+				res.send("NO MORE OFFERS FROM THIS COUNTRY....")
 			}else{
-				db.collection(query.platform.toLowerCase()+query.country.toLowerCase()).findOne({isCount: true}, (err, countValue)=>{
-					db.collection(query.platform.toLowerCase()+query.country.toLowerCase()).updateOne({isCount:true},{count: countValue.count++});
-					res.redirect(`http://rockettraffic.org/checkparameter/?offer_id=${result[countValue.count%result.length].url.split("?offer_id=")[1]}&aff_id=181879769070526`);
+				db.collection(dbname).findOne({isCount: true}, (err, countValue)=>{
+					db.collection(dbname).updateOne({isCount:true},{$set:{isCount:true, count: countValue.count++}});
+					res.redirect(`http://rockettraffic.org/checkparameter/?offer_id=${result[countValue.count%result.length].url.split("?offer_id=")[1].split(" ")[0]}&aff_id=181879769070526`);
 				})
 			}
 		}
