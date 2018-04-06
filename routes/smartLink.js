@@ -21,8 +21,10 @@ function redirect(db, query, res, req) {
 				res.send("NO MORE OFFERS FROM THIS COUNTRY....")
 			}else{
 				db.collection(dbname).findOne({isCount: true}, (err, countValue)=>{
-					db.collection(dbname).updateOne({isCount:true},{$set:{isCount:true, count: countValue.count++}});
-					res.redirect(`http://rockettraffic.org/checkparameter/?offer_id=${result[countValue.count%result.length].url.split("?offer_id=")[1].split(" ")[0]}&aff_id=181879769070526`);
+					
+					var path = `http://rockettraffic.org/checkparameter/?offer_id=${result[countValue.count%result.length].index}&aff_id=181879769070526`;
+					db.collection(dbname).updateOne({isCount:true},{$set:{isCount:true, count: countValue.count+1}});
+					res.redirect(path);
 				})
 			}
 		}

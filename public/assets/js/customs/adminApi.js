@@ -20,6 +20,8 @@ var select = [];
 var countRequest = 0;
 var indexOfNetWorkEdit;
 var arraySelectMember=[];
+var delOffer = $("#delOffer");
+var delLiveOffer = $("#delLiveOffer");
 //this is variable netWOrk
 var nameNetwork = $("#nameNetwork");
 var methodNetwork = $("#methodNetwork");
@@ -35,6 +37,23 @@ function API() {
 	this.custom;
 	this.sttServerCustomNetwork;
 }
+delOffer.click(()=>{
+	var ses = confirm("You are sure to delete all offers");
+	if(ses){
+		api.delRequest("/delete/alloffer")
+	}
+});
+delLiveOffer.click(()=>{
+	var ses = confirm("You are sure to delete all live offers");
+	if(ses){
+		api.delRequest("/delete/liveoffer")
+	}
+});
+API.prototype.delRequest = function(path) {
+	$.post(path, function(data, textStatus, xhr) {
+		alert(data)
+	});
+};
 API.prototype.fil = function(select, condition) {
 	var result = select.filter(function(item) {
 				return item.id === condition;

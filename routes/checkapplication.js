@@ -8,24 +8,16 @@ var request = require("request");
 
 /* GET home page. */
 router.post('/', function(req, res, next) {
-	function reCheck (path) {
-		request(path, (err, data, xhr)=>{
-			if(data){
-				var app = {};
-				app.icon   = data.body.split("picture")[1].split(`src="`)[1].split(`"`)[0];
-				app.title  = data.body.split("product-header__title")[1].split("\n")[1].trim();
-				res.send(app);
-			}else if(err){
-				res.send("error");
-			}
-		})
-	}
 	function checkAppGoogle(path) {
 		request(path, (err, data, xhr)=>{
-			var app = {};
-			app.icon = data.body.split(`<div class="dQrBL"><img aria-hidden="true" src=`)[1].split("</div>")[0].split(`"`)[1];
-			app.title = data.body.split(`<h1 class="AHFaub" itemprop="name">`)[1].split("</h1>")[0].split("<span >")[1].split("</span>")[0];
-			res.send(app);
+			if(data.body.indexOf("We're sorry, the requested URL was not found on this server.")!==-1){
+				res.send("error");
+			}else{
+				var app = {};
+				app.icon = data.body.split(`<div class="dQrBL"><img aria-hidden="true" src=`)[1].split("</div>")[0].split(`"`)[1];
+				app.title = data.body.split(`<h1 class="AHFaub" itemprop="name">`)[1].split("</h1>")[0].split("<span >")[1].split("</span>")[0];
+				res.send(app);
+			}
 		})
 	}
 	try {
@@ -48,7 +40,7 @@ router.post('/', function(req, res, next) {
 				res.send(data)
 			})
 			.catch((err)=>{
-				reCheck(req.body.url)
+				res.send("http://rockettraffic.org/assets/images/apple.png")
 			})
 		}else{
 			var error = {

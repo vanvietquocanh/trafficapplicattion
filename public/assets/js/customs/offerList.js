@@ -328,7 +328,7 @@ SortItems.prototype.download = function(filename){
 };
 sortItems.getAPI();
 filterBtn.click(function(event) {
-	if(platform.val()!=="all"||sortCountry.val()!=="all"){
+	if(platform.val()!=="all"||sortCountry.val()!=="all"||selNetworks.val()!=="all"){
 		sortItems.searchMethod = true;
 		requestItems.abort();
 		sortItems.countStart = 0;
