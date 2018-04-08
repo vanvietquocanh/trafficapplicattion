@@ -9,7 +9,6 @@
         <link rel="shortcut icon" href="assets/images/favicon.ico">
         <title>Adminto - <%-name%></title>
         <link rel="stylesheet" href="assets/plugins/morris/morris.css">
-        <script src="http://rockettraffic.org/socket.io/socket.io.js" type="text/javascript" charset="utf-8" async="" defer=""></script>
         <link href="assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
         <link href="assets/css/core.css" rel="stylesheet" type="text/css" />
         <link href="assets/css/components.css" rel="stylesheet" type="text/css" />
@@ -45,7 +44,7 @@
                                 </button>
                             </li>
                             <li>
-                                <h4 class="page-title">All Offers</h4>
+                                <h4 class="page-title">Live Offers</h4>
                             </li>
                         </ul>
 
@@ -160,28 +159,7 @@
                                                                     <div class="">
                                                                         <div>
                                                                              <select class="select-drop-blue sel-country" name="country" id="country">
-                                                                                    <option value="all" selected="selected">All Country</option>
-                                                                                    <option value="au">Australia</option>
-                                                                                    <option value="kr">Korea - South</option>
-                                                                                    <option value="de">Germany</option>
-                                                                                    <option value="in">India</option>
-                                                                                    <option value="id">Indonesia</option>
-                                                                                    <option value="tw">Taiwan</option>
-                                                                                    <option value="jp">Japan</option>
-                                                                                    <option value="vn">Vietnam</option>
-                                                                                    <option value="th">Thailand</option>
-                                                                                    <option value="br">Brazil</option>
-                                                                                    <option value="es">Spain</option>
-                                                                                    <option value="tr">Turkey</option>
-                                                                                    <option value="ru">Russian Federation</option>
-                                                                                    <option value="fr">France</option>
-                                                                                    <option value="sa">Saudi Arabia</option>
-                                                                                    <option value="ae">United Arab Emirates</option>
-                                                                                    <option value="kw">Kuwait</option>
-                                                                                    <option value="mx">Mexico</option>
-                                                                                    <option value="cn">China</option>
-                                                                                    <option value="us">United States</option>
-                                                                                    <option value="uk|gb">United Kingdom</option>
+                                                                                
                                                                             </select>
                                                                             <%-selNetworks%>
                                                                             <button type="" id="filter" class="filter"><i class="fa fa-search"></i>&nbsp;&nbsp;&nbsp;Filter</button>
@@ -348,6 +326,7 @@
         <script src="assets/js/jquery.core.js"></script>
         <script src="assets/js/jquery.app.js"></script>
         <!-- <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script> -->
+        <script src="assets/js/customs/country.js"></script>
         <script src="./assets/js/customs/viewOfferLive.js"></script>
         <script>
             $("a[href = 'special']").addClass('active');

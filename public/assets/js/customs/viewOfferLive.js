@@ -12,9 +12,10 @@ var rowsTable = $("fixcenter");
 var members = $("#members");
 var search = $('#search');
 var btnSearch = $("#btn-search");
-var requestItems;
+var requestItemsIOS, requestItemsAndroid;
+$("head").append(`<script src="http://${window.location.hostname}/socket.io/socket.io.js" type="text/javascript" charset="utf-8" async="" defer=""></script>`)
 $(()=>{
-	var socket = io("http://rockettraffic.org/");
+	var socket = io(`http://${window.location.hostname}/`);
 	socket.on('offerlive', function (data) {
 		console.log(data)
 	});
@@ -36,11 +37,12 @@ function SortItems() {
 	this.newArrayList = [];
 	this.master;
 	this.checkboxGroup = [];
-	this.country = ["au", "kr", "de", "in", "id", "tw", "jp", "vn", "th", "br", "es", "tr", "ru", "fr", "sa", "ae", "kw", "mx", "cn", "us", "gb","uk"];
+	this.country = countryData;
 }
 SortItems.prototype.getAPIAndroid = function(){
 	if(sortItems.countryIndexAndroid<sortItems.country.length){
-		requestItems = $.get(`/getoffer/live?country=${this.country[this.countryIndexAndroid]}&platform=android`, function(res) {
+		requestItemsAndroid = $.get(`/getoffer/live?country=${this.country[this.countryIndexAndroid].countryCode}&platform=android`, function(res) {
+			console.log(res)
 			if(res.length>0){
 				res.forEach( function(element, index) {
 					sortItems.setData(element)
@@ -54,7 +56,8 @@ SortItems.prototype.getAPIAndroid = function(){
 };
 SortItems.prototype.getAPIIOS = function() {
 	if(sortItems.countryIndexIos<sortItems.country.length){
-		requestItems = $.get(`/getoffer/live?country=${this.country[this.countryIndexIos]}&platform=ios`, function(res) {
+		requestItemsIOS = $.get(`/getoffer/live?country=${this.country[this.countryIndexIos].countryCode}&platform=ios`, function(res) {
+			console.log(res)
 			if(res.length>0){
 				res.forEach( function(element, index) {
 					sortItems.setData(element)
@@ -71,6 +74,7 @@ SortItems.prototype.setData = function(data){
 };
 SortItems.prototype.createHtml = function(){
 	if(sortItems.countryIndexAndroid===sortItems.country.length-1&&sortItems.countryIndexIos===sortItems.country.length-1){
+		console.log(this.arrayList);
 		$.each(this.arrayList, function(index, val) {
 			var elementHtml =  `<div class="offerItems">
 					            <ul class="offerItems-nonePd block-img">

@@ -17,7 +17,6 @@ var demote = $("#demote");
 var dismissal = $("#dismissal");
 var memberMasterList = $("#memberMasterList");
 var select = [];
-var countRequest = 0;
 var indexOfNetWorkEdit;
 var arraySelectMember=[];
 var delOffer = $("#delOffer");
@@ -257,39 +256,20 @@ API.prototype.addEventEditer = function(){
 	var netWorkData = this.netWork;
 	addBtnNetwork.click(function(e) {
 		if(addBtnNetwork.children().attr("class").split("-")[1]==="plus"){
-			// if(methodNetwork.val()){
-			// 	$.post(linkNetwork.val(), function(data, textStatus, xhr) {
-			// 		if(xhr.status===200){
-			// 			attachedNetwork();
-			// 		}else{
-			// 			alert("Link Error!")
-			// 		}
-			// 	});
-			// }else{
-			// 	$.get(linkNetwork.val(), function(data, textStatus, xhr){
-			// 		if(xhr.status===200){
-			// 			attachedNetwork();
-			// 		}else{
-			// 			alert("Link Error!")
-			// 		}
-			// 	});
-			// }
-			// function attachedNetwork() {
-				if(nameNetwork.val()!=="" &&methodNetwork.val()!== null&&linkNetwork.val()!==""&&postBack.val()!==""){
-					var domainNetwork = linkNetwork.val().split("://")[1].split(".")[0];
-					if(domainNetwork){
-						var data = {
-							name     : nameNetwork.val(),
-							method   : methodNetwork.val(),
-							link     : linkNetwork.val(),
-							postback : postBack.val()
-						}
-						api.addNetwork(data)
+			if(nameNetwork.val()!=="" &&methodNetwork.val()!== null&&linkNetwork.val()!==""&&postBack.val()!==""){
+				var domainNetwork = linkNetwork.val().split("://")[1].split(".")[0];
+				if(domainNetwork){
+					var data = {
+						name     : nameNetwork.val(),
+						method   : methodNetwork.val(),
+						link     : linkNetwork.val(),
+						postback : postBack.val()
 					}
-				}else {
-					alert("Please enter full information!!");
+					api.addNetwork(data)
 				}
-			// }
+			}else {
+				alert("Please enter full information!!");
+			}
 		}else{
 			var itemEdit = api.netWork.NetworkList[indexOfNetWorkEdit];
 			itemEdit.name = nameNetwork.val();
@@ -348,6 +328,21 @@ API.prototype.addEventEditer = function(){
 				addBtnNetwork.children().removeClass("fa-plus").addClass('fa-check');
 			}
 		});
+	})
+	$(".btn-content-getapi").click((event)=>{
+		var sessionRefresh = confirm("You definitely want to refresh up the offers?");
+		var indexReq = [$(event.target).attr("class").split("btn_")[1]];
+		if(sessionRefresh&&api.netWork.NetworkList.length>0&&api.netWork.NetworkList[$(event.target).attr("class").split("btn_")[1]].custom!=undefined){
+			$($(".btn-content-getapi")[indexReq]).removeClass('fa-download').addClass("fa-spinner fa-pulse");
+			api.removeEvent();
+			$.post('/autorequestlink', {index: indexReq[0]}, function(data, textStatus, xhr) {
+				$($(".btn-content-getapi")[indexReq]).removeClass("fa-spinner fa-pulse").addClass('fa-download');
+				alert(data);
+				api.addEventEditer();
+			});
+		}else{
+			alert("Please enter full information!!");
+		}
 	})
 	$(".btn-content-copy").click((e)=>{
 		var $temp = $("<input>");
@@ -448,6 +443,7 @@ API.prototype.attachedNetworkToDom = (data, index)=>{
 					        <td>${data.method}</td>
 					        <td>${data.link}</td>
 					        <td id="val_${index}">http://${window.location.href.split("//")[1].split("/")[0]}/tracking/eventdata?transaction_id={${data.postback}}</td>
+					        <td class="icon-content"><button class="btn-content btn-content-getapi fa fa-download btn_${index}"></button></td>
 					        <td class="icon-content"><button class="btn-content btn-content-edit fa btn_${index}"></button></td>
 					        <td class="icon-content"><button class="btn-content btn-content-del fa btn_${index}"><i class="fa fa-trash-o"></i></button></td>
 					        <td class="icon-content"><button class="btn-content btn-content-copy fa btn_${index}"></button></td>
@@ -458,25 +454,10 @@ API.prototype.attachedNetworkToDom = (data, index)=>{
 api.getNetworkList();
 api.getAPIManager();
 api.getAPIMember();
-$("#refreshAPI").click(function(event) {
-	if(api.netWork.NetworkList.length>0&&api.netWork.NetworkList[0].custom!=undefined){
-		var sessionRefresh = confirm("You definitely want to refresh up the offers?");
-		if(sessionRefresh&&countRequest===0){
-			$("#refreshAPI").children().addClass("fa-spin")
-			// api.loaddingAPI($("#refreshAPI"),"<i class='fa fa-spinner fa-pulse'></i>")
-			countRequest++;
-			$.post('/autorequestlink', null, function(data, textStatus, xhr) {
-				api.loadSuccessfully($("#refreshAPI"),"<i class='fa fa-refresh'></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Refresh API")
-				var readAlert = alert(data);
-			});
-		}
-	}else{
-		alert("Please enter full information!!");
-	}
-});
 API.prototype.removeEvent = function(){
 	$(".btn-content-del").unbind('click');
 	$(".btn-content-edit").unbind('click');
+	$(".btn-content-getapi").unbind('click');
 	$(".btn-content-copy").unbind('click');
 	addBtnNetwork.unbind('click');
 	$(".btn-content-menu").unbind('click');

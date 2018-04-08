@@ -78,37 +78,38 @@ router.get('/:value', function(req, res, next) {
 							countCVR++;
 						}
 					}
-					arrayCheck[arrayCheck.length-1].cvr = (Math.round(countCVR/arrayCheck[arrayCheck.length-1].click*100),2).toFixed(2)+"%";
+					if(arrayCheck[arrayCheck.length-1].click!==0){
+						arrayCheck[arrayCheck.length-1].cvr = (Math.round(countCVR/arrayCheck[arrayCheck.length-1].click*100))+"%";
+						arrayValue.push(arrayCheck[arrayCheck.length-1])
+					}
 					if(j===data.length-1){
-						cvr.checkLinkApp(arrayCheck)
+						cvr.checkLinkApp(arrayValue)
 					}
 				}
 			};
 			CVR.prototype.checkLinkApp = function(data) {
 				var dataResponClient = [];
 				data.forEach(function(element, index) {
-					console.log(element)
 					cvr.listOffer.forEach( function(ele, i) {
-						if(cvr.orderLead(element,ele)&&i===0){
+						if(cvr.orderLead(element,ele)){
 							element.link = `https://${req.headers.host}//checkparameter/?offer_id=${i}&aff_id={FacebookID}`
 							dataResponClient.push(element);
 						}
 					});
 				});
-				res.send(dataResponClient)
+				res.send(dataResponClient);
 			};
 			CVR.prototype.checkInConversion = function(){
-				var data = cvr.conversion;
-				data.forEach( function(element, index) {
+				cvr.conversion.forEach( function(element, index) {
 					var count = 0;
 					cvr.click.forEach( function(click, index) {
-						if(click.appName===element.appName&&click.idOfferNet===element.idOfferNet&&click.platfrom===element.platfrom&&click.networkName===element.networkName&&click.country===element.country){
+						if(click.appName===element.appName&&click.idOffer===element.idOffer&&click.platfrom===element.platfrom&&click.networkName===element.networkName){
 							count++;
 						}
 					});
-					data[index].click = count;
+					cvr.conversion[index].click = count;
 				});
-				cvr.checkReplace(data)
+				cvr.checkReplace(cvr.conversion)
 			}
 			cvr.connectMongo();
 		} catch(e) {

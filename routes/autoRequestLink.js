@@ -43,12 +43,14 @@ router.post('/', function(req, res, next) {
 			request.get({
 			    url: network.link
 			}, function (err, respon) {
-				if(respon){
+				if(respon.body.indexOf("<html>")===-1){
 					if(requestApi.loopOrder(respon, network)){
 				   		requestApi.changeData(network, db, respon.body);
 					}else{
-						requestApi.callRequestGet(network, db);
+						res.send("No Data")
 					}
+				}else{
+					res.send("error");
 				}
 			});
 		} catch(e) {
@@ -99,6 +101,35 @@ router.post('/', function(req, res, next) {
 			db.close();
 		})
 	};
+	RequestAPI.prototype.insertNewDB = function(db, data, index) {
+		if(data.length>0){
+			data.forEach( function(element, i) {
+				index++;
+				data[i].index = index;
+			});
+			db.collection("offer").insertMany(data, (err,result)=>{
+				if(!err){
+					requestApi.writeFileText(db);
+					db.collection("offerTest").drop();
+				}
+			})									
+		}else{
+			res.send("No Change");
+		}
+	};
+	RequestAPI.prototype.checkduplicate = function(db, query, newData, index) {
+		db.collection("offer").find(query).toArray((err, data)=>{
+			db.collection("offerTest").createIndex({"offeridSet" : 1}, {unique: true}, err=>{
+				db.collection("offerTest").insertMany(data, err=>{
+					db.collection("offerTest").insertMany(newData, (err, result)=>{
+						db.collection("offerTest").find().skip(data.length).toArray((err,result)=>{
+							requestApi.insertNewDB(db, result, index)
+						})
+					})
+				})
+			});
+		})	
+	};
 	RequestAPI.prototype.changeData = (network, db, respon) =>{
 		requestApi.countCustomInNetwork++;
 			db.collection("offer").find().sort({index:-1}).limit(1).toArray((err, result)=>{
@@ -114,41 +145,18 @@ router.post('/', function(req, res, next) {
 					}
 					if(requestApi.lengthOfNet === requestApi.countRequest){
 						if(result.length===0){
-							db.collection("offer").insertMany(requestApi.arrayDadaPushToDatabase, (err,result)=>{
+							db.collection("offer").insertMany(requestApi.arrayDadaPushToDatabase, (err, result)=>{
 								if(!err){
 									requestApi.writeFileText(db);
 								}
 							})
 						}else{
 							var indexOfferNext = Number(result[0].index);
-							db.collection("offer").find().toArray((err, data)=>{
-								requestApi.arrayDadaPushToDatabase.forEach((items, index)=>{ 
-									data.forEach((el, i)=>{
-										if(items.offeridSet === el.offeridSet&&items.nameNetworkSet === el.nameNetworkSet&& items.nameSet === el.nameSet){
-											requestApi.arIndexDel.push(index);
-										}
-									})
-								})
-								if(requestApi.arIndexDel.length>0){
-									for(var i = requestApi.arIndexDel.length; i >= 0; i--){
-										requestApi.arrayDadaPushToDatabase.splice(requestApi.arIndexDel[i]-1, 1)
-									}
-								}
-								requestApi.max = Number(result[0].index);
-								if(requestApi.arrayDadaPushToDatabase.length>0){
-									requestApi.arrayDadaPushToDatabase.forEach( function(element, index) {
-										requestApi.max++;
-										element.index = requestApi.max;
-									});
-									db.collection("offer").insertMany(requestApi.arrayDadaPushToDatabase, (err, result)=>{
-										if(!err){
-											requestApi.writeFileText(db);
-										}
-									})
-								}else{
-									res.send("No Change");
-								}
-							})
+							var query = {
+								"nameNetworkSet" : network.name
+							}
+							requestApi.max = Number(result[0].index);
+							requestApi.checkduplicate(db, query, requestApi.arrayDadaPushToDatabase, requestApi.max)
 						}
 					}
 				}
@@ -163,7 +171,7 @@ router.post('/', function(req, res, next) {
 				if(requestApi.loopOrder(respon, network)){
 			   		requestApi.changeData(network, db, respon.body)
 				}else{
-					requestApi.callRequestPost(network, db);
+					res.send("No Data")
 				}
 			});
 		} catch(e) {
@@ -171,19 +179,17 @@ router.post('/', function(req, res, next) {
 		}
 	}
 	RequestAPI.prototype.requetEmpty = (network, db) =>{
-		network.forEach( function(element, index) {
-			if(element.custom.data!==undefined){
-				requestApi.lengthOfNet++;
-				switch (element.method) {
-					case "GET":
-							requestApi.callRequestGet(element, db)
-						break;
-					case "POST":
-							requestApi.callRequestPost(element, db)
-						break;
-				}
+		if(network[req.body.index].custom.data!==undefined){
+			requestApi.lengthOfNet++;
+			switch (network[req.body.index].method) {
+				case "GET":
+						requestApi.callRequestGet(network[req.body.index], db)
+					break;
+				case "POST":
+						requestApi.callRequestPost(network[req.body.index], db)
+					break;
 			}
-		});
+		}
 	}
 	try{
 		RequestAPI.prototype.findLinkAPI = (db) =>{
