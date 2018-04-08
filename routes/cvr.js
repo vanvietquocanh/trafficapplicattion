@@ -79,7 +79,9 @@ router.get('/:value', function(req, res, next) {
 						}
 					}
 					if(arrayCheck[arrayCheck.length-1].click!==0){
-						arrayCheck[arrayCheck.length-1].cvr = (Math.round(countCVR/arrayCheck[arrayCheck.length-1].click*100))+"%";
+						var cvrNumber = parseFloat(countCVR/arrayCheck[arrayCheck.length-1].click*100);
+						cvrNumber = Math.round(cvrNumber*100)/100;
+						arrayCheck[arrayCheck.length-1].cvr = cvrNumber+"%";
 						arrayValue.push(arrayCheck[arrayCheck.length-1])
 					}
 					if(j===data.length-1){
@@ -87,17 +89,21 @@ router.get('/:value', function(req, res, next) {
 					}
 				}
 			};
+			CVR.prototype.unique = function(value, index, self) {
+				return self.indexOf(value) === index;
+			};
 			CVR.prototype.checkLinkApp = function(data) {
-				var dataResponClient = [];
+				var dataCheckClick = [];
 				data.forEach(function(element, index) {
 					cvr.listOffer.forEach( function(ele, i) {
 						if(cvr.orderLead(element,ele)){
-							element.link = `https://${req.headers.host}//checkparameter/?offer_id=${i}&aff_id={FacebookID}`
-							dataResponClient.push(element);
+							element.link = `https://${req.headers.host}/checkparameter/?offer_id=${i}&aff_id={FacebookID}`
+							dataCheckClick.push(element);
 						}
 					});
 				});
-				res.send(dataResponClient);
+				var unique = dataCheckClick.filter(cvr.unique);
+				res.send(unique);
 			};
 			CVR.prototype.checkInConversion = function(){
 				cvr.conversion.forEach( function(element, index) {
