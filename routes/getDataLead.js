@@ -15,11 +15,9 @@ router.get('/:parameter', function(req, res, next) {
 			if(req.query.start !== undefined&&Number(req.query.start)!==NaN){
 				skip = Number(req.query.start);
 			}
-			console.log(req.query);
 			if(req.query.network!== undefined){
 				query[`dataOffer.nameNetworkSet`] = req.query.network;
 			}
-			console.log(query)
 			db.collection(req.query.country+req.query.platform).find(query).skip(skip).limit(500).toArray((err, result)=>{
 				if(!err){
 					res.send(result);

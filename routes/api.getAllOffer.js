@@ -22,7 +22,7 @@ router.get('/:value', function(req, res, next) {
 			fs.readFile("./OfferList.txt", (err, data)=>{
 				if(!err){
 					var dataResponse = data.toString("utf8").split("\r\n").filter(function(app) {
-						return app.indexOf(country)!==-1&&app.indexOf(platformSet)!==-1&&app.indexOf(nameNetworkSet)!==-1;
+						return (app.indexOf(country)!==-1&&app.indexOf(platformSet)!==-1&&app.indexOf(nameNetworkSet)!==-1)&&app!=="";
 					});
 					res.send(dataResponse);
 				}

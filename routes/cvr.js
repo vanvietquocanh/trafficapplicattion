@@ -17,24 +17,24 @@ router.get('/:value', function(req, res, next) {
 						}
 						db.collection("report").aggregate([{$match:{$or:result}}, {$group:{_id: "$idOffer", count :{$sum:1}}}],(err, report)=>{
 							db.collection("conversion").aggregate([{$match:{$or:result}}, {$group:{_id: "$idOffer", count :{$sum:1}}}],(err, conversion)=>{
-								var dataResponse = [];
+								var dataCVR = [];
 								for (let i = 0; i < conversion.length; i++) {
 									for(let j = 0; j < report.length; j++){
 										if(conversion[i]._id===report[j]._id){
-											dataResponse.push({"index" : conversion[i]._id, "cvr" : parseFloat(Math.round(conversion[i].count/report[j].count*100))+"%"})
+											dataCVR.push({"index" : conversion[i]._id, "cvr" : parseFloat(Math.round(conversion[i].count/report[j].count*100))+"%"})
 											break;
 										}
 									}
 								}
 								var queryFindInfoApp = [];
-								for (let i = 0; i < dataResponse.length; i++) {
-									queryFindInfoApp.push(Number(dataResponse[i].index));
+								for (let i = 0; i < dataCVR.length; i++) {
+									queryFindInfoApp.push(Number(dataCVR[i].index));
 								}
 								db.collection("offer").find({"index" : {$in: queryFindInfoApp}}).toArray((err, data)=>{
 									for (let i = 0; i < data.length; i++) {
-										for(let j = 0; j < dataResponse.length; j++){
-											if(Number(dataResponse[j].index) === data[i].index){
-												data[i].cvr = dataResponse[j].cvr;
+										for(let j = 0; j < dataCVR.length; j++){
+											if(Number(dataCVR[j].index) === data[i].index){
+												data[i].cvr = dataCVR[j].cvr;
 												data[i].memberLink = `http://${req.headers.host}/checkparameter/?offer_id=${data[i].index}&aff_id={FacebookId}`;
 												data[i].adminLink = `http://${req.headers.host}/click/?offer_id=${data[i].index}`;
 												break;
