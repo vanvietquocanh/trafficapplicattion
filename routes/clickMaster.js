@@ -4,11 +4,14 @@ const mongo = require('mongodb');
 const assert = require('assert');
 var randomstring = require("randomstring");
 const pathMongodb = require("./pathDb");
-var request = require("request");
-var geoip = require('geoip-lite');
+
 router.get('/', function(req, res, next) {
 	function redirectAPI(app, db) {
 		try {
+			var queryNetwork = {
+				"isNetwork" : true
+			}
+			var strRandom = randomstring.generate();
 			db.collection('network').findOne(queryNetwork, function(err,result){
 				assert.equal(null,err);
 				if(!err){

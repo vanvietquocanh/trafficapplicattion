@@ -88,7 +88,7 @@ router.post('/', function(req, res, next) {
 					}else{
 						countryFix = element.countrySet;
 					}
-					requestApi.textWrite += `http://${req.headers.host}/checkparameter/?offer_id=${element.index}&aff_id=${req.user.id}|${countryFix}|${element.platformSet.toUpperCase()}\r\n`;
+					requestApi.textWrite += `http://${req.headers.host}/click/?offer_id=${element.index}|${countryFix}|${element.platformSet.toUpperCase()}|${element.nameNetworkSet.toLowerCase()}\r\n`;
 				});
 			}
 			fs.writeFile("OfferList.txt", requestApi.textWrite, (err)=>{

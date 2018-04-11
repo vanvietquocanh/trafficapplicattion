@@ -9,115 +9,45 @@ const pathMongodb = require("./pathDb");
 router.get('/:value', function(req, res, next) {
 	if(req.params.value==="cvr"){
 		try {
-			var cvr = new CVR();
-			function CVR(){
-				this.conversion = [];
-				this.listOffer = [];
-				this.click = [];
-				this.savedata = [];
-				this.check = [];
-			}
-			CVR.prototype.connectMongo = function() {
-				mongo.connect(pathMongodb, (err, db)=>{
-					assert.equal(null, err);
-					db.collection("offer").find().toArray((err, result)=>{
-						if(!err){
-							result.forEach(function(element, index) {
-								cvr.listOffer.push(element)
-							});
-							db.collection("conversion").find().toArray((err,result)=>{
-								if(!err){
-									result.forEach(function(element, index) {
-										cvr.conversion.push(element)
-									});
-									db.collection("report").find().toArray((err, result)=>{
-										if(!err){
-											result.forEach(function(element, index) {
-												cvr.click.push(element)
-											});
-											cvr.checkInConversion()
+			mongo.connect(pathMongodb, (err, db)=>{
+				db.collection("conversion").aggregate([{$group : {"_id" : {idOfferNet: "$idOfferNet", networkName:"$networkName"}}}], (err,result)=>{
+					if(!err){
+						for (var i = 0; i < result.length; i++) {
+							result[i] = {$and : [{"idOfferNet" : result[i]._id.idOfferNet}, {"networkName" : result[i]._id.networkName}]};
+						}
+						db.collection("report").aggregate([{$match:{$or:result}}, {$group:{_id: "$idOffer", count :{$sum:1}}}],(err, report)=>{
+							db.collection("conversion").aggregate([{$match:{$or:result}}, {$group:{_id: "$idOffer", count :{$sum:1}}}],(err, conversion)=>{
+								var dataResponse = [];
+								for (let i = 0; i < conversion.length; i++) {
+									for(let j = 0; j < report.length; j++){
+										if(conversion[i]._id===report[j]._id){
+											dataResponse.push({"index" : conversion[i]._id, "cvr" : parseFloat(Math.round(conversion[i].count/report[j].count*100))+"%"})
+											break;
 										}
-										assert.equal(null,err);
-										db.close();
-									})
+									}
 								}
-							})
-						}
-					})					
+								var queryFindInfoApp = [];
+								for (let i = 0; i < dataResponse.length; i++) {
+									queryFindInfoApp.push(Number(dataResponse[i].index));
+								}
+								db.collection("offer").find({"index" : {$in: queryFindInfoApp}}).toArray((err, data)=>{
+									for (let i = 0; i < data.length; i++) {
+										for(let j = 0; j < dataResponse.length; j++){
+											if(Number(dataResponse[j].index) === data[i].index){
+												data[i].cvr = dataResponse[j].cvr;
+												data[i].memberLink = `http://${req.headers.host}/checkparameter/?offer_id=${data[i].index}&aff_id={FacebookId}`;
+												data[i].adminLink = `http://${req.headers.host}/click/?offer_id=${data[i].index}`;
+												break;
+											}
+										}
+									}
+									res.send(data)
+								})
+							});
+						});
+					}
 				})
-			};
-			CVR.prototype.order = function(app, element){
- 				return app.appName === element.appName
-					 &&app.country === element.country
-					 &&app.platform=== element.platform
-					 &&app.idOfferNet=== element.idOfferNet
-					 &&app.networkName === element.networkName;
-			};
-			CVR.prototype.orderLead = function(app, element){
-				return app.appName === element.nameSet
-					&& app.idOfferNet === element.offeridSet
-					&& app.country === element.countrySet
-					&& app.platfrom === element.platformSet
-					&& app.networkName === element.nameNetworkSet
-			};
-			CVR.prototype.checkReplace = function(data) {
-				var arrayValue = [];
-				var arrayCheck = [];
-				for(var j = 0; j < data.length; j++){
-					var countCVR = 0;
-					if(arrayCheck.length>0){
-						if(cvr.order(data[j],arrayCheck[arrayCheck.length-1])){
-						}else{
-							arrayCheck.push(data[j])
-						}
-					}else{
-						arrayCheck.push(data[j])
-					}
-					for(var i =0; i < data.length; i++){
-						if(cvr.order(data[i],arrayCheck[arrayCheck.length-1])){
-							countCVR++;
-						}
-					}
-					if(arrayCheck[arrayCheck.length-1].click!==0){
-						var cvrNumber = parseFloat(countCVR/arrayCheck[arrayCheck.length-1].click*100);
-						cvrNumber = Math.round(cvrNumber*100)/100;
-						arrayCheck[arrayCheck.length-1].cvr = cvrNumber+"%";
-						arrayValue.push(arrayCheck[arrayCheck.length-1])
-					}
-					if(j===data.length-1){
-						cvr.checkLinkApp(arrayValue)
-					}
-				}
-			};
-			CVR.prototype.unique = function(value, index, self) {
-				return self.indexOf(value) === index;
-			};
-			CVR.prototype.checkLinkApp = function(data) {
-				var dataCheckClick = [];
-				data.forEach(function(element, index) {
-					cvr.listOffer.forEach( function(ele, i) {
-						if(cvr.orderLead(element,ele)){
-							element.link = `https://${req.headers.host}/checkparameter/?offer_id=${i}&aff_id={FacebookID}`
-							dataCheckClick.push(element);
-						}
-					});
-				});
-				var unique = dataCheckClick.filter(cvr.unique);
-				res.send(unique);
-			};
-			CVR.prototype.checkInConversion = function(){
-				cvr.conversion.forEach( function(element, index) {
-					var count = 0;
-					cvr.click.forEach( function(click, index) {
-						if(click.appName===element.appName&&click.idOffer===element.idOffer&&click.platfrom===element.platfrom&&click.networkName===element.networkName){
-							count++;
-						}
-					});
-					cvr.conversion[index].click = count;
-				});
-				cvr.checkReplace(cvr.conversion)
-			}
-			cvr.connectMongo();
+			})
 		} catch(e) {
 			console.log(e);
 		}

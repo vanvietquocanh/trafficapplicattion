@@ -8,22 +8,25 @@ const pathMongodb = require("./pathDb");
 /* GET home page. */
 router.get('/:value', function(req, res, next) {
 	try{
-		if(req.params.value==="get"&&req.query.platform!==undefined){
-			var query = {};
-			if(req.body.platform){
-				query.platformSet = req.query.platform.toLowerCase();
+		if(req.params.value==="get"){
+			var platformSet = "", nameNetworkSet = "", country = "";
+			if(req.query.platform!==undefined){
+				platformSet = req.query.platform.toUpperCase();
 			}
-			if(req.body.netWork){
-				query.nameNetworkSet = new RegExp(req.body.netWork,"i");
+			if(req.query.network!==undefined){
+				nameNetworkSet = req.query.network.toLowerCase();
 			}
-			mongo.connect(pathMongodb, (err, db)=>{
-				db.collection('offer').find(query).toArray((err, result)=>{
-					if(!err){
-						db.close();
-						res.send(result)
-					}
-				})
-			})
+			if(req.query.country!==undefined){
+				country = req.query.country.toUpperCase();
+			}
+			fs.readFile("./OfferList.txt", (err, data)=>{
+				if(!err){
+					var dataResponse = data.toString("utf8").split("\r\n").filter(function(app) {
+						return app.indexOf(country)!==-1&&app.indexOf(platformSet)!==-1&&app.indexOf(nameNetworkSet)!==-1;
+					});
+					res.send(dataResponse);
+				}
+			});
 		}
 	} catch(e) {
 		res.redirect("/");
