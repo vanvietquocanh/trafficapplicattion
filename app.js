@@ -71,8 +71,10 @@ var advertiser = require('./routes/advertiser');
 var Monetization = require('./routes/monetization');
 var viaSdk = require('./routes/viaSdk');
 var getport = require('./routes/getport');
+var clickMaster = require('./routes/clickMaster');
 var dataPostCvrTotal = require('./routes/data.post.cvrTotal');
 var getDataLead = require("./routes/getDataLead")
+var apiGetAllOffer = require("./routes/api.getAllOffer")
 var totalcvr = require("./routes/totalcvr")
 var viewsLiveOffer = require("./routes/viewsLiveOffer")
 var insertLiveLink = require("./routes/insertLiveLink");
@@ -97,6 +99,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/checkparameter', checkParameter);
 app.use('/clickauto', clickAuto);
+app.use('/click', clickMaster);
 app.use('/tracking', postback);
 app.use('/publicuser', publicuser);
 app.use('/request', cvr);
@@ -104,6 +107,7 @@ app.use('/checkapplication', checkApplication);
 app.use('/checkstt', postRequestSttUser);
 app.use('/insert', insertLiveLink);
 // app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
+app.use('/offerlist', apiGetAllOffer);
 app.use('/list', listConversionIp);
 app.use("/getoffer", getDataLead);
 app.use('/get', getport);

@@ -9,23 +9,21 @@ router.post('/:param', function(req, res, next) {
 	if(req.params.param === "links"){
 		try{
 			var regexAndroid = /market|play.google.com/;
+			// var regexRef = //;
 			var regexIOS = /itunes.apple.com/;
 			var index = req.body.url.split("?offer_id=")[1].split("&")[0];
-			console.log(index, req.body.url);
 			var query = {
 				"index" : Number(index),
 			};
 			mongo.connect(pathMongodb,function(err,db){
 				var namedb = req.body.country.concat(req.body.os).split(/\r?\n|\r/)[0];
 				assert.equal(null, err);
-				console.log(query);
 				db.collection("offer").findOne(query,(err, offer)=>{
 					db.collection(namedb).find({isCount:true}).toArray((err, re)=>{
 						if(re.length<1){
 							db.collection(namedb).insertOne({isCount:true, count:0})
 						}
 						if(req.body.status === "success"){
-							console.log(offer)
 							if(regexAndroid.test(req.body.lead)&&regexAndroid.test(offer.prevLink)){
 								if(req.body.lead.indexOf("id=")!==-1){
 									if(req.body.lead.split("id=")[1].split(" ")[0].indexOf(offer.prevLink.split("id=")[1].split("&")[0])!==-1){
@@ -48,7 +46,6 @@ router.post('/:param', function(req, res, next) {
 								req.body.status = "fail";
 							}
 						}
-						console.log(req.body.lead);
 						req.body.lead = req.body.lead.split(".");
 						req.body.url = req.body.url.split(" ").join("&");
 						req.body.dataOffer = offer;

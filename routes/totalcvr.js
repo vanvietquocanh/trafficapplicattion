@@ -6,6 +6,7 @@ const assert = require('assert');
 const pathMongodb = require("./pathDb");
 
 router.get('/', function(req, res, next) {
+	console.log('totalcvr')
 	var query = {
 		"idFacebook" : req.user.id
 	}

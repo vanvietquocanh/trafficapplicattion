@@ -8,6 +8,7 @@ const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.post('/', function(req, res, next) {
+	console.log("tracking");
 	try {
 		function responData(db, isAdmin) {
 			db.collection('offer').find().skip(Number(req.body.start)).limit(500).toArray((err, result)=>{

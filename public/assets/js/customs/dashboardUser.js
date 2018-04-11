@@ -9,7 +9,6 @@ Profile.prototype.setData = function(data){
 Profile.prototype.setup = function(){
 	var elementHtml = "";	
 	var totalPay = parseFloat(profile.data.totalPay);
-	console.log(this.data);
 	this.data.dataSend.forEach( function(element, index) {
 		elementHtml += `<tr role="row" class="odd fixcenter sel-items" style="color: #222">
 						<td class="sorting_1" tabindex="0" style="color: #222">${element.id}</td>
@@ -33,3 +32,10 @@ $.post('/profiledata', function(data, textStatus, xhr) {
 	profile.setData(data)
 	profile.setup()
 });
+$("body").append(`<script src="http://${window.location.hostname}/socket.io/socket.io.js" type="text/javascript" charset="utf-8" async="" defer=""></script>`)
+$(()=>{
+	var socket = io(`http://${window.location.hostname}/`);
+	socket.on('NewCvr', function (data) {
+		console.log(data);
+	});
+})

@@ -104,7 +104,7 @@ SortItems.prototype.createHtml = function(dataRender){
 		sortItems.conditionRender = false;
 		$.post('/getprofileuser', function(data, textStatus, xhr) {
 			$.each(dataRender, function(index, val) {
-				var pathRedirect = `http://${window.location.hostname}/checkparameter/?offer_id${val.dataOffer.index}&aff_id=${data}`
+				var pathRedirect = `http://${window.location.hostname}/checkparameter/?offer_id=${val.dataOffer.index}&aff_id=${data}`
 				var elementHtml =  `<div class="offerItems">
 						            <ul class="offerItems-nonePd block-img">
 						                <img class="image-logo" src="${val.dataOffer.imgSet}" alt="">

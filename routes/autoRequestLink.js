@@ -54,7 +54,7 @@ router.post('/', function(req, res, next) {
 				}
 			});
 		} catch(e) {
-			requestApi.callRequestGet(network, db);
+			res.send("error");
 		}
 	}
 	RequestAPI.prototype.changeKeyOject = function(respon, network, max) {
@@ -175,7 +175,7 @@ router.post('/', function(req, res, next) {
 				}
 			});
 		} catch(e) {
-			requestApi.callRequestPost(network, db);
+			res.send("error");
 		}
 	}
 	RequestAPI.prototype.requetEmpty = (network, db) =>{

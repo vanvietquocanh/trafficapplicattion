@@ -7,6 +7,7 @@ const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.post('/', function(req, res, next) {
+	console.log("updateNetwork");
 	function saveDB(){
 		try{
 			var query = {
