@@ -3,7 +3,7 @@ var indexMember = 1;
 var table = $("tbody")
 var renderData = $("#renderData");
 var dateFilterStart = $("#dateFilterStart");
-var renderData = $("#dateFilterEnd");
+var dateFilterEnd = $("#dateFilterEnd");
 var member = $("#member").children('option');
 function TotalCVR() {
 	this.start = 0;
@@ -51,8 +51,19 @@ TotalCVR.prototype.createHTML = function() {
 							<td class="showItems-name">${parseFloat(Math.round(element.revenue*1000)/1000)}</td>
 							<td style="color: #111;">${element.countConversion}</td>
 						</tr>`;
+		if(index===totalcvr.afterHandling.length-1){
+			var elementHtmlSum = `<tr role="row" class="odd fixcenter sel-items" style="color: #111">
+									<td class="sorting_1" tabindex="0" style="color: #111"></td>
+									<td class="sorting_1" tabindex="0" style="color: #111"></td>
+									<td class="sorting_1" tabindex="0" style="color: #111"></td>
+									<td class="showItems-name"></td>
+									<td style="color: #111;"></td>
+								</tr>`;
+		}
 	totalcvr.arrayList.push(elementHtml)
 	});
 	table.append(totalcvr.arrayList.toString().split(",").join(""))
 };
+dateFilterStart.datepicker();
+dateFilterEnd.datepicker();
 totalcvr.postData('/statistical', "all", totalcvr.start, new Date().getTime());
