@@ -31,17 +31,21 @@ router.get('/:value', function(req, res, next) {
 									queryFindInfoApp.push(Number(dataCVR[i].index));
 								}
 								db.collection("offer").find({"index" : {$in: queryFindInfoApp}}).toArray((err, data)=>{
-									for (let i = 0; i < data.length; i++) {
-										for(let j = 0; j < dataCVR.length; j++){
-											if(Number(dataCVR[j].index) === data[i].index){
-												data[i].cvr = dataCVR[j].cvr;
-												data[i].memberLink = `http://${req.headers.host}/checkparameter/?offer_id=${data[i].index}&aff_id={FacebookId}`;
-												data[i].adminLink = `http://${req.headers.host}/click/?offer_id=${data[i].index}`;
-												break;
+									if(!err){
+										for (let i = 0; i < data.length; i++) {
+											for(let j = 0; j < dataCVR.length; j++){
+												if(Number(dataCVR[j].index) === data[i].index){
+													data[i].cvr = dataCVR[j].cvr;
+													data[i].memberLink = `http://${req.headers.host}/checkparameter/?offer_id=${data[i].index}&aff_id={FacebookId}`;
+													data[i].adminLink = `http://${req.headers.host}/click/?offer_id=${data[i].index}`;
+													break;
+												}
 											}
 										}
+										res.send(data)
+									}else{
+										res.redirect("/")
 									}
-									res.send(data)
 								})
 							});
 						});

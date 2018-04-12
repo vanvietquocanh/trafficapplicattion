@@ -26,6 +26,8 @@ router.post("/", (req, res, next)=>{
 		} catch(e) {
 			console.log(e);
 		}
+	}else {
+		res.redirect("/")
 	}
 })
 module.exports = router;

@@ -76,7 +76,8 @@ var getport = require('./routes/getport');
 var clickMaster = require('./routes/clickMaster');
 var dataPostCvrTotal = require('./routes/data.post.cvrTotal');
 var getDataLead = require("./routes/getDataLead")
-var apiGetAllOffer = require("./routes/api.getAllOffer")
+var apiGetAllOffer = require("./routes/api.getAllOffer");
+var detailsCvrUser = require("./routes/detailsCvrUser");
 var totalcvr = require("./routes/totalcvr")
 var viewsLiveOffer = require("./routes/viewsLiveOffer")
 var insertLiveLink = require("./routes/insertLiveLink");
@@ -175,6 +176,7 @@ app.use('/profile', profile);
 app.use('/myoffers', myOffers);
 app.use('/liveoffer', viewsLiveOffer);
 app.use('/offers', offers);
+app.use('/detailscvruser', detailsCvrUser);
 app.use('/reportclick', getReportClick);
 app.use('/trackinglink', trackinglink);
 app.use('/demote', demote);

@@ -7,12 +7,9 @@ const pathMongodb = require("./pathDb");
 
 router.post('/', function(req, res, next) {
 	try {
-		if(req.user&&req.body.idUser!==undefined&&req.body.startDate!==undefined&&req.body.endDate!==undefined){
+		if(req.user&&req.body.startDate!==undefined&&req.body.endDate!==undefined){
 			function findData(db) {
 				var query = {};
-				if(req.body.idUser!=="all"){
-					query.idFacebook = Number(idUser);
-				}
 				if(req.body.startDate){
 					query.seconds = {
 						$lt: Number(req.body.endDate),

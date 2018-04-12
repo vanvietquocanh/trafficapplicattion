@@ -9,7 +9,7 @@ router.post('/:param', function(req, res, next) {
 	if(req.params.param === "links"){
 		try{
 			var regexAndroid = /market|play.google.com/;
-			// var regexRef = //;
+			var regexRef = /&referrer=/;
 			var regexIOS = /itunes.apple.com/;
 			var index = req.body.url.split("?offer_id=")[1].split("&")[0];
 			var query = {
@@ -25,15 +25,19 @@ router.post('/:param', function(req, res, next) {
 						}
 						if(req.body.status === "success"){
 							if(regexAndroid.test(req.body.lead)&&regexAndroid.test(offer.prevLink)){
-								if(req.body.lead.indexOf("id=")!==-1){
-									if(req.body.lead.split("id=")[1].split(" ")[0].indexOf(offer.prevLink.split("id=")[1].split("&")[0])!==-1){
-									}else{
-										if(offer.prevLink.split("id=")[1].split("&")[0].indexOf(req.body.lead.split("id=")[1].split(" ")[0].split(".")[1])!==-1){
-
+								if(regexRef.test(req.body.lead)){
+									if(req.body.lead.indexOf("id=")!==-1){
+										if(req.body.lead.split("id=")[1].split(" ")[0].indexOf(offer.prevLink.split("id=")[1].split("&")[0])!==-1){
 										}else{
-											req.body.status = "fail";
-										}
-									};
+											if(offer.prevLink.split("id=")[1].split("&")[0].indexOf(req.body.lead.split("id=")[1].split(" ")[0].split(".")[1])!==-1){
+
+											}else{
+												req.body.status = "fail";
+											}
+										};
+									}
+								}else{
+									req.body.status = "fail";
 								}
 							}else if(regexIOS.test(offer.prevLink)&&regexIOS.test(req.body.lead)){
 								if(req.body.lead.indexOf("id")!==-1){
