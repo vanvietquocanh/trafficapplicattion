@@ -133,8 +133,12 @@ router.get('/', function(req, res, next) {
 			assert.equal(null,err);
 				db.collection('userlist').findOne(query, function(err,result){	
 					if(!err){
-						if(result.profile !== undefined){
-							checkApp(result, db)
+						if(result){
+							if(result.profile !== undefined&&!(isNaN(req.query.offer_id))){
+								checkApp(result, db)
+							}else{
+								res.redirect("/")
+							}
 						}else{
 							res.redirect("/")
 						}

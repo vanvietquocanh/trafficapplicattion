@@ -3,6 +3,9 @@ var router = express.Router();
 var request = require("request");
 const mongo = require('mongodb');
 const assert = require('assert');
+const StreamArray = require('stream-json/utils/StreamArray');
+const jsonStream = StreamArray.make();
+
 const fs = require("fs");
 
 const pathMongodb = require("./pathDb");
@@ -120,10 +123,10 @@ router.post('/', function(req, res, next) {
 	RequestAPI.prototype.checkduplicate = function(db, query, newData, index) {
 		db.collection("offer").find(query).toArray((err, data)=>{
 			db.collection("offerTest").createIndex({"offeridSet" : 1}, {unique: true}, err=>{
-				db.collection("offerTest").insertMany(data, err=>{
-					db.collection("offerTest").insertMany(newData, (err, result)=>{
-						db.collection("offerTest").find().skip(data.length).toArray((err,result)=>{
-							requestApi.insertNewDB(db, result, index)
+				db.collection("offerTest").insert(data, { ordered: false }, err=>{
+					db.collection("offerTest").insert(newData, { ordered: false }, (err, result)=>{
+						db.collection("offerTest").find().skip(data.length).toArray((err, result)=>{
+							requestApi.insertNewDB(db, result, index);
 						})
 					})
 				})
@@ -197,8 +200,12 @@ router.post('/', function(req, res, next) {
 				"isNetwork" : true
 			}
 			db.collection("network").findOne(query, (err, result)=>{
-				requestApi.allNetwork = result.NetworkList;
-				requestApi.requetEmpty(result.NetworkList, db)
+				if(!err){
+					requestApi.allNetwork = result.NetworkList;
+					requestApi.requetEmpty(result.NetworkList, db);
+				}else{
+					res.send("error");
+				}
 			})
 		}
 		var query = {
@@ -207,16 +214,20 @@ router.post('/', function(req, res, next) {
 		mongo.connect(pathMongodb,function(err,db){
 			assert.equal(null,err);
 				db.collection('userlist').findOne(query,function(err,result){
-					if(result.admin){
-						requestApi.findLinkAPI(db);
+					if(!err){
+						if(result.admin){
+							requestApi.findLinkAPI(db);
+						}else{
+							res.send("Mày đéo phải admin");
+						}
 					}else{
-						res.send("Mày đéo phải admin");
+						res.send("error")
 					}
 				assert.equal(null,err);
 			});
 		});
 	}catch(e){
-		res.redirect("/")
+		res.send("error")
 		res.end();
 	}
 });

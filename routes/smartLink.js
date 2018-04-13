@@ -40,7 +40,7 @@ router.get('/:parameter', function(req, res, next) {
 			query.country = geo;
 			if(md.os() === "AndroidOS"){
 				query.platform = "android";
-				redirect(db, query, res)
+				redirect(db, query, res, hostname)
 			}else if(md.os() === "iOS"){
 				query.platform = "ios";
 				redirect(db, query, res, hostname)
