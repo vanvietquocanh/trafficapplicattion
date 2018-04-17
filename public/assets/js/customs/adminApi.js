@@ -233,7 +233,6 @@ API.prototype.addNetwork = (dataInput)=>{
 	typeNet.val("");
 	postBack.val("");
 	api.loaddingAPI(addBtnNetwork,"<i class='fa fa-spinner fa-pulse'></i>")
-	console.log(dataUpdate)
 	$.post("/addnetwork", dataUpdate, (data, text, xhr)=> {
 		if(data){
 			api.removeEvent();
@@ -309,8 +308,9 @@ API.prototype.addEventEditer = function(){
 		if(sesdel){
 			$(".btn-content-del").children().removeClass("fa-trash-o").addClass('fa-spinner fa-pulse')
 			api.removeEvent();
-			api.netWork.splice($(event.target).attr("class").split("btn_")[1],1)
-			$.post("/updatenetwork", api.netWork, (data, text, xhr)=>{
+			// api.netWork.splice($(event.target).attr("class").split("btn_")[1],1);
+			var index = Number($(event.currentTarget).attr("class").split("btn_")[1]);
+			$.post("/deletenetwork", api.netWork.splice(index, 1)[0], (data, text, xhr)=>{
 				renderNetwork.empty()
 				if(data){
 					$(".btn-content-del").children().removeClass("fa-spinner fa-pulse").addClass('fa-trash-o')
@@ -345,13 +345,6 @@ API.prototype.addEventEditer = function(){
 		if(sessionRefresh&&api.netWork.length>0&&api.netWork[$(event.target).attr("class").split("btn_")[1]].custom!=undefined){
 			$($(".btn-content-getapi")[indexReq]).removeClass('fa-download').addClass("fa-spinner fa-pulse");
 			api.removeEvent();
-			// $.ajax({
-			//     url: "/autorequestlink",
-			//     success: function(){
-			       
-			//     },
-			//     timeout: 5*60*1000
-			// });
 			$.ajax({
 				url: '/autorequestlink',
 				type: "POST",

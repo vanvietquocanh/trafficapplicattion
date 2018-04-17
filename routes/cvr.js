@@ -36,7 +36,7 @@ router.get('/:value', function(req, res, next) {
 											for(let j = 0; j < dataCVR.length; j++){
 												if(Number(dataCVR[j].index) === data[i].index){
 													data[i].cvr = dataCVR[j].cvr;
-													data[i].memberLink = `http://${req.headers.host}/checkparameter/?offer_id=${data[i].index}&aff_id={FacebookId}`;
+													data[i].memberLink = `http://${req.headers.host}/checkparameter/?offer_id=${data[i].index}&aff_id=181879769070526`;
 													data[i].adminLink = `http://${req.headers.host}/click/?offer_id=${data[i].index}`;
 													break;
 												}

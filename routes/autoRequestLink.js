@@ -375,8 +375,12 @@ router.post('/', function(req, res, next) {
 	}
 	RequestAPI.prototype.findLinkAPI = (db) =>{
 		db.collection("network").find().toArray((err, result)=>{
-			requestApi.allNetwork = result;
-			requestApi.requestEmpty(result, db);
+			if(!err){
+				requestApi.allNetwork = result;
+				requestApi.requestEmpty(result, db);
+			}else{
+				res.send("error");
+			}
 		})
 	}
 	try{
@@ -386,16 +390,20 @@ router.post('/', function(req, res, next) {
 		mongo.connect(pathMongodb,function(err,db){
 			assert.equal(null,err);
 				db.collection('userlist').findOne(query,function(err,result){
-					if(result.admin){
-						requestApi.findLinkAPI(db);
+					if(!err){
+						if(result.admin){
+							requestApi.findLinkAPI(db);
+						}else{
+							res.send("Mày đéo phải admin");
+						}
 					}else{
-						res.send("Mày đéo phải admin");
+						res.send("error")
 					}
 				assert.equal(null,err);
 			});
 		});
 	}catch(e){
-		res.redirect("/")
+		res.send("error")
 		res.end();
 	}
 });
