@@ -6,23 +6,21 @@ var randomstring = require("randomstring");
 const pathMongodb = require("./pathDb");
 
 router.get('/', function(req, res, next) {
+	var querySearchOffer = {
+		"index" : Number(req.query.offer_id)
+	}
 	function redirectAPI(app, db) {
 		try {
 			var queryNetwork = {
-				"isNetwork" : true
+				"name" : new RegExp(app.nameNetworkSet, "i")
 			}
 			var strRandom = randomstring.generate();
 			db.collection('network').findOne(queryNetwork, function(err,result){
 				assert.equal(null,err);
 				if(!err){
-					if(result.NetworkList.length!==0){
-						for(let x = 0; x < result.NetworkList.length; x++){
-							if(app.nameNetworkSet.toLowerCase().indexOf(result.NetworkList[x].name.toLowerCase())!==-1){
-								var link = `${app.urlSet}+&${result.NetworkList[x].postback}=${strRandom}`;
-									res.redirect(link);
-								break;
-							}
-						}
+					if(result.length!==0){
+						var link = `${app.urlSet}+&${result.postback}=${strRandom}`;
+						res.redirect(link);
 					}
 				}else{
 					res.send("error")
@@ -37,17 +35,13 @@ router.get('/', function(req, res, next) {
 	if(req.query.offer_id!==undefined&&!(isNaN(req.query.offer_id))){
 		mongo.connect(pathMongodb,function(err,db){
 			assert.equal(null,err);
-			var querySearchOffer = {
-				"index" : Number(req.query.offer_id)
-			}
-			db.collection('offer').findOne(querySearchOffer, (err,result)=>{
+			db.collection('offer').findOne(querySearchOffer, function(err,result){
 				if(!err){
 					redirectAPI(result, db);
 				}else{
-					res.redirect("/")
+					res.redirect("/");
 				}
 			})
-			assert.equal(null,err);
 		});
 	}else {
 		res.send("error");

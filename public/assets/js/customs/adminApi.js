@@ -25,6 +25,7 @@ var delLiveOffer = $("#delLiveOffer");
 var nameNetwork = $("#nameNetwork");
 var methodNetwork = $("#methodNetwork");
 var linkNetwork = $("#linkNetwork");
+var typeNet = $("#typeNet");
 var postBack = $("#postBack");
 var addBtnNetwork = $("#btnAddNetWork");
 var renderNetwork = $("#renderNetwork");
@@ -55,8 +56,8 @@ API.prototype.delRequest = function(path) {
 };
 API.prototype.fil = function(select, condition) {
 	var result = select.filter(function(item) {
-				return item.id === condition;
-			});
+		return item.id === condition;
+	});
 	return result;
 }
 API.prototype.attachedNewMember = function(data) {
@@ -222,13 +223,17 @@ API.prototype.addNetwork = (dataInput)=>{
 		name 	: nameNetwork.val(),
 		method 	: methodNetwork.val(),
 		link 	: linkNetwork.val(),
-		postback: postBack.val()
+		type 	: typeNet.val(),
+		postback: postBack.val(),
+		custom  : null
 	}
-	nameNetwork.val("")
-	methodNetwork.val("")
-	linkNetwork.val("")
-	postBack.val("")
+	nameNetwork.val("");
+	methodNetwork.val("");
+	linkNetwork.val("");
+	typeNet.val("");
+	postBack.val("");
 	api.loaddingAPI(addBtnNetwork,"<i class='fa fa-spinner fa-pulse'></i>")
+	console.log(dataUpdate)
 	$.post("/addnetwork", dataUpdate, (data, text, xhr)=> {
 		if(data){
 			api.removeEvent();
@@ -244,8 +249,8 @@ API.prototype.getNetworkList = function(){
 		api.setNetwork(data);
 		renderNetwork.empty();
 		api.removeEvent();
-		if(api.netWork.NetworkList!==undefined&&api.netWork.NetworkList.length>0){
-			api.netWork.NetworkList.forEach( function(val, index) {
+		if(api.netWork!==undefined&&api.netWork.length>0){
+			api.netWork.forEach( function(val, index) {
 				api.attachedNetworkToDom(val, index)
 			});
 		}
@@ -256,13 +261,14 @@ API.prototype.addEventEditer = function(){
 	var netWorkData = this.netWork;
 	addBtnNetwork.click(function(e) {
 		if(addBtnNetwork.children().attr("class").split("-")[1]==="plus"){
-			if(nameNetwork.val()!=="" &&methodNetwork.val()!== null&&linkNetwork.val()!==""&&postBack.val()!==""){
+			if(nameNetwork.val()!=="" &&methodNetwork.val()!== null&&linkNetwork.val()!==""&&postBack.val()!==""&&typeNet.val()!==""){
 				var domainNetwork = linkNetwork.val().split("://")[1].split(".")[0];
 				if(domainNetwork){
 					var data = {
 						name     : nameNetwork.val(),
 						method   : methodNetwork.val(),
 						link     : linkNetwork.val(),
+						type     : typeNet.val(),
 						postback : postBack.val()
 					}
 					api.addNetwork(data)
@@ -271,22 +277,24 @@ API.prototype.addEventEditer = function(){
 				alert("Please enter full information!!");
 			}
 		}else{
-			var itemEdit = api.netWork.NetworkList[indexOfNetWorkEdit];
+			var itemEdit = api.netWork[indexOfNetWorkEdit];
 			itemEdit.name = nameNetwork.val();
 			itemEdit.method = methodNetwork.val();
-			itemEdit.link = linkNetwork.val()
-			itemEdit.postback = postBack.val()
+			itemEdit.link = linkNetwork.val();
+			itemEdit.type = typeNet.val();
+			itemEdit.postback = postBack.val();
 			api.loaddingAPI(addBtnNetwork,"<i class='fa fa-spinner fa-pulse'></i>")
 			nameNetwork.val("");
 			methodNetwork.val("");
 			linkNetwork.val("");
-			postBack.val("");
-			$.post("/updatenetwork", api.netWork, (data, text, xhr)=>{
+			typeNet.val("");
+			postBack.val("");	
+			$.post("/updatenetwork", itemEdit, (data, text, xhr)=>{
 				renderNetwork.empty()
 				if(data){
 					api.loadSuccessfully(addBtnNetwork,"<i class='fa fa-plus' aria-hidden='true'></i>")
 					api.removeEvent();
-					$.each(api.netWork.NetworkList, function(index, val) {
+					$.each(api.netWork, function(index, val) {
 						api.attachedNetworkToDom(val,index);
 					});
 					api.addEventEditer();
@@ -301,7 +309,7 @@ API.prototype.addEventEditer = function(){
 		if(sesdel){
 			$(".btn-content-del").children().removeClass("fa-trash-o").addClass('fa-spinner fa-pulse')
 			api.removeEvent();
-			api.netWork.NetworkList.splice($(event.target).attr("class").split("btn_")[1],1)
+			api.netWork.splice($(event.target).attr("class").split("btn_")[1],1)
 			$.post("/updatenetwork", api.netWork, (data, text, xhr)=>{
 				renderNetwork.empty()
 				if(data){
@@ -309,6 +317,7 @@ API.prototype.addEventEditer = function(){
 					nameNetwork.val("")
 					methodNetwork.val("null")
 					linkNetwork.val("")
+					typeNet.val("")
 					postBack.val("")
 					api.getNetworkList();
 				}else{
@@ -318,12 +327,13 @@ API.prototype.addEventEditer = function(){
 		}
 	});
 	$(".btn-content-edit").click((event)=>{
-		$.each(netWorkData.NetworkList, (index, el)=> {
+		$.each(netWorkData, (index, el)=> {
 			if(index == $(event.target).attr("class").split("btn_")[1]){
 				indexOfNetWorkEdit = index;
 				nameNetwork.val(el.name)
 				methodNetwork.val(el.method)
 				linkNetwork.val(el.link)
+				typeNet.val(el.type)
 				postBack.val(el.postback)
 				addBtnNetwork.children().removeClass("fa-plus").addClass('fa-check');
 			}
@@ -332,14 +342,27 @@ API.prototype.addEventEditer = function(){
 	$(".btn-content-getapi").click((event)=>{
 		var sessionRefresh = confirm("You definitely want to refresh up the offers?");
 		var indexReq = [$(event.target).attr("class").split("btn_")[1]];
-		if(sessionRefresh&&api.netWork.NetworkList.length>0&&api.netWork.NetworkList[$(event.target).attr("class").split("btn_")[1]].custom!=undefined){
+		if(sessionRefresh&&api.netWork.length>0&&api.netWork[$(event.target).attr("class").split("btn_")[1]].custom!=undefined){
 			$($(".btn-content-getapi")[indexReq]).removeClass('fa-download').addClass("fa-spinner fa-pulse");
 			api.removeEvent();
-			$.post('/autorequestlink', {index: indexReq[0]}, function(data, textStatus, xhr) {
+			// $.ajax({
+			//     url: "/autorequestlink",
+			//     success: function(){
+			       
+			//     },
+			//     timeout: 5*60*1000
+			// });
+			$.ajax({
+				url: '/autorequestlink',
+				type: "POST",
+				data: {index: indexReq[0]},
+				timeout: 5*60*1000
+			})
+			.done(function(data) {
 				$($(".btn-content-getapi")[indexReq]).removeClass("fa-spinner fa-pulse").addClass('fa-download');
 				alert(data);
 				api.addEventEditer();
-			});
+			})
 		}else{
 			alert("Please enter full information!!");
 		}
@@ -353,7 +376,7 @@ API.prototype.addEventEditer = function(){
 	})
 	$(".btn-content-menu").click((e)=>{
 		api.custom = $(event.target).attr("class").split("btn_")[1];
-		if(api.netWork.NetworkList[api.custom].custom==undefined){
+		if(api.netWork[api.custom].custom==undefined){
 			var custom = {
 				data 	 	  : "",
 				offeridSet    : "",
@@ -371,7 +394,7 @@ API.prototype.addEventEditer = function(){
 			}
 			api.customNetReturn(custom)
 		}else{
-			api.customNetReturn(api.netWork.NetworkList[api.custom].custom)
+			api.customNetReturn(api.netWork[api.custom].custom)
 		}
 		$(".custNet").fadeIn('slow');
 	})
@@ -397,9 +420,9 @@ API.prototype.addEventEditer = function(){
 					prevLink       : $("#PrevLink").val(),
 					descriptionSet : $("#description").val()
 				}
-				api.netWork.NetworkList[api.custom].custom = dataSetToNetwork;
+				api.netWork[api.custom].custom = dataSetToNetwork;
 				api.loaddingAPI($("#Confirm"),"<i class='fa fa-spinner fa-pulse'></i>")
-				$.post("/updatenetwork", api.netWork, (data, text, xhr)=>{
+				$.post("/updatenetwork", api.netWork[api.custom], (data, text, xhr)=>{
 					if(data){
 						$(".custNet").fadeOut('slow');				
 						api.loadSuccessfully($("#Confirm"),"Confirm")
@@ -441,6 +464,7 @@ API.prototype.attachedNetworkToDom = (data, index)=>{
 	var htmlNetWork =  `<tr role="row" class="odd">
 					        <td>${data.name}</td>
 					        <td>${data.method}</td>
+					        <td>${data.type}</td>
 					        <td>${data.link}</td>
 					        <td id="val_${index}">http://${window.location.href.split("//")[1].split("/")[0]}/tracking/eventdata?transaction_id={${data.postback}}</td>
 					        <td class="icon-content"><button class="btn-content btn-content-getapi fa fa-download btn_${index}"></button></td>
@@ -468,7 +492,7 @@ API.prototype.rerenderNetwork = function(){
 	$.post("/updatenetwork", api.netWork, (data, text, xhr)=>{
 		renderNetwork.empty()
 		if(data){
-			$.each(api.netWork.NetworkList, function(index, val) {
+			$.each(api.netWork, function(index, val) {
 				api.removeEvent();
 				api.attachedNetworkToDom(val,index);
 			});

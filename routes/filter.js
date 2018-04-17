@@ -28,17 +28,20 @@ router.post('/', function(req, res, next) {
 				query1.nameNetworkSet = new RegExp(req.body.netWork,"i");
 			}
 			db.collection('offer').find(query1).skip(Number(req.body.start)).limit(500).toArray((err, result)=>{
-				var dataRes = {
-					admin  	 : {
-						isAdmin  : isAdmin.admin,
-						isID 	 : isAdmin.idFacebook,
-						pending  : isAdmin.request,
-						approved : isAdmin.approved
-					},
-					offerList: result
+				if(!err){
+					console.log(result[0]);
+					var dataRes = {
+						admin  	 : {
+							isAdmin  : isAdmin.admin,
+							isID 	 : isAdmin.idFacebook,
+							pending  : isAdmin.request,
+							approved : isAdmin.approved
+						},
+						offerList: result
+					}
+					db.close();
+					res.send(dataRes)
 				}
-				db.close();
-				res.send(dataRes)
 			})
 		}
 		var query = {

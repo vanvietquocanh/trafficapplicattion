@@ -9,12 +9,9 @@ const pathMongodb = require("./pathDb");
 router.post('/', function(req, res, next) {
 	function getDB(){
 		try{
-			var query = {
-				"isNetwork" : true
-			}
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-					db.collection('network').findOne(query, function(err,result){
+					db.collection('network').find().toArray((err,result)=>{
 						if(!err){
 							res.send(result)
 						}else {

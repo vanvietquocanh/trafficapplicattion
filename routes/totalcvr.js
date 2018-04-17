@@ -49,8 +49,8 @@ router.get('/', function(req, res, next) {
 		                    </li>`;
 		        selNetworks = `<select class="select-drop-blue sel-mem" name="sel-Networks" id="sel-Networks">
                                     <option value="all">Network List</option>`;
-                db.collection("network").findOne({"isNetwork": true }, (err, net)=>{
-                	net.NetworkList.forEach( function(element, index) {
+                db.collection("network").find().toArray((err, net)=>{
+                	net.forEach( function(element, index) {
 						if(netName[`${element.name}`]===undefined){
 							netName[`${element.name}`] = element.name;
 						}

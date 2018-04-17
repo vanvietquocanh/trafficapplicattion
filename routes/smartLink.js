@@ -23,6 +23,7 @@ function redirect(db, query, res, hostname) {
 				db.collection(dbname).findOne({isCount: true}, (err, countValue)=>{
 					var path = `http://${hostname}/checkparameter/?offer_id=${result[countValue.count%result.length].index}&aff_id=181879769070526`;
 					db.collection(dbname).updateOne({isCount:true},{$set:{isCount:true, count: countValue.count+1}});
+					console.log(path)
 					res.redirect(path);
 				})
 			}
@@ -43,7 +44,7 @@ router.get('/:parameter', function(req, res, next) {
 				redirect(db, query, res, hostname)
 			}else if(md.os() === "iOS"){
 				query.platform = "ios";
-				redirect(db, query, res, hostname)
+				redirect(db, query, res, hostname);
 			}else{
 				res.send("error")
 			}

@@ -10,20 +10,16 @@ router.post('/', function(req, res, next) {
 	function saveDB(){
 		try{
 			var query = {
-				"isNetwork" : true
+				"link" : req.body.link
 			}
-			var data = {
-				$push : {
-					"NetworkList" : req.body
-				}							
-			}
+			var data = req.body
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('network').updateOne(query,data, {upsert: true},function(err,result){
 						if(!err){
-							res.send(true)
+							res.send(true);
 						}else {
-							res.send(false)
+							res.send(false);
 						}
 					assert.equal(null,err);
 					db.close();

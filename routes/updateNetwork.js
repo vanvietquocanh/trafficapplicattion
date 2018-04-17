@@ -2,39 +2,28 @@ var express = require('express');
 var router = express.Router();
 const mongo = require('mongodb');
 const assert = require('assert');
-
+var ObjectId = require('mongodb').ObjectId;
 const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.post('/', function(req, res, next) {
-	console.log("updateNetwork");
-	function saveDB(){
+	function saveDB(db){
 		try{
-			var query = {
-				"isNetwork" : true
-			}
-			var netWork = req.body.NetworkList;
-			if(req.body.NetworkList==null){
-				netWork = [];
-			}
-			var data = {
-				$set : {
-					"NetworkList" : netWork
-				}							
-			}
-			mongo.connect(pathMongodb,function(err,db){
+			var id = req.body._id;
+			var o_id = ObjectId(id);
+			var data = req.body
+			delete data._id;
+			db.collection('network').updateOne({_id: o_id}, data, {upsert: true},function(err,result){
+				if(!err){
+					res.send(true)
+				}else {
+					res.send(false)
+				}
 				assert.equal(null,err);
-					db.collection('network').updateOne(query,data, {upsert: true},function(err,result){
-						if(!err){
-							res.send(true)
-						}else {
-							res.send(false)
-						}
-					assert.equal(null,err);
-					db.close();
-				});
+				db.close();
 			});
 		}catch(e){
+			console.log(e)
 			res.redirect("/")
 			res.end();
 		}	
@@ -47,7 +36,7 @@ router.post('/', function(req, res, next) {
 			assert.equal(null,err);
 				db.collection('userlist').findOne(query, function(err,result){
 					if(result.admin){
-						saveDB()
+						saveDB(db)
 					}
 				assert.equal(null,err);
 				db.close();
@@ -59,4 +48,4 @@ router.post('/', function(req, res, next) {
 	}
 });
 
-module.exports = router;
+module.exports = router

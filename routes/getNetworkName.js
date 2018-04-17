@@ -8,20 +8,21 @@ const pathMongodb = require("./pathDb");
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	try {
-		var query = {
-			isNetwork : true
-		}
 		mongo.connect(pathMongodb,function(err,db){
 			assert.equal(null,err);
-				db.collection('network').findOne(query,function(err,result){
+				db.collection('network').find().toArray((err,result)=>{
 					if(!err){
-						var dataRes = []
-						result.NetworkList.forEach( function(element, index) {
-							if(dataRes.indexOf(element.name)===-1){
-								dataRes.push(element.name)							
-							}
-						});
-						res.send(dataRes.toString())
+						if(result.length>0){
+							var dataRes = []
+							result.forEach( function(element, index) {
+								if(dataRes.indexOf(element.name)===-1){
+									dataRes.push(element.name)							
+								}
+							});
+							res.send(dataRes.toString())
+						}else{
+							res.send([])
+						}
 					}
 				assert.equal(null,err);
 				db.close();

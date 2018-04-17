@@ -18,8 +18,8 @@ router.get('/', function(req, res, next) {
 						var download, myOffer, memSel, addOffer;
 						var selNetworks = `<select class="select-drop-blue sel-mem" name="sel-Networks" id="sel-Networks">
                                                 <option value="all">Network List</option>`;
-						db.collection("network").findOne({"isNetwork": true }, (err, net)=>{
-							net.NetworkList.forEach( function(element, index) {
+						db.collection("network").find().toArray((err, net)=>{
+							net.forEach( function(element, index) {
 								if(netName[`${element.name}`]===undefined){
 									netName[`${element.name}`] = element.name;
 								}
@@ -74,8 +74,8 @@ router.get('/', function(req, res, next) {
 		}
 	  	function renderPage(download, myOffer, memSel, selNetworks, addOffer) {
 	  		var admin =`<li>
-		       			<a href="/admin" class="waves-effect"><i class="zmdi zmdi-view-dashboard"></i> <span> Dashboard </span> </a>
-		    		</li>`;
+			       			<a href="/admin" class="waves-effect"><i class="zmdi zmdi-view-dashboard"></i> <span> Dashboard </span> </a>
+			    		</li>`;
 			res.render("viewsLiveOffer",{
 				"name"  : req.user.displayName,
 				"avatar": req.user.photos[0].value,

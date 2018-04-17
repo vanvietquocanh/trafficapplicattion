@@ -9,7 +9,7 @@ router.post('/:param', function(req, res, next) {
 	if(req.params.param === "links"){
 		try{
 			var regexAndroid = /market|play.google.com/;
-			var regexRef = /&referrer=/;
+			var regexRef = /referrer/;
 			var regexIOS = /itunes.apple.com/;
 			var index = req.body.url.split("?offer_id=")[1].split("&")[0];
 			var query = {
@@ -20,6 +20,7 @@ router.post('/:param', function(req, res, next) {
 				assert.equal(null, err);
 				db.collection("offer").findOne(query,(err, offer)=>{
 					db.collection(namedb).find({isCount:true}).toArray((err, re)=>{
+						console.log(offer, query);
 						if(re.length<1){
 							db.collection(namedb).insertOne({isCount:true, count:0})
 						}

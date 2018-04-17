@@ -49,12 +49,12 @@ router.get('/', function(req, res, next) {
 		try {
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
-					db.collection('network').findOne(queryNetwork, function(err,result){
+					db.collection('network').find().toArray( function(err,result){
 						if(!err){
-							if(result.NetworkList.length!==0){
-								for(let x = 0; x < result.NetworkList.length; x++){
-									if(app.nameNetworkSet.toLowerCase().indexOf(result.NetworkList[x].name.toLowerCase())!==-1){
-										var link = `${app.urlSet}+&${result.NetworkList[x].postback}=${strRandom}`;
+							if(result.length!==0){
+								for(let x = 0; x < result.length; x++){
+									if(app.nameNetworkSet.toLowerCase().indexOf(result[x].name.toLowerCase())!==-1){
+										var link = `${app.urlSet}+&${result[x].postback}=${strRandom}`;
 											save(dataUpdate,link)
 										break;
 									}
@@ -119,7 +119,9 @@ router.get('/', function(req, res, next) {
 		}
 		db.collection('offer').findOne(querySearchOffer, (err,result)=>{
 			if(!err){
-				checkInCvr(result, profile, db);
+				if(result){
+					checkInCvr(result, profile, db);
+				}
 			}else{
 				res.redirect("/")
 			}

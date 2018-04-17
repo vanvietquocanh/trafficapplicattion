@@ -15,6 +15,7 @@
     "express": "~4.15.5",
     "express-session": "^1.15.6",
     "geoip-lite": "^1.2.1",
+    "google-play-scraper": "^6.0.1",
     "letsencrypt": "^2.1.8",
     "mobile-detect": "^1.4.1",
     "mongodb": "^2.2.33",
