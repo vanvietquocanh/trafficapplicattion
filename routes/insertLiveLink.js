@@ -20,11 +20,10 @@ router.post('/:param', function(req, res, next) {
 				assert.equal(null, err);
 				db.collection("offer").findOne(query,(err, offer)=>{
 					db.collection(namedb).find({isCount:true}).toArray((err, re)=>{
-						console.log(offer, query);
 						if(re.length<1){
 							db.collection(namedb).insertOne({isCount:true, count:0})
 						}
-						if(req.body.status === "success"){
+						if(req.body.status === "success"&&offer.prevLink){
 							if(regexAndroid.test(req.body.lead)&&regexAndroid.test(offer.prevLink)){
 								if(regexRef.test(req.body.lead)){
 									if(req.body.lead.indexOf("id=")!==-1){
@@ -56,12 +55,16 @@ router.post('/:param', function(req, res, next) {
 						req.body.dataOffer = offer;
 						req.body.index = query.index;
 						db.collection(namedb).updateOne(query, req.body, { upsert:true }, function(err,result){
-								if(!err){
-									res.send("ok");
-									res.end();
-								}
-							assert.equal(null, err);
-							db.close();
+							if(!err){
+								db.collection("Offerlead").updateOne(query, req.body, { upsert:true }, function(err,result){
+									if(!err){
+										res.send("ok");
+										res.end();
+									}
+									assert.equal(null, err);
+									db.close();
+								})
+							}
 						});
 					})
 				})

@@ -13,7 +13,7 @@ var members = $("#members");
 var selNetworks = $("#sel-Networks");
 var search = $('#search');
 var btnSearch = $("#btn-search");
-var requestItemsIOS, requestItemsAndroid;
+var requestItems;
 var htmlSortCountry = "";
 $("head").append(`<script src="http://${window.location.hostname}/socket.io/socket.io.js" type="text/javascript" charset="utf-8" async="" defer=""></script>`)
 $(()=>{
@@ -35,152 +35,116 @@ function SortItems() {
 	this.arrayList = [];
 	this.admin;
 	this.page = 0;
-	this.countryIndexIos = 0;
-	this.countryIndexAndroid = 0;
 	this.searchMethod = false;
-	this.countStartAndroid = 0;
-	this.countStartIOS = 0;
 	this.countStart = 0;
 	this.newArrayList = [];
 	this.master = true;
 	this.conditionRender = false;
 	this.checkboxGroup = [];
 	this.page = [];
-	this.country = countryData;
 }
-SortItems.prototype.getAPIAndroid = function(){
-	if(sortItems.countryIndexAndroid<sortItems.country.length){
-		var path = `/getoffer/live?country=${this.country[this.countryIndexAndroid].countryCode}&platform=android&start=${this.countStartAndroid}`;
-		requestItemsAndroid = $.get(path, function(res) {
-			if(res.length===500){
-				sortItems.countStartAndroid+=500;
-				getAPIAndroid();
+SortItems.prototype.getAPI = function() {
+	var path = `/getoffer/live`;
+	requestItems = $.get(path, function(res) {
+		if(res.length===500){
+			sortItems.countStartIOS+=500;
+			sortItems.getAPI();
+			res.forEach( function(element, index) {
+				sortItems.setData(element)
+			});
+		}else{
+			if(res.length>0){
 				res.forEach( function(element, index) {
 					sortItems.setData(element)
 				});
-			}else{
-				sortItems.countStartAndroid = 0;
-				if(res.length>0){
-					res.forEach( function(element, index) {
-						sortItems.setData(element)
-					});
-				}
-				sortItems.countryIndexAndroid++;
-				sortItems.getAPIAndroid();
 			}
-			sortItems.createHtml(sortItems.arrayList);
-		});
-	}
-};
-SortItems.prototype.getAPIIOS = function() {
-	if(sortItems.countryIndexIos<sortItems.country.length){
-		var path = `/getoffer/live?country=${this.country[this.countryIndexIos].countryCode}&platform=ios&start=${this.countStartIOS}`;
-		requestItemsIOS = $.get(path, function(res) {
-			if(res.length===500){
-				sortItems.countStartIOS+=500;
-				getAPIIOS();
-				res.forEach( function(element, index) {
-					sortItems.setData(element)
-				});
-			}else{
-				sortItems.countStartIOS = 0;
-				if(res.length>0){
-					res.forEach( function(element, index) {
-						sortItems.setData(element)
-					});
-				}
-				sortItems.countryIndexIos++;
-				sortItems.getAPIIOS();
-			}
-			sortItems.createHtml(sortItems.arrayList);
-		});
-	}
+		}
+		sortItems.createHtml(sortItems.arrayList);
+	});
 };
 SortItems.prototype.setData = function(data){
 	this.arrayList.push(data);
 };
 SortItems.prototype.createHtml = function(dataRender){
-	if((sortItems.countryIndexAndroid===sortItems.country.length&&sortItems.countryIndexIos===sortItems.country.length)||this.conditionRender){
-		sortItems.conditionRender = false;
-		$.post('/getprofileuser', function(data, textStatus, xhr) {
-			$.each(dataRender, function(index, val) {
-				var pathRedirect = `http://${window.location.hostname}/checkparameter/?offer_id=${val.dataOffer.index}&aff_id=${data}`
-				var elementHtml =  `<div class="offerItems">
-						            <ul class="offerItems-nonePd block-img">
-						                <img class="image-logo" src="${val.dataOffer.imgSet}" alt="">
-						                <div class="respon-checkbox">
-						                    <div class="checkbox checkbox-primary">
-						                        <input class="checkbox-group" id="checkbox-${val.dataOffer.index}" type="checkbox" name="offer" value="${val.dataOffer.index}">
-						                        <label for="checkbox-${val.dataOffer.index}">
-						                        </label>
-						                    </div>
-						                </div>
-						            </ul>
-						            <ul class="offerItems-nonePd block-name-platform">
-						            <ul class="container-name-platform fix-margin">`;
-				switch (val.dataOffer.platformSet) {
-					case "android":
-						elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/android.png" alt=""></li>`;
-						break;
-					case "ios":
-						elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/apple.png" alt=""></li>`;
-						break;
-				}
-						elementHtml += `<li class="style-list-of-items style-name-app"><a class="text-nameApp">${val.dataOffer.nameSet}</a></li>
-						                </ul>
-						                <li class="style-list-of-items flex-items fixline-text">
-						                    <div class="content-info flex-left id-prevlink content-flex">
-						                        <ul class="fix-margin custom-margin-respone">
-						                        	<a class="text-block">#${val.dataOffer.index}</a>
-						                        </ul>
-						                        <ul class="fix-margin custom-margin-respone"><a class="paytext">$${new Number(val.dataOffer.paySet)}</a></ul>
-						                    </div>
-						                    <div class="content-info flex-left id-prevlink content-flex">
-						                        <ul class="fix-margin "><a class="color-green prelink" target="_blank" href="${val.dataOffer.prevLink}"><i class="fa fa-external-link-square"></i>Preview</a></ul>
-						                        <ul class="fix-margin "><a class="upper-case text-block" href="">${val.dataOffer.offerType}</a></ul>
-						                    </div>
-						                    <div class="content-info flex-left last-info line-1366 click-show-${index} goals-bnt content-flex">
-						                        <ul class="fix-margin custom-margin-respone">`;
-						elementHtml +=		`<li class="flex-left">KPIs<a class="box-green">!</a><p class="styleCapSetApp">Cap : ${val.dataOffer.capSet}</p></li>
-											<ul class="fix-margin-content-goals">
-														<a style='display: none; line-height: 1.2em;'>${val.dataOffer.descriptionSet}</a>
-													</ul>
-						                        </ul>
-						                    </div>
-						                    <div class="content-info maxwidth-size line-1366 content-flex country-size-block">
-						                        <ul class="offerItems-nonePd fix-margin flex-left country-size">
-						                            <li class="style-list-of-items">
-						                                <a class="upper-case text-block">${val.dataOffer.countrySet}</a>
-						                            </li>
-						                            <li class="style-list-of-items">`;
-				if(val.dataOffer.categorySet===""){
-						elementHtml +=		`<a class="">${val.dataOffer.categorySet}</a>`;
-				}else{
-						elementHtml +=		`<a class="boxcategory">${val.dataOffer.categorySet}</a>`;
-				}
-						elementHtml +=		`</li>
-						                        </ul>
-						                    </div>
-						                    <div class="content-info center-btn content-flex resize-btn">
-						                        <ul class="offerItems-nonePd container-btn" style='display: flex; width:100%;'>`;
-				if(!(sortItems.master)){
-						elementHtml += 		`<button class="btn-content-request requestapp-${index}">
-						                                <i class="fa fa-shopping-cart m-r-xs icon-btn"></i>
-						                                <p class="text-btn">Request offer</p>
-						                            </button>`
-				}else{
-						elementHtml +=  	`<button class="cp-${index} btn-cp-mt-ls"><i class="fa fa-copy custom-master-side"/></button><p style="width:100px;">${pathRedirect}</p>`
-				}                            
-						elementHtml += 	 	   `</ul>
-						                    </div>
-						                </li>
-						            </ul>
-						        </div>`;
-				sortItems.page.push(elementHtml);
-			});
-			sortItems.countPage();
+	sortItems.conditionRender = false;
+	$.post('/getprofileuser', function(data, textStatus, xhr) {
+		$.each(dataRender, function(index, val) {
+			var pathRedirect = `http://${window.location.hostname}/checkparameter/?offer_id=${val.dataOffer.index}&aff_id=${data}`
+			var elementHtml =  `<div class="offerItems">
+					            <ul class="offerItems-nonePd block-img">
+					                <img class="image-logo" src="${val.dataOffer.imgSet}" alt="">
+					                <div class="respon-checkbox">
+					                    <div class="checkbox checkbox-primary">
+					                        <input class="checkbox-group" id="checkbox-${val.dataOffer.index}" type="checkbox" name="offer" value="${val.dataOffer.index}">
+					                        <label for="checkbox-${val.dataOffer.index}">
+					                        </label>
+					                    </div>
+					                </div>
+					            </ul>
+					            <ul class="offerItems-nonePd block-name-platform">
+					            <ul class="container-name-platform fix-margin">`;
+			switch (val.dataOffer.platformSet) {
+				case "android":
+					elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/android.png" alt=""></li>`;
+					break;
+				case "ios":
+					elementHtml += `<li class="style-list-of-items style-plat"><img class="img-opacity" src="./assets/images/apple.png" alt=""></li>`;
+					break;
+			}
+					elementHtml += `<li class="style-list-of-items style-name-app"><a class="text-nameApp">${val.dataOffer.nameSet}</a></li>
+					                </ul>
+					                <li class="style-list-of-items flex-items fixline-text">
+					                    <div class="content-info flex-left id-prevlink content-flex">
+					                        <ul class="fix-margin custom-margin-respone">
+					                        	<a class="text-block">#${val.dataOffer.index}</a>
+					                        </ul>
+					                        <ul class="fix-margin custom-margin-respone"><a class="paytext">$${new Number(val.dataOffer.paySet)}</a></ul>
+					                    </div>
+					                    <div class="content-info flex-left id-prevlink content-flex">
+					                        <ul class="fix-margin "><a class="color-green prelink" target="_blank" href="${val.dataOffer.prevLink}"><i class="fa fa-external-link-square"></i>Preview</a></ul>
+					                        <ul class="fix-margin "><a class="upper-case text-block" href="">${val.dataOffer.offerType}</a></ul>
+					                    </div>
+					                    <div class="content-info flex-left last-info line-1366 click-show-${index} goals-bnt content-flex">
+					                        <ul class="fix-margin custom-margin-respone">`;
+					elementHtml +=		`<li class="flex-left">KPIs<a class="box-green">!</a><p class="styleCapSetApp">Cap : ${val.dataOffer.capSet}</p></li>
+										<ul class="fix-margin-content-goals">
+													<a style='display: none; line-height: 1.2em;'>${val.dataOffer.descriptionSet}</a>
+												</ul>
+					                        </ul>
+					                    </div>
+					                    <div class="content-info maxwidth-size line-1366 content-flex country-size-block">
+					                        <ul class="offerItems-nonePd fix-margin flex-left country-size">
+					                            <li class="style-list-of-items">
+					                                <a class="upper-case text-block">${val.dataOffer.countrySet}</a>
+					                            </li>
+					                            <li class="style-list-of-items">`;
+			if(val.dataOffer.categorySet===""){
+					elementHtml +=		`<a class="">${val.dataOffer.categorySet}</a>`;
+			}else{
+					elementHtml +=		`<a class="boxcategory">${val.dataOffer.categorySet}</a>`;
+			}
+					elementHtml +=		`</li>
+					                        </ul>
+					                    </div>
+					                    <div class="content-info center-btn content-flex resize-btn">
+					                        <ul class="offerItems-nonePd container-btn" style='display: flex; width:100%;'>`;
+			if(!(sortItems.master)){
+					elementHtml += 		`<button class="btn-content-request requestapp-${index}">
+					                                <i class="fa fa-shopping-cart m-r-xs icon-btn"></i>
+					                                <p class="text-btn">Request offer</p>
+					                            </button>`
+			}else{
+					elementHtml +=  	`<button class="cp-${index} btn-cp-mt-ls"><i class="fa fa-copy custom-master-side"/></button><p style="width:100px;">${pathRedirect}</p>`
+			}                            
+					elementHtml += 	 	   `</ul>
+					                    </div>
+					                </li>
+					            </ul>
+					        </div>`;
+			sortItems.page.push(elementHtml);
 		});
-	}
+		sortItems.countPage();
+	});
 };
 SortItems.prototype.countPage = function(){
 	sortItems.newArrayList = [];
@@ -273,7 +237,7 @@ SortItems.prototype.renderPage = function(page, pagination){
 	})
 	sortItems.delEventDown();
 	sortItems.eventDown();
-	// sortItems.eventShowbtn();
+	sortItems.eventShowbtn();
 	// sortItems.pending.forEach((items, index)=>{
 	// 	switch (items.adConfirm) {
 	// 		case "true":
@@ -292,6 +256,16 @@ SortItems.prototype.renderPage = function(page, pagination){
 	// 	}
 	// });
 };
+SortItems.prototype.eventShowbtn = function(){
+	$(".btn-cp-mt-ls").click(function(event) {
+		let linkText = $(event.currentTarget).parent().children("p").text();
+		var $tagCp = $("<input/>");
+		$("body").append($tagCp);
+		$tagCp.val(linkText).select();
+		document.execCommand("copy");
+		$tagCp.remove();
+	});
+}
 SortItems.prototype.deleventShowbtn = function(){
 	$(".btn-content-request").unbind('click');
 	$(".btn-cp-mt-ls").unbind('click');
@@ -329,13 +303,11 @@ SortItems.prototype.download = function(filename){
     tagDownload.children().children().removeClass("fa-spinner fa-pulse").addClass('fa-download')
     sortItems.eventDown();
 };
-sortItems.getAPIAndroid();
-sortItems.getAPIIOS();
+sortItems.getAPI();
 filterBtn.click(function(event) {
-	if(platform.val()!=="all"||sortCountry.val()!=="all"){
+	if(platform.val()!=="all"||sortCountry.val()!=="all"||selNetworks.val()!=="all"){
 		sortItems.searchMethod = true;
-		requestItemsAndroid.abort();
-		requestItemsIOS.abort();
+		requestItems.abort();
 		sortItems.countStart = 0;
 		filterBtn.children().removeClass("fa-search").addClass('fa-spin fa-refresh');
 		var OS = "";
@@ -348,11 +320,10 @@ filterBtn.click(function(event) {
 		}
 		function filterRq() {
 			var net = `&network=${selNetworks.val()}`;
-				if(selNetworks.val()==="all"){
-					net = "";
-				}
+			if(selNetworks.val()==="all"){
+				net = "";
+			}
 			var path = `/getoffer/live?country=${country}&platform=${OS}&start=${sortItems.countStart}`+net;
-			console.log(path)
 			$.get(path, function(res, textStatus, xhr) {
 				table.empty();
 				sortItems.arrayList = [];
@@ -380,7 +351,6 @@ search.keydown(function(event) {
 		sortItems.conditionRender = true;
 		sortItems.createHtml(data);
 	}else{
-		console.log('asdads')
 		sortItems.createHtml(sortItems.arrayList)
 	}
 });
