@@ -76,6 +76,7 @@ var statisticalConversion = require('./routes/statisticalConversion');
 var getport = require('./routes/getport');
 var clickMaster = require('./routes/clickMaster');
 var dataPostCvrTotal = require('./routes/data.post.cvrTotal');
+var subCVR = require('./routes/sub.cvr');
 var getDataLead = require("./routes/getDataLead")
 var apiGetAllOffer = require("./routes/api.getAllOffer");
 var detailsCvrUser = require("./routes/detailsCvrUser");
@@ -107,6 +108,7 @@ app.use('/click', clickMaster);
 app.use('/tracking', postback);
 app.use('/publicuser', publicuser);
 app.use('/request', cvr);
+app.use('/sub', subCVR);
 app.use('/checkapplication', checkApplication);
 app.use('/checkstt', postRequestSttUser);
 app.use('/insert', insertLiveLink);

@@ -18,7 +18,7 @@ router.get('/', function(req, res, next) {
 			db.collection('network').findOne(queryNetwork, function(err,result){
 				assert.equal(null,err);
 				if(!err){
-					if(result.length!==0){
+					if(result){
 						var link = `${app.urlSet}+&${result.postback}=${strRandom}`;
 						res.redirect(link);
 					}

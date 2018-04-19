@@ -345,6 +345,20 @@ API.prototype.addEventEditer = function(){
 		if(sessionRefresh&&api.netWork.length>0&&api.netWork[$(event.target).attr("class").split("btn_")[1]].custom!=undefined){
 			$($(".btn-content-getapi")[indexReq]).removeClass('fa-download').addClass("fa-spinner fa-pulse");
 			api.removeEvent();
+			// var xhr = new XMLHttpRequest();
+			// xhr.setRequestHeader("Content-type", "application/json");
+			// xhr.open("POST", '/autorequestlink', true);
+			// xhr.timeout = 5*60*1000;
+			// xhr.send({index: indexReq[0]});
+			// xhr.onreadystatechange = function() {
+			//     if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+			//     	$($(".btn-content-getapi")[indexReq]).removeClass("fa-spinner fa-pulse").addClass('fa-download');
+			// 		alert(data);
+			// 		api.addEventEditer();
+			//     }else{
+			//     	alert(xhr.readyState+"-"+xhr.status);
+			//     }
+			// }
 			$.ajax({
 				url: '/autorequestlink',
 				type: "POST",

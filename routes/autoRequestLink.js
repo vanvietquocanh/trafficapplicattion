@@ -200,7 +200,7 @@ router.post('/', function(req, res, next) {
 					"offeridSet"  	 : requestApi.dataHasOffer[element].Offer.id,
 					"platformSet"    : (requestApi.regularAndroid.test(requestApi.dataHasOffer[element].Offer.preview_url))?"android":"ios",
 					"nameSet"    	 : requestApi.dataHasOffer[element].Offer.name,
-					"urlSet"	 	 : `http://tracking.adattract.com/aff_c?offer_id=${requestApi.dataHasOffer[element].Offer.id}&aff_id=8040`,
+					"urlSet"	 	 : `http://50mango.go2cloud.org/aff_c?offer_id=${requestApi.dataHasOffer[element].Offer.id}&aff_id=2837`,
 					"paySet" 		 : requestApi.dataHasOffer[element].Offer.default_payout,
 					"countrySet"     : requestApi.dataHasOffer[element].Offer.name.split("[").join("").split("]").join("").split("\t").join(" ").split(" "),
 					"prevLink" 	 	 : requestApi.dataHasOffer[element].Offer.preview_url,

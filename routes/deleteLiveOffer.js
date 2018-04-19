@@ -19,16 +19,20 @@ router.post('/:param', function(req, res, next) {
 					if(!err){
 						var count = 0;
 						if(result.admin){
-							country.forEach( function(element, index) {
-								platform.forEach( function(os, index) {
-									db.collection(element+os).drop((err,result)=>{
-										if(!err){
-											count++;
+							db.collection("Offerlead").drop(err=>{
+								if(!err){
+									country.forEach( function(element, index) {
+										platform.forEach( function(os, index) {
+											db.collection(element+os).drop((err,result)=>{
+												if(!err){
+													count++;
+												}
+											});
+										});
+										if(country.length*2 === count){
+											res.send("ok");
 										}
 									});
-								});
-								if(country.length*2 === count){
-									res.send("ok");
 								}
 							});
 						}else{

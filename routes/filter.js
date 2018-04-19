@@ -25,7 +25,7 @@ router.post('/', function(req, res, next) {
 				query1.platformSet = req.body.OS.toLowerCase();
 			}
 			if(req.body.netWork){
-				query1.nameNetworkSet = new RegExp(req.body.netWork,"i");
+				query1.nameNetworkSet = req.body.netWork.toLowerCase();
 			}
 			db.collection('offer').find(query1).skip(Number(req.body.start)).limit(500).toArray((err, result)=>{
 				if(!err){
