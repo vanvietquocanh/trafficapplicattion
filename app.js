@@ -41,6 +41,7 @@ var addNetwork = require('./routes/addNetwork');
 var search = require('./routes/search');
 var postback = require('./routes/postBack');
 var routeShowRequest = require('./routes/routeShowRequest');
+var requestTestLink = require('./routes/requestTestLink');
 var getCountry = require('./routes/get.country');
 var apiRequestOfUser = require('./routes/apiRequestOfUser');
 var requestList = require('./routes/requestList');
@@ -76,14 +77,15 @@ var statisticalConversion = require('./routes/statisticalConversion');
 var getport = require('./routes/getport');
 var clickMaster = require('./routes/clickMaster');
 var dataPostCvrTotal = require('./routes/data.post.cvrTotal');
-var subCVR = require('./routes/sub.cvr');
 var getDataLead = require("./routes/getDataLead")
 var apiGetAllOffer = require("./routes/api.getAllOffer");
 var detailsCvrUser = require("./routes/detailsCvrUser");
 var totalcvr = require("./routes/totalcvr")
 var viewsLiveOffer = require("./routes/viewsLiveOffer")
 var insertLiveLink = require("./routes/insertLiveLink");
-var setAuto = require("./autoRequest");
+var getSSH = require("./routes/getSSH");
+var requestSSH = require("./autoRequestSSH");
+var autoEnableLink = require("./autoEnableLink");
 
 
 var app = express();
@@ -108,12 +110,13 @@ app.use('/click', clickMaster);
 app.use('/tracking', postback);
 app.use('/publicuser', publicuser);
 app.use('/request', cvr);
-app.use('/sub', subCVR);
 app.use('/checkapplication', checkApplication);
 app.use('/checkstt', postRequestSttUser);
 app.use('/insert', insertLiveLink);
+app.use('/testrequest', requestTestLink);
 // app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
 app.use('/offerlist', apiGetAllOffer);
+app.use('/getssh', getSSH);
 app.use('/list', listConversionIp);
 app.use('/netname', getNetworkName);
 app.use("/getoffer", getDataLead);
@@ -132,19 +135,15 @@ app.use(session(
                   }
                 }
               ));
-// checklive();
-//var j = schedule.scheduleJob({hour: 23, minute: 00}, function(){
-//  var querySearchEmpty = {
-//        "isOldOffer" : true
-//      };
- // setAuto.request("http://filefab.com/api.php?l=VNYGT_1-B7Wq2JJzYiSFRTN5aHoa4LekB41ywrawjUI", "get");
-//});
-//var k = schedule.scheduleJob('0 0 */3 * *', function(){
-//  var querySearchEmpty = {
-//        "isNewOffer" : true
-//      };
-//  setAuto(querySearchEmpty);
-//});
+// setTimeout(()=>{
+    // requestSSH.requestDownload("Yoohoo", "Q0T4C1B7L0O7");
+// },3000);
+var j = schedule.scheduleJob("*/30 * * * *", function(){
+    requestSSH.requestDownload("Yoohoo", "Q0T4C1B7L0O7");
+});
+var k = schedule.scheduleJob('00 00 12 * * 1-7', function(){
+   autoEnableLink();
+});
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new FacebookStrategy(infoAPI, function(accessToken, refreshToken, profile, done) {

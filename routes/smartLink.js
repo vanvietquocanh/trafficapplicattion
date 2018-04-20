@@ -12,10 +12,15 @@ var lead = /market|play.google.com|itunes.apple.com/i;
 const pathMongodb = require("./pathDb");
 
 /* GET home page. */
-function redirect(db, query, res, hostname) {
+function redirect(db, query, res, hostname, req) {
 	var arr = [];
 	var dbname = query.country.toLowerCase()+query.platform.toLowerCase();
-	db.collection(dbname).find({"status" : "success"}).toArray((err, result)=>{
+	var query = {};
+	query.status = "success";
+	if(req.query.net){
+		query[`dataOffer.nameNetworkSet`] = req.query.net.toLowerCase();
+	}
+	db.collection(dbname).find(query).toArray((err, result)=>{
 		if(!err){
 			if(result.length===0){
 				res.send("NO MORE OFFERS FROM THIS COUNTRY....")
@@ -40,14 +45,16 @@ router.get('/:parameter', function(req, res, next) {
 			query.country = geo;
 			if(md.os() === "AndroidOS"){
 				query.platform = "android";
-				redirect(db, query, res, hostname)
+				redirect(db, query, res, hostname, req)
 			}else if(md.os() === "iOS"){
 				query.platform = "ios";
-				redirect(db, query, res, hostname);
+				redirect(db, query, res, hostname, req);
 			}else{
-				res.send("error")
+				res.send("error");
 			}
 		})
+	}else{
+		res.send("error");
 	}
 });
 

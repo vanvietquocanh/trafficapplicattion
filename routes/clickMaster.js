@@ -37,7 +37,9 @@ router.get('/', function(req, res, next) {
 			assert.equal(null,err);
 			db.collection('offer').findOne(querySearchOffer, function(err,result){
 				if(!err){
-					redirectAPI(result, db);
+					if(result){
+						redirectAPI(result, db);
+					}
 				}else{
 					res.redirect("/");
 				}

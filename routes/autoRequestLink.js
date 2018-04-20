@@ -24,6 +24,7 @@ router.post('/', function(req, res, next) {
 		this.arIndexDel = [];
 		this.allNetwork;
 		this.dataSave = [];
+		this.network;
 		this.HaskeyObject;
 		this.checkIcon = [];
 		this.countRequest = 0;
@@ -54,7 +55,7 @@ router.post('/', function(req, res, next) {
 			dataChecker = dataChecker[`${network.custom.data.split(",")[i].trim()}`];
 		}
 		for(let z = 0; z < dataChecker.length; z++){
-			dataChecker[z].nameNetworkSet = network.name;
+			dataChecker[z].nameNetworkSet = network.name.toLowerCase();
 			for(var j = 1; j < Object.keys(network.custom).length; j++){
 				dataChecker[z][`${Object.keys(network.custom)[j].trim()}`] = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 				delete dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
@@ -98,37 +99,14 @@ router.post('/', function(req, res, next) {
 				index++;
 				data[i].index = index;
 			});
-			db.collection("offer").insertMany(data, (err,result)=>{
-				if(!err){
-					db.collection("offerTest").drop();
-					mongo.connect(pathMongodb, (err, db)=>{
-						requestApi.writeFileText(db);
-					})
-				}
+			db.collection("offer").insert(data, { ordered: false }, (err,result)=>{
+				mongo.connect(pathMongodb, (err, db)=>{
+					requestApi.writeFileText(db);
+				})
 			})									
 		}else{
-			db.close();
 			res.send("No Change");
 		}
-	};
-	RequestAPI.prototype.checkduplicate = function(db, query, newData, index) {
-		db.collection("offer").find(query).toArray((err, data)=>{
-			if(!err){
-				if(data.length>0){
-					db.collection("offerTest").createIndex({"offeridSet" : 1}, {unique: true}, err=>{
-						db.collection("offerTest").insertMany(data, err=>{
-							db.collection("offerTest").insertMany(newData, (err, result)=>{
-								db.collection("offerTest").find().skip(data.length).toArray((err,result)=>{
-									requestApi.insertNewDB(db, result, index)
-								})
-							})
-						})
-					});
-				}else{
-					requestApi.insertNewDB(db, newData, index);
-				}
-			}
-		})	
 	};
 	RequestAPI.prototype.callRequestPostAppflood = (network, db) =>{
 		try {
@@ -193,19 +171,20 @@ router.post('/', function(req, res, next) {
 			return "error==="+path;
 		}
 	};
-	RequestAPI.prototype.changeDataHasOffer = function(db) {
+	RequestAPI.prototype.changeDataHasOffer = function(db, network) {
+		requestApi.network = network;
 		requestApi.HaskeyObject.forEach( function(element, index) {
 			if(!(/APK/.test(requestApi.dataHasOffer[element].Offer.name))){
 				var dataOffer = {
 					"offeridSet"  	 : requestApi.dataHasOffer[element].Offer.id,
 					"platformSet"    : (requestApi.regularAndroid.test(requestApi.dataHasOffer[element].Offer.preview_url))?"android":"ios",
 					"nameSet"    	 : requestApi.dataHasOffer[element].Offer.name,
-					"urlSet"	 	 : `http://50mango.go2cloud.org/aff_c?offer_id=${requestApi.dataHasOffer[element].Offer.id}&aff_id=2837`,
+					"urlSet"	 	 : network.custom.urlSet.split("{")[0]+requestApi.dataHasOffer[element].Offer.id+network.custom.urlSet.split("}")[1],
 					"paySet" 		 : requestApi.dataHasOffer[element].Offer.default_payout,
 					"countrySet"     : requestApi.dataHasOffer[element].Offer.name.split("[").join("").split("]").join("").split("\t").join(" ").split(" "),
 					"prevLink" 	 	 : requestApi.dataHasOffer[element].Offer.preview_url,
-					"descriptionSet" : requestApi.dataHasOffer[element].Offer.description,
-					"nameNetworkSet" : "hasoffer",
+					"descriptionSet" : "",
+					"nameNetworkSet" : network.name.toLowerCase(),
 					"capSet"	     : requestApi.dataHasOffer[element].Offer.payout_cap,
 					"isNetwork"		 : true,
 					"offerType" 	 : requestApi.dataHasOffer[element].Offer.payout_type,
@@ -287,10 +266,7 @@ router.post('/', function(req, res, next) {
 		if(requestApi.index===requestApi.checkIcon.length){
 			mongo.connect(pathMongodb, (err, db)=>{
 				if(!err){
-					var query = {
-						"nameNetworkSet" : "hasoffer"
-					}
-					requestApi.checkduplicate(db, query, requestApi.checkIcon, maxIndex);
+					requestApi.insertNewDB(db, requestApi.checkIcon, maxIndex);
 				}
 			})
 		}else{
@@ -316,18 +292,13 @@ router.post('/', function(req, res, next) {
 				}
 				if(requestApi.lengthOfNet === requestApi.countRequest){
 					if(result.length===0){
-						db.collection("offer").insertMany(requestApi.arrayDadaPushToDatabase, (err, result)=>{
-							if(!err){
-								requestApi.writeFileText(db);
-							}
+						db.collection("offer").insert(requestApi.arrayDadaPushToDatabase, { ordered: false }, (err, result)=>{
+							requestApi.writeFileText(db);
 						})
 					}else{
 						var indexOfferNext = Number(result[0].index);
-						var query = {
-							"nameNetworkSet" : network.name
-						}
 						requestApi.max = Number(result[0].index);
-						requestApi.checkduplicate(db, query, requestApi.arrayDadaPushToDatabase, requestApi.max)
+						requestApi.insertNewDB(db, requestApi.arrayDadaPushToDatabase, requestApi.max);
 					}
 				}
 			}
@@ -341,7 +312,7 @@ router.post('/', function(req, res, next) {
 				if(respon.body){
 					requestApi.HaskeyObject = Object.keys(JSON.parse(respon.body).response.data);
 					requestApi.dataHasOffer = JSON.parse(respon.body).response.data;
-					requestApi.changeDataHasOffer(db);
+					requestApi.changeDataHasOffer(db, network);
 				}else{
 					res.send("error");
 				}

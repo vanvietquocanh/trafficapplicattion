@@ -24,13 +24,15 @@ router.post('/:param', function(req, res, next) {
 									country.forEach( function(element, index) {
 										platform.forEach( function(os, index) {
 											db.collection(element+os).drop((err,result)=>{
-												if(!err){
-													count++;
-												}
+												count++;
 											});
 										});
 										if(country.length*2 === count){
-											res.send("ok");
+											db.collection("Offerlead").drop((err,result)=>{
+												if(!err){
+													res.send("ok");
+												}
+											});
 										}
 									});
 								}
@@ -45,7 +47,15 @@ router.post('/:param', function(req, res, next) {
 			}else if(req.params.param === "alloffer"){
 				db.collection("offer").drop((err, result)=>{
 					if(!err){
-						res.send("ok")
+						mongo.connect(pathMongodb, (err, db)=>{
+							db.collection("offer").createIndex({offeridSet:1, nameNetworkSet:1},{unique:true},(err, result)=>{
+								if(!err){
+									res.send("ok");
+								}else{
+									res.send("error");
+								}
+							})
+						})
 					}else{
 						res.send(err)
 					}

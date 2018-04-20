@@ -27,7 +27,7 @@ router.get('/', function(req, res, next) {
 		var strToday = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()} - ${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`;
 		var strRandom = randomstring.generate();
 		if(person.master){
-			data.paySet = Math.round((data.paySet/100*7)*100)/100;
+			data.paySet = Math.round((data.paySet)*100)/100;
 		}
 		var dataUpdate = {
 			"appName"    : data.nameSet,
