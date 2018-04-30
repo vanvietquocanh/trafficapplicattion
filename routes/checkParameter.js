@@ -6,14 +6,14 @@ var randomstring = require("randomstring");
 const pathMongodb = require("./pathDb");
 var request = require("request");
 var geoip = require('geoip-lite');
+
 router.get('/', function(req, res, next) {
 	function save(dataUpdate, link) {
 		mongo.connect(pathMongodb, (err, db)=>{
 			assert.equal(null,err);
-			db.collection('report').insertOne(dataUpdate, function(err,result){
+			db.collection('report').insert(dataUpdate, { ordered: false }, function(err,result){
 				res.redirect(link)
 				res.end();
-			assert.equal(null,err);
 			db.close();
 			})		
 		})
@@ -45,6 +45,9 @@ router.get('/', function(req, res, next) {
             "networkName": data.nameNetworkSet,
             "idOfferNet" : data.offeridSet,
             "previewLink": data.prevLink,
+		}
+		if(req.query.transaction_id){
+			dataUpdate.transaction_2 = req.query.transaction_id
 		}
 		try {
 			mongo.connect(pathMongodb,function(err,db){

@@ -79,7 +79,9 @@ var clickMaster = require('./routes/clickMaster');
 var dataPostCvrTotal = require('./routes/data.post.cvrTotal');
 var getDataLead = require("./routes/getDataLead")
 var apiGetAllOffer = require("./routes/api.getAllOffer");
+var deviceVersionNew = require("./routes/deviceVersionNew");
 var detailsCvrUser = require("./routes/detailsCvrUser");
+// var transactionid2 = require("./routes/transaction_id2");
 var totalcvr = require("./routes/totalcvr")
 var viewsLiveOffer = require("./routes/viewsLiveOffer")
 var insertLiveLink = require("./routes/insertLiveLink");
@@ -113,6 +115,7 @@ app.use('/request', cvr);
 app.use('/checkapplication', checkApplication);
 app.use('/checkstt', postRequestSttUser);
 app.use('/insert', insertLiveLink);
+app.use('/information', deviceVersionNew);
 app.use('/testrequest', requestTestLink);
 // app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
 app.use('/offerlist', apiGetAllOffer);
@@ -124,6 +127,7 @@ app.use('/get', getport);
 app.use('/advertiser', advertiser);
 app.use('/monetization', Monetization);
 app.use('/sdk-via', viaSdk);
+// app.use('/transaction', transactionid2);
 app.use('/getcountry', getCountry);
 app.use('/smartlink', getSmartLink);
 app.use(session(

@@ -7,63 +7,102 @@ const fs = require("fs");
 const countryList = require("./listcountry");
 const pathMongodb = require("./pathDb");
 var gplay = require('google-play-scraper');
-var store = require('app-store-scraper');
 
 router.post('/', function(req, res, next) {
 	var requestApi = new RequestAPI();
 	function RequestAPI() {
-		this.arrayDadaPushToDatabase = [];
+		this.arrayDataPushToDatabase = [];
 		this.countCustomInNetwork = 0;
 		this.textWrite = "";
-		this.lengthArray = 0;
 		this.lengthOfNet = 0;
 		this.totalArray = [];
 		this.max = 0;
-		this.netIndex = 0;
 		this.index = -1;
 		this.arIndexDel = [];
 		this.allNetwork;
-		this.dataSave = [];
 		this.network;
 		this.HaskeyObject;
 		this.checkIcon = [];
 		this.countRequest = 0;
 		this.dataHasOffer;
+		this.conditionPush = true;
+		this.url = /http:\/\//
 		this.regex = /[A-Z]{2}\/[A-Z]{2}/
 		this.regex2 = /[A-Z]{2}\,[A-Z]{2}/
 		this.regex3 = /[A-Z]{2}\*|[A-Z]{2}\*\*/
+		this.regexPlatform = new RegExp("android", "i")
 		this.regularAndroid = new RegExp(/market|play.google.com/,"i");
+		this.regularIOS = new RegExp("itunes|apple","i");
 	}
 	RequestAPI.prototype.loopOrder = function(respon, network) {
 		var value = false;
 		if(respon.body!==undefined){
+			var data = JSON.parse(respon.body);
 			network.custom.data.split(",").forEach( function(element, index) {
-				if(JSON.parse(respon.body)[`${element}`].length>0){
+				if(data[`${element}`].length>0||Object.keys(data[`${element}`]).length>0){
+					requestApi.dataOffer = data[`${element}`];
+					requestApi.keyObject = Object.keys(data[`${element}`]);
 					value = true;
 				}else{
 					value = false;
 				}
+				data = data[`${element}`];
 			});
 		}
 		return value;
 	};
-	RequestAPI.prototype.changeKeyOject = function(respon, network, max) {
-		var data = JSON.parse(respon);
-		var dataChecker = data;
-		requestApi.lengthArray += data.length;
-		for(let i = 0; i < network.custom.data.split(",").length; i++){
-			dataChecker = dataChecker[`${network.custom.data.split(",")[i].trim()}`];
-		}
+	RequestAPI.prototype.changeKeyOject = function(dataChecker, network, max) {
+		requestApi.dataSave = dataChecker;
 		for(let z = 0; z < dataChecker.length; z++){
 			dataChecker[z].nameNetworkSet = network.name.toLowerCase();
 			for(var j = 1; j < Object.keys(network.custom).length; j++){
-				dataChecker[z][`${Object.keys(network.custom)[j].trim()}`] = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
+				var objectCustom = network.custom[Object.keys(network.custom)[j]].trim().split(",");
+				var dataLead = dataChecker[z];
+				if(objectCustom.length>1){
+					for (let i = 0; i < objectCustom.length; i++) {
+						dataLead = dataLead[objectCustom[i]];
+					}
+				}else{
+					dataLead = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
+				}
+				if(dataLead==null||dataLead===undefined){
+					switch (Object.keys(network.custom)[j].trim()) {
+						case "imgSet":
+							if(requestApi.regexPlatform.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j-1]].trim()}`])){
+								dataLead = requestApi.checkApp(dataChecker[z][`${network.custom[Object.keys(network.custom)[j+8]]}`]);
+							}else{
+								dataLead = requestApi.checkApp(dataChecker[z][`${network.custom[Object.keys(network.custom)[j+8]]}`]);
+							}
+							break;
+						case "categorySet":
+							dataLead = "";
+							break;
+						case "countrySet":
+							requestApi.conditionPush = false;
+							break;
+						case "platformSet":
+							if(requestApi.regexPlatform.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j-1]].trim()}`])){
+								dataLead = "android";
+							}else if(requestApi.regularIOS.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j-1]].trim()}`])){
+								dataLead = "ios";
+							}else{
+								requestApi.conditionPush = false;
+							}
+							break;
+					}
+				}
+				dataChecker[z][`${Object.keys(network.custom)[j].trim()}`] = dataLead;
 				delete dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 			}
 			max++;
 			dataChecker[z].index = max;
-			dataChecker[z].isNetwork = true; 
-			requestApi.arrayDadaPushToDatabase.push(dataChecker[z])
+			dataChecker[z].isNetwork = true;
+			if(requestApi.conditionPush){
+				dataChecker[z].countrySet = dataChecker[z].countrySet.toUpperCase();
+				requestApi.arrayDataPushToDatabase.push(dataChecker[z])
+			}else{
+				requestApi.conditionPush = true;
+			}
 		}//this is loop change keys of value;
 		requestApi.countRequest++;
 		requestApi.max = max;
@@ -75,7 +114,7 @@ router.post('/', function(req, res, next) {
 					result.forEach( function(element, index) {
 						var countryFix;
 						if(element.countrySet.length>3){
-							countryFix = element.countrySet.split("|").join(',');
+							countryFix = element.countrySet.toString().split("|").join(',');
 						}else{
 							countryFix = element.countrySet;
 						}
@@ -93,45 +132,46 @@ router.post('/', function(req, res, next) {
 			}
 		})
 	};
-	RequestAPI.prototype.insertNewDB = function(db, data, index) {
+	RequestAPI.prototype.insertNewDB = function(db, data) {
 		if(data.length>0){
-			data.forEach( function(element, i) {
-				index++;
-				data[i].index = index;
-			});
-			db.collection("offer").insert(data, { ordered: false }, (err,result)=>{
-				mongo.connect(pathMongodb, (err, db)=>{
-					requestApi.writeFileText(db);
-				})
-			})									
+			db.collection("offer").find().sort({index:-1}).limit(1).toArray((err, result)=>{
+				if(!err){
+					if(result.length>0){
+						data.forEach( function(element, i) {
+							result[0].index++;
+							data[i].index = result[0].index;
+						});
+					}else{
+						var index = 0;
+						data.forEach( function(element, i) {
+							index++;
+							data[i].index = index;
+						});
+					}
+					db.collection("offer").insert(data, { ordered: false }, (err,result)=>{
+						mongo.connect(pathMongodb, (err, db)=>{
+							requestApi.writeFileText(db);
+						})
+					})		
+				}						
+			})
 		}else{
 			res.send("No Change");
 		}
 	};
-	RequestAPI.prototype.callRequestPostAppflood = (network, db) =>{
+	RequestAPI.prototype.callRequestAppflood = (network, db, method) =>{
 		try {
-			request.post({
-			    url: network.link
-			}, function (err, respon) {
-				countRequestAuto++;
-				if(requestApi.loopOrder(respon, network)){
-			   		requestApi.changeData(network, db, respon.body)
-				}else{
-					res.send("No Data")
-				}
-			});
-		} catch(e) {
-			res.send("error");
-		}
-	}
-	RequestAPI.prototype.callRequestGetAppflood = (network, db) =>{
-		try {
-			request.get({
+			request[method.toLowerCase()]({
 			    url: network.link
 			}, function (err, respon) {
 				if(respon.body.indexOf("<html>")===-1){
 					if(requestApi.loopOrder(respon, network)){
-				   		requestApi.changeData(network, db, respon.body);
+						let data = JSON.parse(respon.body);
+						let dataChecker = data;
+						for(let i = 0; i < network.custom.data.split(",").length; i++){
+							dataChecker = dataChecker[`${network.custom.data.split(",")[i].trim()}`];
+						}
+				   		requestApi.changeData(network, db, dataChecker);
 					}else{
 						res.send("No Data")
 					}
@@ -233,7 +273,7 @@ router.post('/', function(req, res, next) {
 				}else{
 					requestApi.max = Number(result[0].index);
 				}
-				requestApi.checkIconApp(requestApi.max);
+				requestApi.checkIconApp(requestApi.checkIcon, requestApi.max);
 			}else{
 				res.send("error")
 			}
@@ -243,70 +283,79 @@ router.post('/', function(req, res, next) {
 		gplay.app({appId: id})
 		.then(data=>{
 			requestApi.checkIcon[requestApi.index].imgSet = data.icon;
-			requestApi.checkIconApp(maxIndex);
+			requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 		})
 		.catch(err=>{
 			requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/android-big.png`;
-			requestApi.checkIconApp(maxIndex);
+			requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 		})
 	}
-	function checkAppleApp(id, maxIndex) {
-		store.app({	"id" : id })
-		.then(data=>{
-			requestApi.checkIcon[requestApi.index].imgSet = data.icon;
-			requestApi.checkIconApp(maxIndex);
-		})
-		.catch((err)=>{
-			requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/apple-big.png`;
-			requestApi.checkIconApp(maxIndex);
+	function checkAppleApp(dataApp, id, country, maxIndex) {
+		var path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id}`;
+		request.get(path ,(err, res, data)=>{
+			if(data&&JSON.parse(data).resultCount!==0){
+				dataApp[requestApi.index].imgSet = JSON.parse(data).results[0].artworkUrl100;
+			}else{
+				dataApp[requestApi.index].imgSet = `./assets/images/apple-big.png`;
+			}
+			requestApi.checkIconApp(dataApp, maxIndex);
 		})
 	}
-	RequestAPI.prototype.checkIconApp = function(maxIndex) {
+	RequestAPI.prototype.checkIconApp = function(data, maxIndex) {
 		requestApi.index++;
-		if(requestApi.index===requestApi.checkIcon.length){
+		if(requestApi.index===data.length){
 			mongo.connect(pathMongodb, (err, db)=>{
 				if(!err){
-					requestApi.insertNewDB(db, requestApi.checkIcon, maxIndex);
+					requestApi.insertNewDB(db, data);
 				}
 			})
 		}else{
-			if (isNaN(requestApi.checkIcon[requestApi.index].imgSet)) {
-				checkGoogleApp(requestApi.checkIcon[requestApi.index].imgSet, maxIndex);
+			if(requestApi.url.test(data[requestApi.index].imgSet)&&data[requestApi.index].imgSet!==data[requestApi.index].prevLink){
+				requestApi.checkIconApp(data, maxIndex++);
 			}else{
-				checkAppleApp(requestApi.checkIcon[requestApi.index].imgSet, maxIndex);
+				if (isNaN(data[requestApi.index].imgSet)) {
+					checkGoogleApp(data[requestApi.index].imgSet, maxIndex);
+				}else{
+					checkAppleApp(data, data[requestApi.index].imgSet, data[requestApi.index].countrySet, maxIndex);
+				}
 			}
 		}
 	};
-	RequestAPI.prototype.changeData = (network, db, respon) =>{
+	RequestAPI.prototype.changeData = (network, db, dataChecker) =>{
 		requestApi.countCustomInNetwork++;
 		db.collection("offer").find().sort({index:-1}).limit(1).toArray((err, result)=>{
 			if(!err){
+				requestApi.max = 0;
 				if(result.length===0&&requestApi.countCustomInNetwork===1){
 					requestApi.max = 0;
-					requestApi.changeKeyOject(respon, network, requestApi.max);
+					requestApi.changeKeyOject(dataChecker, network, requestApi.max);
+					requestApi.checkIcon = requestApi.arrayDataPushToDatabase;
+					requestApi.checkIconApp(requestApi.checkIcon, requestApi.max)
 				}else{
 					if(requestApi.countCustomInNetwork===1){
 						requestApi.max = Number(result[0].index);
 					}
-					requestApi.changeKeyOject(respon, network, requestApi.max);
-				}
-				if(requestApi.lengthOfNet === requestApi.countRequest){
-					if(result.length===0){
-						db.collection("offer").insert(requestApi.arrayDadaPushToDatabase, { ordered: false }, (err, result)=>{
-							requestApi.writeFileText(db);
-						})
-					}else{
-						var indexOfferNext = Number(result[0].index);
-						requestApi.max = Number(result[0].index);
-						requestApi.insertNewDB(db, requestApi.arrayDadaPushToDatabase, requestApi.max);
-					}
-				}
+					requestApi.changeKeyOject(dataChecker, network, requestApi.max);
+					requestApi.checkIcon = requestApi.arrayDataPushToDatabase;
+					requestApi.checkIconApp(requestApi.checkIcon, requestApi.max)
+				}						
 			}
 		})
 	}
-	RequestAPI.prototype.callRequestGetHasOffer = (network, db) =>{
+	// function function_name(db, result) {
+	// 	if(result.length===0){
+	// 		db.collection("offer").insert(requestApi.arrayDataPushToDatabase, { ordered: false }, (err, result)=>{
+	// 			requestApi.writeFileText(db);
+	// 		})
+	// 	}else{
+	// 		var indexOfferNext = Number(result[0].index);
+	// 		requestApi.max = Number(result[0].index);
+	// 		requestApi.insertNewDB(db, requestApi.arrayDataPushToDatabase, requestApi.max);
+	// 	}
+	// }
+	RequestAPI.prototype.callRequestHasOffer = (network, db, method) =>{
 		try {
-			request.get({
+			request[method.toLowerCase()]({
 			    url: network.link
 			}, function (err, respon) {
 				if(respon.body){
@@ -321,26 +370,58 @@ router.post('/', function(req, res, next) {
 			res.send("error");
 		}
 	}
-	RequestAPI.prototype.requestEmpty = (network, db) =>{
-		requestApi.lengthOfNet++;
-		switch (network[req.body.index].method) {
-			case "GET":
-				if(network[req.body.index].type==="appflood"){
-					if(network[req.body.index].custom.data!==undefined){
-						requestApi.callRequestGetAppflood(network[req.body.index], db)
+	RequestAPI.prototype.callRequestAppaniac = function(network, db, method) {
+		try {
+			request[method.toLowerCase()]({
+			    url: network.link
+			}, function (err, respon) {
+				if(respon.body.indexOf("<html>")===-1){
+					if(requestApi.loopOrder(respon, network)){
+						let dataChange = [];
+						requestApi.keyObject.forEach( function(element, index) {
+							dataChange.push(requestApi.dataOffer[element]);
+						});
+				   		requestApi.changeData(network, db, dataChange);
 					}else{
-						res.send("plase enter Custom")
+						res.send("No Data")
 					}
 				}else{
-					requestApi.callRequestGetHasOffer(network[req.body.index], db)
+					res.send("error");
+				}
+			});
+		} catch(e) {
+			res.send("error");
+		}
+	};
+	RequestAPI.prototype.requestEmpty = (network, db) =>{
+		requestApi.lengthOfNet++;
+		switch (network[req.body.index].type) {
+			case "appflood":
+				if(network[req.body.index].custom.data!==undefined){
+					requestApi.callRequestAppflood(network[req.body.index], db, network[req.body.index].method)
+				}else{
+					res.send("plase enter Custom")
 				}
 				break;
-			case "POST":
-				if(network[req.body.index].type==="appflood"){
-					if(network[req.body.index].custom.data!==undefined){
-						requestApi.callRequestPostAppflood(network[req.body.index], db)
-					}
+			case "hasoffer":
+				requestApi.callRequestHasOffer(network[req.body.index], db, network[req.body.index].method)
+				break;
+			case "appaniac":
+				if(network[req.body.index].custom.data!==undefined){
+					requestApi.callRequestAppaniac(network[req.body.index], db, network[req.body.index].method)
+				}else{
+					res.send("plase enter Custom")
 				}
+				break;
+			case "adattract":
+				if(network[req.body.index].custom.data!==undefined){
+					requestApi.callRequestAppaniac(network[req.body.index], db, network[req.body.index].method)
+				}else{
+					res.send("plase enter Custom")
+				}
+				break;
+			default:
+				res.send("Plase add type new network!")
 				break;
 		}
 	}

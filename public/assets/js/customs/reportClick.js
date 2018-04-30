@@ -39,17 +39,19 @@ SortItems.prototype.getAPI = function(path, data){
 	});
 };
 SortItems.prototype.checkMemberReq = function(data){
-	var name = [];
-	data.forEach((app, index)=>{
-		if(name.indexOf(app.name)===-1){
-			name.push(app.name)
-		}
-	})
-	var htmlOptionTag = "<option value='all'>Members</option>";
-	name.forEach((app)=>{
-		htmlOptionTag += `<option value="${app}">${app}</option>`;
-	})
-	members.append(htmlOptionTag)
+	if(sortItems.countStart===0){
+		var name = [];
+		data.forEach((app, index)=>{
+			if(name.indexOf(app.name)===-1){
+				name.push(app.name)
+			}
+		})
+		var htmlOptionTag = "<option value='all'>Members</option>";
+		name.forEach((app)=>{
+			htmlOptionTag += `<option value="${app}">${app}</option>`;
+		})
+		members.append(htmlOptionTag)
+	}
 }
 SortItems.prototype.setPath = function(path){
 	this.path = path;

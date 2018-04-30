@@ -1,3 +1,14 @@
+.sel-submit{
+	background: #10c469;
+	margin-right: 1.2em;
+	color: #fff;
+	border: none;
+	height: 22px;
+}
+.sel-page-ip{
+	width: 100px;
+	height: 22px;
+}
 .styleCapSetApp{
 	padding-left: 4em;
 	color: #111;

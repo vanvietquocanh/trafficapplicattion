@@ -43,12 +43,12 @@ function SortItems() {
 	this.checkboxGroup = [];
 	this.page = [];
 }
-SortItems.prototype.getAPI = function() {
-	var path = `/getoffer/live`;
+SortItems.prototype.getAPI = function(skip) {
+	var path = `/getoffer/live?start=${skip}`;
 	requestItems = $.get(path, function(res) {
 		if(res.length===500){
-			sortItems.countStartIOS+=500;
-			sortItems.getAPI();
+			sortItems.countStart+=500;
+			sortItems.getAPI(sortItems.countStart);
 			res.forEach( function(element, index) {
 				sortItems.setData(element)
 			});
@@ -303,7 +303,7 @@ SortItems.prototype.download = function(filename){
     tagDownload.children().children().removeClass("fa-spinner fa-pulse").addClass('fa-download')
     sortItems.eventDown();
 };
-sortItems.getAPI();
+sortItems.getAPI(0);
 filterBtn.click(function(event) {
 	if(platform.val()!=="all"||sortCountry.val()!=="all"||selNetworks.val()!=="all"){
 		sortItems.searchMethod = true;

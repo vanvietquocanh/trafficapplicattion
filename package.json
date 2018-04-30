@@ -10,6 +10,7 @@
     "async": "^2.6.0",
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",
+    "countries-and-timezones": "^1.0.1",
     "debug": "~2.6.9",
     "ejs": "~2.5.7",
     "express": "~4.15.5",
@@ -25,9 +26,12 @@
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
     "passport-local": "^1.0.0",
+    "password-hash": "^1.2.2",
     "proxy-verifier": "^0.4.0",
+    "random-mac": "0.0.4",
     "randomstring": "^1.1.5",
     "serve-favicon": "~2.4.5",
-    "socket.io": "^2.1.0"
+    "socket.io": "^2.1.0",
+    "uuid": "^3.2.1"
   }
 }

@@ -14,6 +14,7 @@ var selNetworks = $("#sel-Networks");
 var search = $('#search');
 var btnSearch = $("#btn-search");
 var requestItems;
+var valueInput = "";
 function SortItems() {
 	this.pending;
 	this.list;
@@ -163,6 +164,7 @@ SortItems.prototype.countPage = function(){
 		}
         x++;
 	};
+	$("#totalPage").html("/"+sortItems.newArrayList.length);
 	paginationString  += 	`<li class="next-page">
                                 <a class="pagination-items">...</a>
                             </li>
@@ -186,11 +188,13 @@ SortItems.prototype.newPagination = function(page){
                                 </li>
                                 <li class="next-page">
                                     <a class="pagination-items">...</a>
-                                </li>
-                                <li class="next-page">
-                                    <a class="pagination-items pag-${Number(page)-2} pagination-number">${Number(page)-1}</a>
-                                </li>
-                                <li class="next-page">
+                                </li>`;
+                                if(Number(page)>2){
+		paginationString += `<li class="next-page">
+                                <a class="pagination-items pag-${Number(page)-2} pagination-number">${Number(page)-1}</a>
+                            </li>`;
+                                }
+        paginationString += `<li class="next-page">
                                     <a class="pagination-items pag-${Number(page)-1} pagination-number">${page}</a>
                                 </li>
                                 <li class="next-page">
@@ -198,11 +202,13 @@ SortItems.prototype.newPagination = function(page){
                                 </li>
                                 <li class="next-page">
                                     <a class="pagination-items pag-${1+Number(page)} pagination-number">${2+Number(page)}</a>
-                                </li>
-                                <li class="next-page">
+                                </li>`;
+                                if(Number(page)<sortItems.newArrayList.length-2){
+        paginationString += `<li class="next-page">
                                     <a class="pagination-items pag-${2+Number(page)} pagination-number">${3+Number(page)}</a>
-                                </li>
-                                <li class="next-page">
+                                </li>`;
+                               	}
+        paginationString += `<li class="next-page">
                                     <a class="pagination-items">...</a>
                                 </li>
                                 </li>
@@ -213,7 +219,7 @@ SortItems.prototype.newPagination = function(page){
                                     <a class="pagination-items">›</a>
                                 </li>
                             </ul>`;
-	sortItems.renderPage(page, paginationString);
+	sortItems.renderPage(sortItems.page, paginationString);
 };
 SortItems.prototype.renderPage = function(page, pagination){
 	var pageIndex = page;
@@ -228,14 +234,14 @@ SortItems.prototype.renderPage = function(page, pagination){
 	};
 	$(`.pag-${pageIndex}`).parent().addClass('active');
 	$(".pagination-number").click((e)=>{
-		sortItems.pageIndex = $(e.target).attr("class").split("pag-")[1].split(" ")[0];
+		sortItems.page = $(e.target).attr("class").split("pag-")[1].split(" ")[0];
 		table.empty();
-		if(sortItems.pageIndex>=2&&sortItems.pageIndex<sortItems.newArrayList.length-3){
-			sortItems.newPagination(sortItems.pageIndex)
+		if(sortItems.page>=2&&sortItems.page<sortItems.newArrayList.length-3){
+			sortItems.newPagination(sortItems.page)
 			$(`.next-page`).removeClass('active');
-			$(`.pag-${sortItems.pageIndex}`).parent().addClass('active');
+			$(`.pag-${sortItems.page}`).parent().addClass('active');
 		}else{
-			sortItems.renderPage(sortItems.pageIndex, pagination)
+			sortItems.renderPage(sortItems.page, pagination)
 		}
 	})
 	sortItems.delEventDown();
@@ -368,6 +374,38 @@ filterBtn.click(function(event) {
 		filterRq()
 	}
 });
+$("#val-sel-page").keydown(function(event) {
+	if(event.key==="Enter"||event.keyCode===13){
+		$("#sel-page").click();
+	}
+});
+$("#sel-page").click((e)=>{
+	if(/^\d+$/.test($("#val-sel-page").val())&&$("#val-sel-page").val()<=sortItems.newArrayList.length&&$("#val-sel-page").val()>0){
+		table.empty();
+		console.log($("#val-sel-page").val())
+		if($("#val-sel-page").val()>=2&&$("#val-sel-page").val()-1<sortItems.newArrayList.length-3){
+			sortItems.page = $("#val-sel-page").val()-1;
+			sortItems.newPagination(sortItems.page)
+			$(`.next-page`).removeClass('active');
+			$(`.pag-${sortItems.page}`).parent().addClass('active');
+		}else{
+			if($("#val-sel-page").val()<sortItems.newArrayList.length/2){
+				sortItems.page = $("#val-sel-page").val()-1;
+				sortItems.newPagination(3)
+				$(`.next-page`).removeClass('active');
+				$(`.pag-${sortItems.page}`).parent().addClass('active');
+			}else{
+				sortItems.page = $("#val-sel-page").val()-1;
+				sortItems.newPagination(sortItems.newArrayList.length-3)
+				$(`.next-page`).removeClass('active');
+				$(`.pag-${sortItems.page}`).parent().addClass('active');
+			}
+		}
+		$("#val-sel-page").css({"border":"1px solid #111", "color":"#111"});
+	}else{
+		$("#val-sel-page").css({"border":"1px solid red", "color":"red"});
+	}
+})
 search.keypress(function(event) {
 	if(event.key==="Enter"||event.keyCode===13){
 		btnSearch.click();
