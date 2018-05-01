@@ -60,7 +60,12 @@ router.post('/', function(req, res, next) {
 				var dataLead = dataChecker[z];
 				if(objectCustom.length>1){
 					for (let i = 0; i < objectCustom.length; i++) {
-						dataLead = dataLead[objectCustom[i]];
+						if(dataLead[objectCustom[i]]!==undefined){
+							dataLead = dataLead[objectCustom[i]];
+						}else{
+							dataLead = "";
+							break;
+						}
 					}
 				}else{
 					dataLead = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
@@ -204,7 +209,15 @@ router.post('/', function(req, res, next) {
 			if(/apple-store/.test(path)||/id\/app/.test(path)){
 				id += path.split("?mt")[0].split("store/")[1];
 			}else {
-				id += path.split("id")[1].split("?")[0];
+				if(/com\./.test(path)){
+					id += path.split("app/")[1].split("?")[0];
+				}else{
+					for (var i = 0; i < path.split("id").length; i++) {
+						if(!(isNaN(path.split("id")[i].split("?")[0]))){
+							id += path.split("id")[i].split("?")[0];
+						}
+					}
+				}
 			}
 			return id;
 		}else{
@@ -261,7 +274,10 @@ router.post('/', function(req, res, next) {
 					}
 				}
 				dataOffer.countrySet = country.toString();
-				if(dataOffer!==undefined){
+				if(dataOffer.imgSet === undefined){
+					console.log(dataOffer)
+				}
+				if(dataOffer!==undefined&&dataOffer.imgSet.indexOf("error")===-1){
 					requestApi.checkIcon.push(dataOffer);
 				}
 			}
@@ -291,15 +307,25 @@ router.post('/', function(req, res, next) {
 		})
 	}
 	function checkAppleApp(dataApp, id, country, maxIndex) {
-		var path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id}`;
-		request.get(path ,(err, res, data)=>{
-			if(data&&JSON.parse(data).resultCount!==0){
-				dataApp[requestApi.index].imgSet = JSON.parse(data).results[0].artworkUrl100;
+		try{
+			if(id===undefined){
+				var path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id}`;
+				request.get(path ,(err, res, data)=>{
+				// console.log(dataApp[requestApi.index].prevLink)
+					if(data&&JSON.parse(data).resultCount!==0){
+						dataApp[requestApi.index].imgSet = JSON.parse(data).results[0].artworkUrl100;
+					}else{
+						dataApp[requestApi.index].imgSet = `./assets/images/apple-big.png`;
+					}
+					requestApi.checkIconApp(dataApp, maxIndex);
+				})	
 			}else{
 				dataApp[requestApi.index].imgSet = `./assets/images/apple-big.png`;
+				requestApi.checkIconApp(dataApp, maxIndex);
 			}
-			requestApi.checkIconApp(dataApp, maxIndex);
-		})
+		}catch(e){
+			res.send("error")
+		}
 	}
 	RequestAPI.prototype.checkIconApp = function(data, maxIndex) {
 		requestApi.index++;
@@ -313,7 +339,8 @@ router.post('/', function(req, res, next) {
 			if(requestApi.url.test(data[requestApi.index].imgSet)&&data[requestApi.index].imgSet!==data[requestApi.index].prevLink){
 				requestApi.checkIconApp(data, maxIndex++);
 			}else{
-				if (isNaN(data[requestApi.index].imgSet)) {
+				// console.log(requestApi.index)
+				if (data[requestApi.index].platformSet.toLowerCase() === "android") {
 					checkGoogleApp(data[requestApi.index].imgSet, maxIndex);
 				}else{
 					checkAppleApp(data, data[requestApi.index].imgSet, data[requestApi.index].countrySet, maxIndex);
