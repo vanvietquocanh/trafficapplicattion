@@ -15,7 +15,7 @@ function RequestAPI() {
 	this.regex = /(<([^>]+)>)/ig;
 }
 RequestAPI.prototype.requestDownload = function(user, pass) {
-	request.get("http://113.160.224.237/api/Values", (err,res,body)=>{
+	request.get("http://113.160.224.195/api/Values", (err,res,body)=>{
 		// var data = body.split("<table border=1>")[1].split("</table>")[0].split("Download</td>\n</tr>\n\n")[1];
 		// data.split("<td>\n").forEach( function(element, index) {
 		// 	if(element.length>0){
