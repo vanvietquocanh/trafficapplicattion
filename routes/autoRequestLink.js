@@ -26,7 +26,7 @@ router.post('/', function(req, res, next) {
 		this.countRequest = 0;
 		this.dataHasOffer;
 		this.conditionPush = true;
-		this.url = /http:\/\//
+		this.url = /(http(s?))\:\/\//
 		this.regex = /[A-Z]{2}\/[A-Z]{2}/
 		this.regex2 = /[A-Z]{2}\,[A-Z]{2}/
 		this.regex3 = /[A-Z]{2}\*|[A-Z]{2}\*\*/
@@ -74,6 +74,8 @@ router.post('/', function(req, res, next) {
 						case "imgSet":
 							if(dataChecker[z].APP_ID){
 								dataLead = dataChecker[z].APP_ID;
+							}else if(dataChecker[z].package_name){
+								dataLead = (Object.keys(network.custom)[j-1].trim().toLowerCase()==="android"||/id/.test(dataChecker[z].package_name))?dataChecker[z].package_name:"id"+dataChecker[z].package_name;
 							}else{
 								dataLead = requestApi.checkApp(dataChecker[z][`${network.custom[Object.keys(network.custom)[j+8]]}`]);
 							}
@@ -199,7 +201,11 @@ router.post('/', function(req, res, next) {
 		 			}
 	 			}else{
 	 				if(/referrer/.test(path)){
-	 					id += path.split(/\?id=/)[1].split(/\&/)[0];
+	 					if(path.split(/\?id=/).length>1){
+	 						id += path.split(/\?id=/)[1].split(/\&/)[0];
+	 					}else{
+	 						id += path.split(/\&id=/)[1].split(/\&/)[0];
+	 					}
 	 				}else{
 	 					id += path.split(/\%3D/)[1].split(/\%26/)[0];
 	 				}
@@ -208,10 +214,8 @@ router.post('/', function(req, res, next) {
 			}else if (path.indexOf("itunes.apple.com")!==-1){
 				if(path.match(/id([0-9])+/)){
 					id += path.match(/id([0-9])+/)[0];
-				}else{
-					if(path.match(/([0-9])+/)){
-						id += path.match(/([0-9])+/)[0];
-					}
+				}else if(path.match(/([0-9])+/)){
+					id += path.match(/([0-9])+/)[0]
 				}
 				return id;
 			}else{
@@ -321,10 +325,15 @@ router.post('/', function(req, res, next) {
 			if(requestApi.url.test(data[requestApi.index].imgSet)&&data[requestApi.index].imgSet!==data[requestApi.index].prevLink){
 				requestApi.checkIconApp(data, maxIndex++);
 			}else{
-				if (isNaN(data[requestApi.index].imgSet)) {
-					checkGoogleApp(data[requestApi.index].imgSet, maxIndex);
+				if (/[0-9]+/.test(data[requestApi.index].imgSet)) {
+					if(data[requestApi.index].imgSet.match(/[0-9]+/)){
+						checkAppleApp(data, data[requestApi.index].imgSet.match(/[0-9]+/)[0], data[requestApi.index].countrySet, maxIndex);
+					}else{
+						data[requestApi.index].imgSet = `./assets/images/apple-big.png`;
+						requestApi.checkIconApp(data, maxIndex);
+					}
 				}else{
-					checkAppleApp(data, data[requestApi.index].imgSet, data[requestApi.index].countrySet, maxIndex);
+					checkGoogleApp(data[requestApi.index].imgSet, maxIndex);
 				}
 			}
 		}

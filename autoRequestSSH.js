@@ -32,22 +32,24 @@ RequestAPI.prototype.requestDownload = function(user, pass) {
 		// 	j.setCookie(cookie, url);
 		// 	request({uri:url, method:"GET", jar: j}, (err,res, body)=>{
 		// 		console.log(body)
-				if(!(requestApi.regex.test(body))){
+				if(!(requestApi.regex.test(body))&&body!==undefined){
 					var dataRes = JSON.parse(body);
-					dataRes.forEach( function(element, index) {
-						let data = element.toString().split("\r\n");
-						if(data[data.length-1]===""){
-							data.splice(data.length-1,1)
-						}
-						var dataSave = {
-							country : data[0].split("(")[1].split(")")[0],
-							data 	: data
-						}
-						mongo.connect(pathMongodb, (err, db)=>{
-							db.collection("SSH").updateOne({country : dataSave.country}, {$set:dataSave}, {upsert : true});
-							db.close();
-						})
-					});
+					if(dataRes){
+						dataRes.forEach( function(element, index) {
+							let data = element.toString().split("\r\n");
+							if(data[data.length-1]===""){
+								data.splice(data.length-1,1)
+							}
+							var dataSave = {
+								country : data[0].split("(")[1].split(")")[0],
+								data 	: data
+							}
+							mongo.connect(pathMongodb, (err, db)=>{
+								db.collection("SSH").updateOne({country : dataSave.country}, {$set:dataSave}, {upsert : true});
+								db.close();
+							})
+						});
+					}
 				};
 		// 	});
 		// });

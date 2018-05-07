@@ -63,48 +63,56 @@ router.get('/', function(req, res, next) {
 					                                <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 					                            </li>`;
 							if(result.master){
-								var myOffer = `<li class="has_sub">
-					                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
-					                            </li>`
-								download = ``;
-								let addOffer = ``;
-		                        renderPage("profile",admin, download, myOffer, addOffer)
+								db.collection('userlist').updateOne({"idFacebook": req.user.id}, {$set:{profile: req.user}}, {upsert:true}, (err,result)=>{
+									var myOffer = `<li class="has_sub">
+						                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+						                            </li>`
+									download = ``;
+									let addOffer = ``;
+			                        renderPage("profile",admin, download, myOffer, addOffer)
+								})
 							}else if(result.member){
-								offerLive = "";
-								var myOffer = `<li class="has_sub">
-				                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
-				                            </li>`
-								download = ``;
-								let addOffer = ``;
-		                        renderPage("profile",admin, download, myOffer, addOffer)
+								db.collection('userlist').updateOne({"idFacebook": req.user.id}, {$set:{profile: req.user}}, {upsert:true}, (err,result)=>{
+									offerLive = "";
+									var myOffer = `<li class="has_sub">
+					                                <a href="/myoffers" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> My Offers </span></span></a>
+					                            </li>`
+									download = ``;
+									let addOffer = ``;
+		                        	renderPage("profile",admin, download, myOffer, addOffer)
+								})
 							}else if(result.admin){
-								let myOffer  = 	`<li class="has_sub">
-					                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
-					                            </li>`;
-							    let addOffer = `<li class="has_sub">
-							                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
-							                    </li>`;
-		                        renderPage("index", admin, download, myOffer, addOffer)
+								db.collection('userlist').updateOne({"idFacebook": req.user.id}, {$set:{profile: req.user}}, {upsert:true}, (err,result)=>{
+									let myOffer  = 	`<li class="has_sub">
+						                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
+						                            </li>`;
+								    let addOffer = `<li class="has_sub">
+								                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
+								                    </li>`;
+			                        renderPage("index", admin, download, myOffer, addOffer)
+								})
 							}else{
+								db.collection('userlist').updateOne({"idFacebook": req.user.id}, {$set:{profile: req.user}}, {upsert:true}, (err,result)=>{
+									res.render("error",{
+										error:{
+											status: "",
+											stack : "Your application has been reviewed by our team. We will contact soon !"
+										}, message: ""
+									})
+								})
+							}
+							assert.equal(null,err);
+							db.close();
+						}else{
+							db.collection('userlist').insertOne(dataInsert, (err,result)=>{
 								res.render("error",{
 									error:{
 										status: "",
 										stack : "Your application has been reviewed by our team. We will contact soon !"
 									}, message: ""
 								})
-							}
-							assert.equal(null,err);
-							db.close();
-						}else{
-							db.collection('userlist').insertOne(dataInsert,(err,result)=>{
+								res.end();
 							})
-							res.render("error",{
-								error:{
-									status: "",
-									stack : "Your application has been reviewed by our team. We will contact soon !"
-								}, message: ""
-							})
-							res.end();
 						};
 						assert.equal(null,err);
 						db.close();

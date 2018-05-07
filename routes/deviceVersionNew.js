@@ -76,7 +76,7 @@ router.get('/:value', function(req, res, next) {
 				var usedDisk = parseFloat(randomStorage*Math.floor((Math.random() * 41)+30)/100);
 				var response = {
 					HWMachine : objDevice.ModelName,
-					"HW.Model"  : objDevice.HWModel,
+					"HW.Model"  : objDevice.HWModel.split("-").length>1?objDevice.HWModel.split("-")[Math.floor((Math.random() * objDevice.HWModel.split("-").length))]:objDevice.HWModel,
 					HWCount   : objDevice.CpuCount,
 					CpuFreq   : objDevice.CpuFreq,
 					BatteryLevel : (battery===1)?battery+".000000":battery+"00000",
