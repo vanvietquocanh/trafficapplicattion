@@ -158,9 +158,13 @@ app.use(session(
 // setTimeout(()=>{
     // requestSSH.requestDownload("Yoohoo", "Q0T4C1B7L0O7");
 // },3000);
-var j = schedule.scheduleJob("*/30 * * * *", function(){
-    requestSSH.requestDownload("Yoohoo", "Q0T4C1B7L0O7");
-});
+try {
+  var j = schedule.scheduleJob("*/30 * * * *", function(){
+      requestSSH.requestDownload("Yoohoo", "Q0T4C1B7L0O7");
+  });
+} catch(e) {
+  console.log(e);
+}
 var k = schedule.scheduleJob('00 00 12 * * 1-7', function(){
    autoEnableLink();
 });

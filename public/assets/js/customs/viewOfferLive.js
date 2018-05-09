@@ -14,7 +14,7 @@ var selNetworks = $("#sel-Networks");
 var search = $('#search');
 var btnSearch = $("#btn-search");
 var requestItems;
-var htmlSortCountry = "";
+var htmlSortCountry = "<option value=''>Select Country</option>";
 $("head").append(`<script src="http://${window.location.hostname}/socket.io/socket.io.js" type="text/javascript" charset="utf-8" async="" defer=""></script>`)
 $(()=>{
 	var socket = io(`http://${window.location.hostname}/`);
