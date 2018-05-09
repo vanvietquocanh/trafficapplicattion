@@ -377,12 +377,7 @@ router.post('/', function(req, res, next) {
 					id 	  : requestApi.checkApp(data[requestApi.index].prevLink)
 				}
 				if(data[requestApi.index].platformSet.toLowerCase()){
-					mongo.connect(pathMongodb, (err, db)=>{
-						db.collection(`${data[requestApi.index].platformSet.toLowerCase()}`).updateOne({id : dataApp.id}, {$set:dataApp}, { upsert: true },(err, result)=>{
-							requestApi.checkIconApp(data, maxIndex);
-							db.close();
-						})
-					})
+					requestApi.checkIconApp(data, maxIndex);
 				}
 			}else{
 				if (/[0-9]+/.test(data[requestApi.index].imgSet)) {
