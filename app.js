@@ -7,6 +7,17 @@ var session = require("express-session");
 var LocalStrategy = require("passport-local")
 var infoAPI = require("./routes/apiInfo.js");
 var schedule = require('node-schedule');
+var multer = require("multer")
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '/tmp/my-uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now())
+  }
+})
+
+var upload = multer({ storage: storage })
 
 
 var home = require('./routes/home');
@@ -63,6 +74,7 @@ var addOffer = require('./routes/addOffer');
 var postRequestSttUser = require('./routes/post.request.sttUser');
 var listConversionIp = require('./routes/listConversionIp');
 var getListCustomOffer = require('./routes/getListCustomOffer');
+var getIconApp = require('./routes/getIconApp');
 var getNetworkName = require('./routes/getNetworkName');
 var delUser = require('./routes/delUser');
 var getprofileUser = require('./routes/getprofileUser');
@@ -81,14 +93,15 @@ var getDataLead = require("./routes/getDataLead")
 var apiGetAllOffer = require("./routes/api.getAllOffer");
 var deviceVersionNew = require("./routes/deviceVersionNew");
 var detailsCvrUser = require("./routes/detailsCvrUser");
+var renderPostTest = require("./routes/render.testPost");
 // var transactionid2 = require("./routes/transaction_id2");
 var totalcvr = require("./routes/totalcvr")
 var viewsLiveOffer = require("./routes/viewsLiveOffer")
+var postImage = require("./routes/postImage")
 var insertLiveLink = require("./routes/insertLiveLink");
 var getSSH = require("./routes/getSSH");
 var requestSSH = require("./autoRequestSSH");
 var autoEnableLink = require("./autoEnableLink");
-
 
 var app = express();
 var socket_io = require('socket.io');
@@ -106,6 +119,7 @@ app.set('view engine', 'ejs');
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(upload.single("files"));
 app.use('/checkparameter', checkParameter);
 app.use('/clickauto', clickAuto);
 app.use('/click', clickMaster);
@@ -114,10 +128,11 @@ app.use('/publicuser', publicuser);
 app.use('/request', cvr);
 app.use('/checkapplication', checkApplication);
 app.use('/checkstt', postRequestSttUser);
+app.use('/form-file', postImage);
 app.use('/insert', insertLiveLink);
 app.use('/information', deviceVersionNew);
 app.use('/testrequest', requestTestLink);
-// app.use('/TMCkWt7vLsWp0gTtr7G4Aw', equalsOfferId);
+app.use('/infoapp', getIconApp);
 app.use('/offerlist', apiGetAllOffer);
 app.use('/getssh', getSSH);
 app.use('/list', listConversionIp);
@@ -127,6 +142,7 @@ app.use('/get', getport);
 app.use('/advertiser', advertiser);
 app.use('/monetization', Monetization);
 app.use('/sdk-via', viaSdk);
+app.use('/test-post', renderPostTest);
 // app.use('/transaction', transactionid2);
 app.use('/getcountry', getCountry);
 app.use('/smartlink', getSmartLink);

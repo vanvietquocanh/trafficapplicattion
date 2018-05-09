@@ -40,17 +40,28 @@ function API() {
 delOffer.click(()=>{
 	var ses = confirm("You are sure to delete all offers");
 	if(ses){
-		api.delRequest("/delete/alloffer")
+		if($("#sel-Networks").val()){
+			var data = {
+				"nameNetworkSet" : $("#sel-Networks").val().toLowerCase(),
+			}
+		}
+		api.delRequest("/delete/alloffer", data)
 	}
 });
 delLiveOffer.click(()=>{
 	var ses = confirm("You are sure to delete all live offers");
 	if(ses){
-		api.delRequest("/delete/liveoffer")
+		if($("#sel-Networks").val()){
+			var data = {
+				"nameNetworkSet" : $("#sel-Networks").val().toLowerCase(),
+			}
+		}
+		api.delRequest("/delete/liveoffer", data)
 	}
 });
-API.prototype.delRequest = function(path) {
-	$.post(path, function(data, textStatus, xhr) {
+API.prototype.delRequest = function(path, dataSendding) {
+	console.log(dataSendding)
+	$.post(path, dataSendding, function(data, textStatus, xhr) {
 		alert(data)
 	});
 };

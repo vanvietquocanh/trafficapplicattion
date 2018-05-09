@@ -13,6 +13,23 @@ router.post('/:param', function(req, res, next) {
 		"idFacebook" : req.user.id
 	}
 	try{
+		function deleteLive(req, db){
+			if(req.body.nameNetworkSet){
+				db.collection("Offerlead").deleteMany(req.body ,(err,result)=>{
+					if(!err){
+						res.send("ok");
+					}
+				});
+			}else{
+				db.collection("Offerlead").drop((err,result)=>{
+					if(!err){
+						res.send("ok");
+					}else{
+						res.send(err)
+					}
+				});
+			}
+		}
 		mongo.connect(pathMongodb, (err, db)=>{
 			if(req.params.param === "liveoffer"){
 				db.collection("userlist").findOne(query, (err, result)=>{
@@ -21,20 +38,29 @@ router.post('/:param', function(req, res, next) {
 						if(result.admin){
 							db.collection("Offerlead").drop(err=>{
 								if(!err){
-									country.forEach( function(element, index) {
-										platform.forEach( function(os, index) {
-											db.collection(element+os).drop((err,result)=>{
-												count++;
+									if(req.body.nameNetworkSet){
+										country.forEach( function(element, index) {
+											platform.forEach( function(os, index) {
+												db.collection(element+os).deleteMany(req.body, (err,result)=>{
+													count++;
+												});
 											});
+											if(country.length*2 === count){
+												deleteLive(req, db)
+											}
 										});
-										if(country.length*2 === count){
-											db.collection("Offerlead").drop((err,result)=>{
-												if(!err){
-													res.send("ok");
-												}
+									}else{
+										country.forEach( function(element, index) {
+											platform.forEach( function(os, index) {
+												db.collection(element+os).drop((err,result)=>{
+													count++;
+												});
 											});
-										}
-									});
+											if(country.length*2 === count){
+												deleteLive(req, db)
+											}
+										});
+									}
 								}
 							});
 						}else{
@@ -45,21 +71,31 @@ router.post('/:param', function(req, res, next) {
 					}
 				})
 			}else if(req.params.param === "alloffer"){
-				db.collection("offer").drop((err, result)=>{
-					if(!err){
-						mongo.connect(pathMongodb, (err, db)=>{
-							db.collection("offer").createIndex({offeridSet:1, nameNetworkSet:1},{unique:true},(err, result)=>{
-								if(!err){
-									res.send("ok");
-								}else{
-									res.send("error");
-								}
+				if(req.body.nameNetworkSet){
+					db.collection("offer").deleteMany(req.body, (err, result)=>{
+						if(!err){
+							res.send("ok")
+						}else{
+							res.send("error")
+						}
+					});
+				}else{
+					db.collection("offer").drop((err, result)=>{
+						if(!err){
+							mongo.connect(pathMongodb, (err, db)=>{
+								db.collection("offer").createIndex({offeridSet:1, nameNetworkSet:1},{unique:true},(err, result)=>{
+									if(!err){
+										res.send("ok");
+									}else{
+										res.send("error");
+									}
+								})
 							})
-						})
-					}else{
-						res.send(err)
-					}
-				});
+						}else{
+							res.send(err)
+						}
+					})
+				}
 			}else{
 				res.redirect("/")
 			}

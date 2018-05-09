@@ -26,7 +26,7 @@ router.post('/', function(req, res, next) {
 		this.countRequest = 0;
 		this.dataHasOffer;
 		this.conditionPush = true;
-		this.url = /http:\/\//
+		this.url = /(http(s?))\:\/\//
 		this.regex = /[A-Z]{2}\/[A-Z]{2}/
 		this.regex2 = /[A-Z]{2}\,[A-Z]{2}/
 		this.regex3 = /[A-Z]{2}\*|[A-Z]{2}\*\*/
@@ -60,7 +60,11 @@ router.post('/', function(req, res, next) {
 				var dataLead = dataChecker[z];
 				if(objectCustom.length>1){
 					for (let i = 0; i < objectCustom.length; i++) {
-						dataLead = dataLead[objectCustom[i]];
+						if(dataLead!==undefined){
+							dataLead = dataLead[objectCustom[i]];
+						}else{
+							dataLead = "";
+						}
 					}
 				}else{
 					dataLead = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
@@ -68,8 +72,10 @@ router.post('/', function(req, res, next) {
 				if(dataLead==null||dataLead===undefined){
 					switch (Object.keys(network.custom)[j].trim()) {
 						case "imgSet":
-							if(requestApi.regexPlatform.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j-1]].trim()}`])){
-								dataLead = requestApi.checkApp(dataChecker[z][`${network.custom[Object.keys(network.custom)[j+8]]}`]);
+							if(dataChecker[z].APP_ID){
+								dataLead = dataChecker[z].APP_ID;
+							}else if(dataChecker[z].package_name){
+								dataLead = (Object.keys(network.custom)[j-1].trim().toLowerCase()==="android"||/id/.test(dataChecker[z].package_name))?dataChecker[z].package_name:"id"+dataChecker[z].package_name;
 							}else{
 								dataLead = requestApi.checkApp(dataChecker[z][`${network.custom[Object.keys(network.custom)[j+8]]}`]);
 							}
@@ -92,7 +98,7 @@ router.post('/', function(req, res, next) {
 					}
 				}
 				dataChecker[z][`${Object.keys(network.custom)[j].trim()}`] = dataLead;
-				delete dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
+				// delete dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 			}
 			max++;
 			dataChecker[z].index = max;
@@ -185,30 +191,36 @@ router.post('/', function(req, res, next) {
 	}
 	RequestAPI.prototype.checkApp = function(path) {
  		let id = "";
-		if(path.indexOf("market://")!==-1||path.indexOf("play.google.com")!==-1){
- 			if(!(/\%3D/.test(path))){
- 				if(path.indexOf("market://")!==-1){
-	 				id += path.split("id=")[1].split("&")[0];
+		if(path!==undefined){
+			if(path.indexOf("market://")!==-1||path.indexOf("play.google.com")!==-1){
+	 			if(!(/\%3D/.test(path))){
+	 				if(path.indexOf("market://")!==-1){
+		 				id += path.split("id=")[1].split("&")[0];
+		 			}else{
+		 				id += path.split("id=")[1].split("&")[0];
+		 			}
 	 			}else{
-	 				id += path.split("id=")[1].split("&")[0];
+	 				if(/referrer/.test(path)){
+	 					if(path.split(/\?id=/).length>1){
+	 						id += path.split(/\?id=/)[1].split(/\&/)[0];
+	 					}else{
+	 						id += path.split(/\&id=/)[1].split(/\&/)[0];
+	 					}
+	 				}else{
+	 					id += path.split(/\%3D/)[1].split(/\%26/)[0];
+	 				}
 	 			}
- 			}else{
- 				if(/referrer/.test(path)){
- 					id += path.split(/\?id=/)[1].split(/\&/)[0];
- 				}else{
- 					id += path.split(/\%3D/)[1].split(/\%26/)[0];
- 				}
- 			}
-			return id;
-		}else if (path.indexOf("itunes.apple.com")!==-1){
-			if(/apple-store/.test(path)||/id\/app/.test(path)){
-				id += path.split("?mt")[0].split("store/")[1];
-			}else {
-				id += path.split("id")[1].split("?")[0];
+				return id;
+			}else if (path.indexOf("itunes.apple.com")!==-1){
+				if(path.match(/id([0-9])+/)){
+					id += path.match(/id([0-9])+/)[0];
+				}else if(path.match(/([0-9])+/)){
+					id += path.match(/([0-9])+/)[0]
+				}
+				return id;
+			}else{
+				return "error==="+path;
 			}
-			return id;
-		}else{
-			return "error==="+path;
 		}
 	};
 	RequestAPI.prototype.changeDataHasOffer = function(db, network) {
@@ -280,30 +292,79 @@ router.post('/', function(req, res, next) {
 		})
 	};
 	function checkGoogleApp(id, maxIndex) {
-		gplay.app({appId: id})
-		.then(data=>{
-			requestApi.checkIcon[requestApi.index].imgSet = data.icon;
-			requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
-		})
-		.catch(err=>{
-			requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/android-big.png`;
-			requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+		mongo.connect(pathMongodb, (err, db)=>{
+			db.collection("android").findOne({id:id}, (err, result)=>{
+				if(!err&&result){
+					requestApi.checkIcon[requestApi.index].imgSet = result.image;
+					requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+					db.close();
+				}else{
+					gplay.app({appId: id})
+					.then(data=>{
+							var dataApp = {
+								image : data.icon,
+								id 	  : id
+							}
+							db.collection("android").updateOne({id : dataApp.id}, {$set:dataApp},{ upsert: true },(err, result)=>{
+								requestApi.checkIcon[requestApi.index].imgSet = data.icon;
+								requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+								db.close();
+							})
+					})
+					.catch(err=>{
+						request.post(`http:${req.headers.host}/info/chplay`,{ id : id }, (err, res, body)=>{
+							if(!err){
+								if(typeof body!=="string"){
+									requestApi.checkIcon[requestApi.index].imgSet = body.image;
+									requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+								}else{
+									requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/android-big.png`;
+									requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+								}
+							}else{
+								requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/android-big.png`;
+								requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+							}
+						})
+					})
+				}
+			})
 		})
 	}
 	function checkAppleApp(dataApp, id, country, maxIndex) {
-		var path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id}`;
-		request.get(path ,(err, res, data)=>{
-			if(data&&JSON.parse(data).resultCount!==0){
-				dataApp[requestApi.index].imgSet = JSON.parse(data).results[0].artworkUrl100;
-			}else{
-				dataApp[requestApi.index].imgSet = `./assets/images/apple-big.png`;
-			}
-			requestApi.checkIconApp(dataApp, maxIndex);
+		mongo.connect(pathMongodb,(err, db)=>{
+			db.collection("ios").findOne({id:`id${id}`}, (err, result)=>{
+				if(!err&&result){
+					requestApi.checkIcon[requestApi.index].imgSet = result.image;
+					requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+					db.close();
+				}else{
+					var path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id}`;
+					request.get(path ,(err, res, data)=>{
+						if(data&&JSON.parse(data).resultCount!==0){
+							var appData = {
+								image : JSON.parse(data).results[0].artworkUrl100,
+								id 	  : id
+							}
+								db.collection("ios").updateOne({id : appData.id}, {$set:appData},{ upsert: true },(err, result)=>{
+									if(!err){
+										requestApi.checkIcon[requestApi.index].imgSet = JSON.parse(data).results[0].artworkUrl100;
+										requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+										db.close();
+									}
+								})
+						}else{
+							requestApi.checkIcon[requestApi.index].imgSet = `./assets/images/apple-big.png`;
+							requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+						}
+					})
+				}
+			})
 		})
 	}
 	RequestAPI.prototype.checkIconApp = function(data, maxIndex) {
 		requestApi.index++;
-		if(requestApi.index===data.length){
+		if(requestApi.index===requestApi.checkIcon.length){
 			mongo.connect(pathMongodb, (err, db)=>{
 				if(!err){
 					requestApi.insertNewDB(db, data);
@@ -311,12 +372,28 @@ router.post('/', function(req, res, next) {
 			})
 		}else{
 			if(requestApi.url.test(data[requestApi.index].imgSet)&&data[requestApi.index].imgSet!==data[requestApi.index].prevLink){
-				requestApi.checkIconApp(data, maxIndex++);
+				let dataApp = {
+					image : data[requestApi.index].imgSet,
+					id 	  : requestApi.checkApp(data[requestApi.index].prevLink)
+				}
+				if(data[requestApi.index].platformSet.toLowerCase()){
+					mongo.connect(pathMongodb, (err, db)=>{
+						db.collection(`${data[requestApi.index].platformSet.toLowerCase()}`).updateOne({id : dataApp.id}, {$set:dataApp}, { upsert: true },(err, result)=>{
+							requestApi.checkIconApp(data, maxIndex);
+							db.close();
+						})
+					})
+				}
 			}else{
-				if (isNaN(data[requestApi.index].imgSet)) {
-					checkGoogleApp(data[requestApi.index].imgSet, maxIndex);
+				if (/[0-9]+/.test(data[requestApi.index].imgSet)) {
+					if(data[requestApi.index].imgSet.match(/[0-9]+/)){
+						checkAppleApp(data, data[requestApi.index].imgSet.match(/[0-9]+/)[0], data[requestApi.index].countrySet, maxIndex);
+					}else{
+						data[requestApi.index].imgSet = `./assets/images/apple-big.png`;
+						requestApi.checkIconApp(data, maxIndex);
+					}
 				}else{
-					checkAppleApp(data, data[requestApi.index].imgSet, data[requestApi.index].countrySet, maxIndex);
+					checkGoogleApp(data[requestApi.index].imgSet, maxIndex);
 				}
 			}
 		}
