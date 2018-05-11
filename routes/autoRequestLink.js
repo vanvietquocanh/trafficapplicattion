@@ -293,7 +293,7 @@ router.post('/', function(req, res, next) {
 	};
 	function checkGoogleApp(id, maxIndex) {
 		mongo.connect(pathMongodb, (err, db)=>{
-			db.collection("android").findOne({id:id}, (err, result)=>{
+			db.collection("imagesIcon").findOne({id:id, platform:"android"}, (err, result)=>{
 				if(!err&&result){
 					requestApi.checkIcon[requestApi.index].imgSet = result.image;
 					requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
@@ -302,10 +302,11 @@ router.post('/', function(req, res, next) {
 					gplay.app({appId: id})
 					.then(data=>{
 							var dataApp = {
-								image : data.icon,
-								id 	  : id
+								image   : data.icon,
+								id 	    : id,
+								platform: "android"
 							}
-							db.collection("android").updateOne({id : dataApp.id}, {$set:dataApp},{ upsert: true },(err, result)=>{
+							db.collection("imagesIcon").updateOne({id : dataApp.id}, {$set:dataApp},{ upsert: true },(err, result)=>{
 								requestApi.checkIcon[requestApi.index].imgSet = data.icon;
 								requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 								db.close();
@@ -319,10 +320,12 @@ router.post('/', function(req, res, next) {
 									requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 								}else{
 									requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/android-big.png`;
+									requestApi.checkIcon[requestApi.index].idApp = id;
 									requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 								}
 							}else{
 								requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/android-big.png`;
+								requestApi.checkIcon[requestApi.index].idApp = id;
 								requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 							}
 						})
@@ -333,20 +336,31 @@ router.post('/', function(req, res, next) {
 	}
 	function checkAppleApp(dataApp, id, country, maxIndex) {
 		mongo.connect(pathMongodb,(err, db)=>{
-			db.collection("ios").findOne({id:`id${id}`}, (err, result)=>{
+			db.collection("imagesIcon").findOne({id:`id${id}`, platform:"ios"}, (err, result)=>{
 				if(!err&&result){
 					requestApi.checkIcon[requestApi.index].imgSet = result.image;
 					requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 					db.close();
 				}else{
-					var path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id}`;
+					var path;
+					if(country==="GLOBAL"){
+						country = "US";
+					}else if(country.split(",")[0]==="UK"){
+						country = "GB";
+					}
+					if(/id/.test(id)){
+						path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id.split("d")[1]}`;
+					}else{
+						path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id}`;
+					}
 					request.get(path ,(err, res, data)=>{
-						if(data&&JSON.parse(data).resultCount!==0){
+						if(data&&JSON.parse(data).resultCount!==0&&JSON.parse(data).results[0].artworkUrl100!==undefined){
 							var appData = {
-								image : JSON.parse(data).results[0].artworkUrl100,
-								id 	  : id
+								image   : JSON.parse(data).results[0].artworkUrl100,
+								id 	    : id,
+								platform: "ios"
 							}
-								db.collection("ios").updateOne({id : appData.id}, {$set:appData},{ upsert: true },(err, result)=>{
+								db.collection("imagesIcon").updateOne({id : appData.id}, {$set:appData},{ upsert: true },(err, result)=>{
 									if(!err){
 										requestApi.checkIcon[requestApi.index].imgSet = JSON.parse(data).results[0].artworkUrl100;
 										requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
@@ -355,6 +369,7 @@ router.post('/', function(req, res, next) {
 								})
 						}else{
 							requestApi.checkIcon[requestApi.index].imgSet = `./assets/images/apple-big.png`;
+							requestApi.checkIcon[requestApi.index].idApp = id;
 							requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 						}
 					})
@@ -376,11 +391,9 @@ router.post('/', function(req, res, next) {
 					image : data[requestApi.index].imgSet,
 					id 	  : requestApi.checkApp(data[requestApi.index].prevLink)
 				}
-				if(data[requestApi.index].platformSet.toLowerCase()){
-					requestApi.checkIconApp(data, maxIndex);
-				}
+				requestApi.checkIconApp(data, maxIndex);
 			}else{
-				if (/[0-9]+/.test(data[requestApi.index].imgSet)) {
+				if (requestApi.regularIOS.test(data[requestApi.index].imgSet)) {
 					if(data[requestApi.index].imgSet.match(/[0-9]+/)){
 						checkAppleApp(data, data[requestApi.index].imgSet.match(/[0-9]+/)[0], data[requestApi.index].countrySet, maxIndex);
 					}else{

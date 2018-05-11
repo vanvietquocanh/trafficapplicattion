@@ -65,6 +65,7 @@ var dataOfMyOffer = require('./routes/dataOfMyOffer');
 var getSmartLink = require('./routes/smartLink');
 var getDataUserList = require('./routes/getDataUserList');
 var delNetwork = require('./routes/delNetwork');
+var requesticonhandle = require('./routes/requesticonhandle');
 // var equals = require('./routes/equals');
 var device = require('./routes/device');
 var clickAuto = require('./routes/clickAuto');
@@ -99,6 +100,8 @@ var totalcvr = require("./routes/totalcvr")
 var viewsLiveOffer = require("./routes/viewsLiveOffer")
 var postImage = require("./routes/postImage")
 var insertLiveLink = require("./routes/insertLiveLink");
+var postDataIconHandle = require("./routes/post.dataIconHandle");
+var viewIconHandle = require("./routes/view.iconHandle");
 var getSSH = require("./routes/getSSH");
 var requestSSH = require("./autoRequestSSH");
 var autoEnableLink = require("./autoEnableLink");
@@ -158,13 +161,9 @@ app.use(session(
 // setTimeout(()=>{
     // requestSSH.requestDownload("Yoohoo", "Q0T4C1B7L0O7");
 // },3000);
-try {
-  var j = schedule.scheduleJob("*/30 * * * *", function(){
-      requestSSH.requestDownload("Yoohoo", "Q0T4C1B7L0O7");
-  });
-} catch(e) {
-  console.log(e);
-}
+var j = schedule.scheduleJob("*/30 * * * *", function(){
+    requestSSH.requestDownload("Yoohoo", "Q0T4C1B7L0O7");
+});
 var k = schedule.scheduleJob('00 00 12 * * 1-7', function(){
    autoEnableLink();
 });
@@ -197,6 +196,7 @@ app.use('/delete', deleteLiveOffer);
 app.use('/getprofileuser', getprofileUser);
 app.use('/apiAwaitingApproval', apiAwaitingApproval);
 app.use('/datatotalcvr', dataPostCvrTotal);
+app.use('/requesticonhandle', requesticonhandle);
 app.use('/member', apiMember);
 app.use('/profile', profile);
 app.use('/myoffers', myOffers);
@@ -211,6 +211,7 @@ app.use('/dismissal', dismissal);
 app.use('/deletenetwork', delNetwork);
 app.use('/promote', promote);
 app.use('/postback', postback);
+app.use('/iconhandle', viewIconHandle);
 app.use('/getmasterlist', getListMaster);
 app.use('/profiledata', apiprofileUser);
 app.use('/addnetwork', addNetwork);
@@ -239,6 +240,7 @@ app.use('/addnewoffer', addOffer);
 app.use('/addoffer', addNewOffer);
 app.use('/edituseradd', editUserAdd);
 app.use('/admincutomsoffer', getListCustomOffer);
+app.use('/geticonhandle', postDataIconHandle);
 app.use('/logout', logout);
 
 // catch 404 and forward to error handler

@@ -14,8 +14,11 @@ router.get('/', function(req, res, next) {
  			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
-						var download, myOffer, memSel;
+						var download, myOffer, memSel, icon="";
 						if(result.admin){
+							icon = `<li class="has_sub">
+		                                <a href="/iconhandle" class="waves-effect"><i class="fa fa-picture-o"></i> <span> Icon Handle</span></a>
+		                            </li>`;
 							memSel = `<select class="select-drop-blue sel-mem" name="members" id="members"><option value='all'>Members</option></select>`;
 							download  = `	<li class="has_sub">
 				                                <a href="/totalcvr" class="waves-effect"><i class="fa fa-credit-card-alt"></i> <span> Payment Report </span></a>
@@ -51,7 +54,7 @@ router.get('/', function(req, res, next) {
 			                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
 			                            </li>`;
 						}
-						    renderPage(download, myOffer, memSel)
+						    renderPage(download, myOffer, memSel, icon)
 						assert.equal(null,err);
 						db.close();
 					});
@@ -59,7 +62,7 @@ router.get('/', function(req, res, next) {
 		} catch(e) {
 			res.redirect("/")
 		}
-	  	function renderPage(download, myOffer, memSel) {
+	  	function renderPage(download, myOffer, memSel, icon) {
 	  		var admin =`<li>
 		       			<a href="/admin" class="waves-effect"><i class="zmdi zmdi-view-dashboard"></i> <span> Dashboard </span> </a>
 		    		</li>`;
@@ -70,7 +73,8 @@ router.get('/', function(req, res, next) {
 				"download": download,
 				"myOffer" : myOffer,
 				"addOffer": addOffer,
-				"memSel"  : memSel
+				"memSel"  : memSel,
+				"icon"    : icon
 			})
 	  	}
 	}else{

@@ -829,7 +829,7 @@
 		border-top: none;
 	}
 	.headingfix{
-		width: 41%;
+		width: 65%;
 	}
 	.network-ip{
 		padding: 0 1em;
@@ -964,7 +964,7 @@
 		width: 13%;
 	}
 	.headingfix{
-		width: 38%;
+		width: 70%;
 		flex-grow: 0;
 	}
 	.panel-title{

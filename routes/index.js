@@ -35,7 +35,7 @@ router.get('/', function(req, res, next) {
 			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
-						function renderPage(route, admin, download, myOffer, addOffer, selNetworks){
+						function renderPage(route, admin, download, myOffer, addOffer, selNetworks, icon){
 							res.render(route,{
 								"name"    : req.user.displayName,
 								"avatar"  : req.user.photos[0].value,
@@ -43,7 +43,8 @@ router.get('/', function(req, res, next) {
 								"download": download,
 								"myOffer" : myOffer,
 								"addOffer": addOffer,
-								"selNetworks":selNetworks
+								"selNetworks":selNetworks,
+								"icon" : icon
 							})
 							res.end();
 						}
@@ -70,7 +71,7 @@ router.get('/', function(req, res, next) {
 						                            </li>`
 									download = ``;
 									let addOffer = ``;
-			                        renderPage("profile",admin, download, myOffer, addOffer, "")
+			                        renderPage("profile",admin, download, myOffer, addOffer, "", "")
 								})
 							}else if(result.member){
 								db.collection('userlist').updateOne({"idFacebook": req.user.id}, {$set:{profile: req.user}}, {upsert:true}, (err,result)=>{
@@ -80,7 +81,7 @@ router.get('/', function(req, res, next) {
 					                            </li>`
 									download = ``;
 									let addOffer = ``;
-		                        	renderPage("profile",admin, download, myOffer, addOffer, "")
+		                        	renderPage("profile",admin, download, myOffer, addOffer, "", "")
 								})
 							}else if(result.admin){
 								db.collection('userlist').updateOne({"idFacebook": req.user.id}, {$set:{profile: req.user}}, {upsert:true}, (err,result)=>{
@@ -93,6 +94,9 @@ router.get('/', function(req, res, next) {
 						 			var netName = {};
 						 			var selNetworks = `<select class="btn-up-dels" name="sel-Networks" id="sel-Networks">
                                                 <option value="">All Network</option>`;
+                                    let icon = `<li class="has_sub">
+					                                <a href="/iconhandle" class="waves-effect"><i class="fa fa-picture-o"></i> <span> Icon Handle</span></a>
+					                            </li>`;
                                     mongo.connect(pathMongodb, (err, db)=>{
 	                                    db.collection("network").find().toArray( (err, net)=>{
 											net.forEach( function(element, index) {
@@ -104,7 +108,7 @@ router.get('/', function(req, res, next) {
 												selNetworks += `<option value="${element}">${element}</option>`;
 											});
 											selNetworks += `</select>`;
-				                      		renderPage("index", admin, download, myOffer, addOffer, selNetworks);
+				                      		renderPage("index", admin, download, myOffer, addOffer, selNetworks, icon);
 				                    	})
                                     })
 								})

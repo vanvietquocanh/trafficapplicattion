@@ -16,8 +16,11 @@ router.get('/', function(req, res, next) {
  			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
-						var download, myOffer, addOffer;
+						var download, myOffer, addOffer, icon="";
 						if(result.admin){
+							icon = `<li class="has_sub">
+		                                <a href="/iconhandle" class="waves-effect"><i class="fa fa-picture-o"></i> <span> Icon Handle</span></a>
+		                            </li>`;
 							myOffer  = `<li class="has_sub">
 			                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
 			                            </li>`;
@@ -36,7 +39,7 @@ router.get('/', function(req, res, next) {
 						    addOffer = `<li class="has_sub">
 					                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 					                    </li>`;
-						    renderPage(download, myOffer, addOffer)
+						    renderPage(download, myOffer, addOffer, icon)
 						}else{
 							res.redirect("/")
 						}
@@ -47,7 +50,7 @@ router.get('/', function(req, res, next) {
 		} catch(e) {
 			res.redirect("/")
 		}
-	  	function renderPage(download, myOffer, addOffer) {
+	  	function renderPage(download, myOffer, addOffer, icon) {
 	  		var admin =`<li>
 		       			<a href="/admin" class="waves-effect"><i class="zmdi zmdi-view-dashboard"></i> <span> Dashboard </span> </a>
 		    		</li>`;
@@ -57,7 +60,8 @@ router.get('/', function(req, res, next) {
 				"admin"   : admin,
 				"download": download,
 				"myOffer" : myOffer,
-				"addOffer": addOffer
+				"addOffer": addOffer,
+				"icon" 	  : icon
 			})
 	  	}
 	}else{

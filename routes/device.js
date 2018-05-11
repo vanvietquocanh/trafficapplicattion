@@ -1,40 +1,47 @@
 var express = require('express');
 var router = express.Router();
-const mongo = require('mongodb');
-const assert = require('assert');
+var deviceInfo = require("./datafile.deviceInfo")
+var mobileNetwork = require("./datafile.mobileNetwork")
+var userAgent = require("./datafile.userAgent")
+var utsName = require("./datafile.utsName");
+var language = require("./datafile.language");
+var wifiName = require("./datafile.wifiName");
+const ct = require('countries-and-timezones');
+var geoip = require('geoip-lite');
+const uuidv4 = require('uuid/v4');
+var randomMac = require('random-mac');
 
-const pathMongodb = require("./pathDb");
 
 /* GET home page. */
 router.get('/:value', function(req, res, next) {
 	if(req.params.value==="mobile"){
 		try {
-			if(req.query.version>>0>=9){
-				mongo.connect(pathMongodb, (err, db)=>{
-					assert.equal(null, err);
-					var queryDevice = {
-						"isDevice" : true
-					}
-					db.collection("device").findOne(queryDevice, (err, result)=>{
-						var deviceReq = result.device.filter(function(version) {
-							return version.OSVersion.split(".")[0] === req.query.version;
-						});
-						var wifiName = result.wifiName[Math.floor((Math.random() * deviceReq.length))];
-						var deviceMaxRandom = Math.floor((Math.random() * deviceReq.length));
-						var OSVersionValue = deviceReq[deviceMaxRandom];
-						var modelName = deviceReq[deviceMaxRandom].ModelName;
-						var modelRandom = modelName[Math.floor((Math.random() * modelName.length))];
-						var carrier = result.networkMobile[Math.floor((Math.random() * deviceReq.length))];
-						var stringResponse = `name=${wifiName}|version=${OSVersionValue.OSVersion}|carrier=${carrier.Network}|buildversion=${OSVersionValue.Build}|model=${modelRandom}`;
-						res.send(stringResponse);
-						res.end();
-						assert.equal(null,err);
-						db.close();
-					})					
-				})
+			if(req.query.version>>0>=9&&req.query.version>>0<12){
+				if(req.query.version>>0==9){
+					req.query.version++;
+				}
+				var carrier = mobileNetwork[Math.floor((Math.random() * mobileNetwork.length))];
+				var objDevice = deviceInfo.filter(function(version) {
+					return version.OSVersion.indexOf(req.query.version)!==-1;
+				});
+				var objDevice = objDevice[Math.floor((Math.random() * objDevice.length))];
+				var version = objDevice.OSVersion.split("-").filter(function(ver) {
+					return ver.indexOf(req.query.version) !== -1;
+				});
+				version = version[Math.floor((Math.random() * version.length))];
+				var agent = userAgent.filter(function(val) {
+					return val.OSVersion === version;
+				});
+				var ssidInfo = wifiName[Math.floor((Math.random() * wifiName.length))];
+				var networkInfo = ["3G","wifi"];
+				var stringResponse = `name=${ssidInfo}|version=${version}|carrier=${carrier.Network}|buildversion=${agent[0].Build}|model=${objDevice.ModelName}`;
+				res.send(stringResponse);
+			}else{
+				res.send("error")
 			}
 		} catch(e) {
-			console.log(e);
+			console.log(e)
+			res.send("error")
 		}
 	}
 });

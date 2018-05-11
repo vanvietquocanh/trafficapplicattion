@@ -57,7 +57,7 @@ router.get('/', function(req, res, next) {
 							if(result.length!==0){
 								for(let x = 0; x < result.length; x++){
 									if(app.nameNetworkSet.toLowerCase().indexOf(result[x].name.toLowerCase())!==-1){
-										var link = `${app.urlSet}+&${result[x].postback}=${strRandom}`;
+										var link = `${app.urlSet}&${result[x].postback}=${strRandom}`;
 											save(dataUpdate,link)
 										break;
 									}

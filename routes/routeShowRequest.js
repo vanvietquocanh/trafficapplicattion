@@ -16,8 +16,11 @@ router.get('/', function(req, res, next) {
  			mongo.connect(pathMongodb,function(err,db){
 				assert.equal(null,err);
 					db.collection('userlist').findOne(query,function(err,result){
-						var download, myOffer, addOffer;
+						var download, myOffer, addOffer, icon = "";
 						if(result.admin){
+							icon = `<li class="has_sub">
+		                                <a href="/iconhandle" class="waves-effect"><i class="fa fa-picture-o"></i> <span> Icon Handle</span></a>
+		                            </li>`
 							myOffer  	 = `<li class="has_sub">
 				                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
 				                            </li>`;
