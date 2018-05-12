@@ -22,8 +22,10 @@ router.post('/', function(req, res, next) {
 					mongo.connect(pathMongodb,(err,db)=>{
 						db.collection("imagesIcon").updateOne({id : dataApp.id}, {$set:dataApp},{ upsert: true },(err, result)=>{
 							db.collection("offer").updateOne({"index":Number(dataResponse[index].index)}, {$set:{imgSet:data.icon}}, (err, result)=>{
-								checkIconApp(dataResponse, index++);
-								db.close();
+								db.collection("Offerlead").updateOne({"index":Number(dataResponse[index].index)}, {$set:{imgSet:data.icon}}, (err, result)=>{
+									checkIconApp(dataResponse, index++);
+									db.close();
+								})
 							})
 						})
 					})
@@ -56,8 +58,10 @@ router.post('/', function(req, res, next) {
 									var query = dataResponse[index]._id;
 									delete dataResponse[index]._id;
 									db.collection("offer").updateOne({"index":Number(dataResponse[index].index)}, {$set:{imgSet: JSON.parse(data).results[0].artworkUrl100}}, (err, result)=>{
-										checkIconApp(dataResponse, index++);
-										db.close();
+										db.collection("Offerlead").updateOne({"index":Number(dataResponse[index].index)}, {$set:{imgSet: JSON.parse(data).results[0].artworkUrl100}}, (err, result)=>{
+											checkIconApp(dataResponse, index++);
+											db.close();
+										})
 									})
 								})
 							});

@@ -98,7 +98,11 @@ router.post('/', function(req, res, next) {
 					}
 				}
 				dataChecker[z][`${Object.keys(network.custom)[j].trim()}`] = dataLead;
-				// delete dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
+				try {
+					delete dataChecker[z].creatives;
+				} catch(e) {
+					console.log(e);
+				}
 			}
 			max++;
 			dataChecker[z].index = max;

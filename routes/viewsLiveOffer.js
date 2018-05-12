@@ -46,7 +46,7 @@ router.get('/', function(req, res, next) {
 							                        <a href="/download" class="waves-effect"><i class="fa fa-download"></i> <span> Download </span></a>
 							                    </li>`;
 							    myOffer = `<li class="has_sub">
-				                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Lead Offers </span></span></a>
+				                                <a href="/liveoffer" class="waves-effect"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
 				                            </li>`;
 							    memSel  = ``;
 							    addOffer = `<li class="has_sub">
@@ -55,7 +55,7 @@ router.get('/', function(req, res, next) {
 						}else if(result.master){
 							download = "";
 							myOffer  = `<li class="has_sub active">
-			                                <a href="/liveoffer" class="waves-effect active"><i class="ti ti-layout-list-post"></i> <span> Lead Offers </span></span></a>
+			                                <a href="/liveoffer" class="waves-effect active"><i class="ti ti-layout-list-post"></i> <span> Live Offers </span></span></a>
 			                            </li>`;
 							addOffer = "";
 			                memSel   = "";
