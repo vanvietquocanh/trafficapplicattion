@@ -10,11 +10,12 @@ router.get('/', function(req, res, next) {
 		"idFacebook" : req.user.id
 	}
 	var netName = {};
-	function renderPage(download, myOffer, addOffer, selNetworks, member) {
+	function renderPage(download, myOffer, addOffer, selNetworks, member, icon) {
   		var admin =`<li>
 		       			<a href="/admin" class="waves-effect"><i class="zmdi zmdi-view-dashboard"></i> <span> Dashboard </span> </a>
 		    		</li>`;
 		res.render("totalCVR",{
+			"hostname": req.header.hostname,
 			"name"    : req.user.displayName,
 			"avatar"  : req.user.photos[0].value,
 			"admin"   : admin,
@@ -22,13 +23,14 @@ router.get('/', function(req, res, next) {
 			"selNetworks" : selNetworks,
 			"myOffer" : myOffer,
 			"addOffer": addOffer,
-			"member"  : member
+			"member"  : member,
+			"icon"	  : icon
  		})
   	}
 	mongo.connect(pathMongodb, (err,db)=>{
 		db.collection("userlist").findOne(query, (err,result)=>{
 			if(result.admin){
-				var download, addOffer, myOffer, selNetworks;
+				var download, addOffer, myOffer, selNetworks, icon;
 				download =  `<li class="has_sub">
                                 <a href="/totalcvr" class="waves-effect"><i class="fa fa-credit-card-alt"></i> <span> Payment Report </span></a>
                             </li>
@@ -49,6 +51,9 @@ router.get('/', function(req, res, next) {
 		                    </li>`;
 		        selNetworks = `<select class="select-drop-blue sel-mem" name="sel-Networks" id="sel-Networks">
                                     <option value="all">Network List</option>`;
+                icon = `<li class="has_sub">
+		                                <a href="/iconhandle" class="waves-effect"><i class="fa fa-picture-o"></i> <span> Icon Handle</span></a>
+		                            </li>`;
                 db.collection("network").find().toArray((err, net)=>{
                 	net.forEach( function(element, index) {
 						if(netName[`${element.name}`]===undefined){
@@ -63,7 +68,7 @@ router.get('/', function(req, res, next) {
 						$or :[{member : true}, {master : true}]
 					}
 					db.collection("userlist").find(member).toArray((err, member)=>{
-						renderPage(download, myOffer, addOffer, selNetworks, member);
+						renderPage(download, myOffer, addOffer, selNetworks, member, icon);
 					})
 				})
 			}else{

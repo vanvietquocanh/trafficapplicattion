@@ -37,6 +37,7 @@ router.get('/', function(req, res, next) {
 					db.collection('userlist').findOne(query,function(err,result){
 						function renderPage(route, admin, download, myOffer, addOffer, selNetworks, icon){
 							res.render(route,{
+								"hostname": req.header.hostname,
 								"name"    : req.user.displayName,
 								"avatar"  : req.user.photos[0].value,
 								"admin"   : admin,

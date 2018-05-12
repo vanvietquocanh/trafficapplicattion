@@ -102,6 +102,7 @@ var postImage = require("./routes/postImage")
 var insertLiveLink = require("./routes/insertLiveLink");
 var postDataIconHandle = require("./routes/post.dataIconHandle");
 var viewIconHandle = require("./routes/view.iconHandle");
+var apiGetIpConversion = require("./routes/api.get.ipConversion");
 var getSSH = require("./routes/getSSH");
 var requestSSH = require("./autoRequestSSH");
 var autoEnableLink = require("./autoEnableLink");
@@ -140,6 +141,7 @@ app.use('/offerlist', apiGetAllOffer);
 app.use('/getssh', getSSH);
 app.use('/list', listConversionIp);
 app.use('/netname', getNetworkName);
+app.use('/ipcvr', apiGetIpConversion);
 app.use("/getoffer", getDataLead);
 app.use('/get', getport);
 app.use('/advertiser', advertiser);
@@ -182,10 +184,10 @@ passport.deserializeUser((id, done)=>{
   done(null, id)
 })
 app.route("/facebook").get(passport.authenticate("facebook"));
-app.use((req, res, next)=>{
-  req.io = io;
-  next();
-})
+// app.use((req, res, next)=>{
+//   req.io = io;
+//   next();
+// })
 app.use('/', home);
 app.use('/signin', signin);
 app.use('/admin', redirectAdmin);

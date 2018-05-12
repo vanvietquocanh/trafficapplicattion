@@ -39,7 +39,7 @@ router.get('/', function(req, res, next) {
 						    addOffer =  `<li class="has_sub">
 					                        <a href="/addnewoffer" class="waves-effect"><i class="fa fa-plus"></i> <span> Add Offers </span></a>
 					                    </li>`;
-						    renderPage(download, myOffer, addOffer)
+						    renderPage(download, myOffer, addOffer, icon)
 						}else{
 							res.redirect("/")
 						}
@@ -50,7 +50,7 @@ router.get('/', function(req, res, next) {
 		} catch(e) {
 			res.redirect("/")
 		}
-	  	function renderPage(download, myOffer, addOffer) {
+	  	function renderPage(download, myOffer, addOffer, icon) {
 	  		var admin =`<li>
 		       			<a href="/admin" class="waves-effect"><i class="zmdi zmdi-view-dashboard"></i> <span> Dashboard </span> </a>
 		    		</li>`;
@@ -60,7 +60,8 @@ router.get('/', function(req, res, next) {
 				"admin"   : admin,
 				"download": download,
 				"myOffer" : myOffer,
-				"addOffer": addOffer
+				"addOffer": addOffer,
+				"icon"	  : icon
 			})
 	  	}
 	}else{

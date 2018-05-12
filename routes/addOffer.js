@@ -55,6 +55,7 @@ router.get('/', function(req, res, next) {
 		       			<a href="/admin" class="waves-effect"><i class="zmdi zmdi-view-dashboard"></i> <span> Dashboard </span> </a>
 		    		</li>`;
 			res.render("addOfferCustom",{
+				"hostname": req.header.hostname,
 				"name"    : req.user.displayName,
 				"avatar"  : req.user.photos[0].value,
 				"admin"   : admin,

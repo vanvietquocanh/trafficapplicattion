@@ -19,11 +19,13 @@ router.get('/:value', function(req, res, next) {
 					}
 					db.collection("imagesIcon").updateOne({id : dataApp.id}, {$set:dataApp},{ upsert: true },(err, result)=>{
 						if(!err){
-							res.send(dataApp)
-							db.close();
+							db.collection("offer").updateMany({idApp:id}, {$set:{imgSet:dataApp.image}}).toArray((err,result)=>{
+								res.send(dataApp);
+							})
 						}else{
 							res.send(err)
 						}
+						db.close();
 					})
 				})
 				.catch(err=>{
@@ -53,7 +55,9 @@ router.get('/:value', function(req, res, next) {
 								}
 								db.collection("imagesIcon").updateOne({id : appData.id}, {$set:appData}, { upsert: true },(err, result)=>{
 									if(!err){
-										res.send(appData);
+										db.collection("offer").updateMany({idApp:id}, {$set:{imgSet:dataApp.image}}).toArray((err,result)=>{
+											res.send(appData);
+										})
 									}else{
 										res.send("error");
 									}

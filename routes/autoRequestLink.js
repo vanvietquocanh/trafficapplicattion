@@ -233,7 +233,7 @@ router.post('/', function(req, res, next) {
 					"nameSet"    	 : requestApi.dataHasOffer[element].Offer.name,
 					"urlSet"	 	 : network.custom.urlSet.split("{")[0]+requestApi.dataHasOffer[element].Offer.id+network.custom.urlSet.split("}")[1],
 					"paySet" 		 : requestApi.dataHasOffer[element].Offer.default_payout,
-					"countrySet"     : requestApi.dataHasOffer[element].Offer.name.split("[").join("").split("]").join("").split("\t").join(" ").split(" "),
+					"countrySet"     : requestApi.dataHasOffer[element].Offer.name.split("[").join("").split("]").join("").split("\t").join(" ").split("_").join(" ").split("-").join(" ").split(",").join(" ").split("\t").join(" ").split("(").join(" ").split(")").join(" ").split(":").join(" ").split(" "),
 					"prevLink" 	 	 : requestApi.dataHasOffer[element].Offer.preview_url,
 					"descriptionSet" : "",
 					"nameNetworkSet" : network.name.toLowerCase(),
@@ -299,80 +299,80 @@ router.post('/', function(req, res, next) {
 					requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 					db.close();
 				}else{
-					gplay.app({appId: id})
-					.then(data=>{
-							var dataApp = {
-								image   : data.icon,
-								id 	    : id,
-								platform: "android"
-							}
-							db.collection("imagesIcon").updateOne({id : dataApp.id}, {$set:dataApp},{ upsert: true },(err, result)=>{
-								requestApi.checkIcon[requestApi.index].imgSet = data.icon;
-								requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
-								db.close();
-							})
-					})
-					.catch(err=>{
-						request.post(`http:${req.headers.host}/info/chplay`,{ id : id }, (err, res, body)=>{
-							if(!err){
-								if(typeof body!=="string"){
-									requestApi.checkIcon[requestApi.index].imgSet = body.image;
-									requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
-								}else{
-									requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/android-big.png`;
-									requestApi.checkIcon[requestApi.index].idApp = id;
-									requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
-								}
-							}else{
-								requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/android-big.png`;
+					// gplay.app({appId: id})
+					// .then(data=>{
+					// 		var dataApp = {
+					// 			image   : data.icon,
+					// 			id 	    : id,
+					// 			platform: "android"
+					// 		}
+					// 		db.collection("imagesIcon").updateOne({id : dataApp.id}, {$set:dataApp},{ upsert: true },(err, result)=>{
+					// 			requestApi.checkIcon[requestApi.index].imgSet = data.icon;
+					// 			requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+					// 			db.close();
+					// 		})
+					// })
+					// .catch(err=>{
+					// 	request.post(`http:${req.headers.host}/info/chplay`,{ id : id }, (err, res, body)=>{
+					// 		if(!err){
+					// 			if(typeof body!=="string"){
+					// 				requestApi.checkIcon[requestApi.index].imgSet = body.image;
+					// 				requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+					// 			}else{
+					// 				requestApi.checkIcon[requestApi.index].imgSet = `http://${req.headers.host}/assets/images/android-big.png`;
+					// 				requestApi.checkIcon[requestApi.index].idApp = id;
+					// 				requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+					// 			}
+					// 		}else{
+								requestApi.checkIcon[requestApi.index].imgSet = `./assets/images/android-big.png`;
 								requestApi.checkIcon[requestApi.index].idApp = id;
 								requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
-							}
-						})
-					})
+							// }
+						// })
+					// }) 
 				}
 			})
 		})
 	}
 	function checkAppleApp(dataApp, id, country, maxIndex) {
 		mongo.connect(pathMongodb,(err, db)=>{
-			db.collection("imagesIcon").findOne({id:`id${id}`, platform:"ios"}, (err, result)=>{
+			db.collection("imagesIcon").findOne({id: id.split("id").join(""), platform: "ios"}, (err, result)=>{
 				if(!err&&result){
 					requestApi.checkIcon[requestApi.index].imgSet = result.image;
 					requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
 					db.close();
 				}else{
-					var path;
-					if(country==="GLOBAL"){
-						country = "US";
-					}else if(country.split(",")[0]==="UK"){
-						country = "GB";
-					}
-					if(/id/.test(id)){
-						path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id.split("d")[1]}`;
-					}else{
-						path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id}`;
-					}
-					request.get(path ,(err, res, data)=>{
-						if(data&&JSON.parse(data).resultCount!==0&&JSON.parse(data).results[0].artworkUrl100!==undefined){
-							var appData = {
-								image   : JSON.parse(data).results[0].artworkUrl100,
-								id 	    : id,
-								platform: "ios"
-							}
-								db.collection("imagesIcon").updateOne({id : appData.id}, {$set:appData},{ upsert: true },(err, result)=>{
-									if(!err){
-										requestApi.checkIcon[requestApi.index].imgSet = JSON.parse(data).results[0].artworkUrl100;
-										requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
-										db.close();
-									}
-								})
-						}else{
+					// var path;
+					// if(country==="GLOBAL"){
+					// 	country = "US";
+					// }else if(country.split(",")[0]==="UK"){
+					// 	country = "GB";
+					// }
+					// if(/id/.test(id)){
+					// 	path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id.split("d")[1]}`;
+					// }else{
+					// 	path = `https://itunes.apple.com/${country.split(",")[0]}/lookup?id=${id}`;
+					// }
+					// request.get(path ,(err, res, data)=>{
+					// 	if(data&&JSON.parse(data).resultCount!==0&&JSON.parse(data).results[0].artworkUrl100!==undefined){
+					// 		var appData = {
+					// 			image   : JSON.parse(data).results[0].artworkUrl100,
+					// 			id 	    : id,
+					// 			platform: "ios"
+					// 		}
+					// 			db.collection("imagesIcon").updateOne({id : appData.id}, {$set:appData},{ upsert: true },(err, result)=>{
+					// 				if(!err){
+					// 					requestApi.checkIcon[requestApi.index].imgSet = JSON.parse(data).results[0].artworkUrl100;
+					// 					requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
+					// 					db.close();
+					// 				}
+					// 			})
+					// 	}else{
 							requestApi.checkIcon[requestApi.index].imgSet = `./assets/images/apple-big.png`;
 							requestApi.checkIcon[requestApi.index].idApp = id;
 							requestApi.checkIconApp(requestApi.checkIcon, maxIndex);
-						}
-					})
+					// 	}
+					// })
 				}
 			})
 		})
@@ -393,7 +393,7 @@ router.post('/', function(req, res, next) {
 				}
 				requestApi.checkIconApp(data, maxIndex);
 			}else{
-				if (requestApi.regularIOS.test(data[requestApi.index].imgSet)) {
+				if (requestApi.regularIOS.test(data[requestApi.index].prevLink)) {
 					if(data[requestApi.index].imgSet.match(/[0-9]+/)){
 						checkAppleApp(data, data[requestApi.index].imgSet.match(/[0-9]+/)[0], data[requestApi.index].countrySet, maxIndex);
 					}else{
@@ -491,7 +491,7 @@ router.post('/', function(req, res, next) {
 			case "hasoffer":
 				requestApi.callRequestHasOffer(network[req.body.index], db, network[req.body.index].method)
 				break;
-			case "appaniac":
+			case "orangear":
 				if(network[req.body.index].custom.data!==undefined){
 					requestApi.callRequestAppaniac(network[req.body.index], db, network[req.body.index].method)
 				}else{
