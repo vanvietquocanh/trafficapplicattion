@@ -69,6 +69,15 @@ router.post('/', function(req, res, next) {
 				}else{
 					dataLead = dataChecker[z][`${network.custom[Object.keys(network.custom)[j]].trim()}`];
 				}
+				if(Object.keys(network.custom)[j].trim()==="platformSet"){
+					if(requestApi.regularAndroid.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j+9]].trim()}`])){
+						dataLead = "android";
+					}else if(requestApi.regularIOS.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j+9]].trim()}`])){
+						dataLead = "ios";
+					}else{
+						requestApi.conditionPush = false;
+					}
+				} 
 				if(dataLead==null||dataLead===undefined){
 					switch (Object.keys(network.custom)[j].trim()) {
 						case "imgSet":
@@ -87,9 +96,9 @@ router.post('/', function(req, res, next) {
 							requestApi.conditionPush = false;
 							break;
 						case "platformSet":
-							if(requestApi.regexPlatform.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j-1]].trim()}`])){
+							if(requestApi.regularAndroid.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j+9]].trim()}`])){
 								dataLead = "android";
-							}else if(requestApi.regularIOS.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j-1]].trim()}`])){
+							}else if(requestApi.regularIOS.test(dataChecker[z][`${network.custom[Object.keys(network.custom)[j+9]].trim()}`])){
 								dataLead = "ios";
 							}else{
 								requestApi.conditionPush = false;
