@@ -29,7 +29,6 @@ router.post('/', function(req, res, next) {
 			}
 			db.collection('offer').find(query1).skip(Number(req.body.start)).limit(500).toArray((err, result)=>{
 				if(!err){
-					console.log(result[0]);
 					var dataRes = {
 						admin  	 : {
 							isAdmin  : isAdmin.admin,

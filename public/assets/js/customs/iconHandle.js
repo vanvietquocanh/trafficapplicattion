@@ -24,6 +24,9 @@ IconHandle.prototype.get = (path, data)=>{
 				icon.setData(data);
 				requestPost.abort();
 			}
+			icon.returnDefault();
+			icon.renderFirst();
+			icon.countPage();
 		}
 	});
 }
@@ -136,7 +139,6 @@ IconHandle.prototype.renderPage = function(page, pagination){
 };
 IconHandle.prototype.returnDefault = function() {
 	icon.start = 0;
-	icon.data = [];
 	icon.arrayList = [];
 	icon.newArrayList = [];
 	icon.page = 0;
@@ -175,6 +177,7 @@ search.click(function(event) {
 	if($('#bunndle-seach').val()!=="all"){
 		bundleId = $('#bunndle-seach').val();
 	}
+	icon.data = [];
 	icon.returnDefault();
 	icon.get("/geticonhandle",{start: icon.start, search : bundleId.trim(), platform : platform.trim()});
 });

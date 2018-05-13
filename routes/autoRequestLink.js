@@ -54,7 +54,7 @@ router.post('/', function(req, res, next) {
 	RequestAPI.prototype.changeKeyOject = function(dataChecker, network, max) {
 		requestApi.dataSave = dataChecker;
 		for(let z = 0; z < dataChecker.length; z++){
-			dataChecker[z].nameNetworkSet = network.name.toLowerCase();
+			dataChecker[z].nameNetworkSet = network.name.toLowerCase().trim().split("\t").join("");
 			for(var j = 1; j < Object.keys(network.custom).length; j++){
 				var objectCustom = network.custom[Object.keys(network.custom)[j]].trim().split(",");
 				var dataLead = dataChecker[z];
@@ -240,7 +240,7 @@ router.post('/', function(req, res, next) {
 					"countrySet"     : requestApi.dataHasOffer[element].Offer.name.split("[").join("").split("]").join("").split("\t").join(" ").split("_").join(" ").split("-").join(" ").split(",").join(" ").split("\t").join(" ").split("(").join(" ").split(")").join(" ").split(":").join(" ").split(" "),
 					"prevLink" 	 	 : requestApi.dataHasOffer[element].Offer.preview_url,
 					"descriptionSet" : "",
-					"nameNetworkSet" : network.name.toLowerCase(),
+					"nameNetworkSet" : network.name.toLowerCase().trim().split("\t").join(""),
 					"capSet"	     : requestApi.dataHasOffer[element].Offer.payout_cap,
 					"isNetwork"		 : true,
 					"offerType" 	 : requestApi.dataHasOffer[element].Offer.payout_type,

@@ -80,22 +80,28 @@ router.post('/', function(req, res, next) {
 			}
   		}
   		function checkIconApp(arrayApp) {
-  			if(index === arrayApp.length-1){
-  				res.send("success")
-  			}else{
-	  			switch (arrayApp[index].platformSet.toLowerCase()) {
-	  				case "ios":
-	  					if(arrayApp[index].countrySet){
-	  						checkAppApple(arrayApp[index].idApp, arrayApp[index].countrySet, index);
-	  					}else{
-	  						dataResponse[index].imgSet = `http://${req.headers.host}/assets/images/apple-big.png`;
-							checkIconApp(dataResponse, index++);
-	  					}
-	  					break;
-	  				case "android":
-	  					checkAndroid(arrayApp[index].idApp, index);
-	  					break;
+  			try {
+  				if(arrayApp[index]){
+	  				if(index === arrayApp.length-1){
+		  				res.send("success")
+		  			}else{
+			  			switch (arrayApp[index].platformSet.toLowerCase()) {
+			  				case "ios":
+			  					if(arrayApp[index].countrySet){
+			  						checkAppApple(arrayApp[index].idApp, arrayApp[index].countrySet, index);
+			  					}else{
+			  						dataResponse[index].imgSet = `http://${req.headers.host}/assets/images/apple-big.png`;
+									checkIconApp(dataResponse, index++);
+			  					}
+			  					break;
+			  				case "android":
+			  					checkAndroid(arrayApp[index].idApp, index);
+			  					break;
+			  			}
+		  			}
 	  			}
+  			} catch(e) {
+  				console.log(e);
   			}
   		}
   		if(req.user){
