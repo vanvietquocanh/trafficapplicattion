@@ -34,24 +34,24 @@ SortItems.prototype.getAPI = function(path, data){
 		if(res.length===500&&!sortItems.searchMethod){
 			sortItems.countStart += 500;
 			sortItems.countEnd += 500;
+			data.countStart = sortItems.countStart;
+			data.countEnd = sortItems.countEnd;
 			sortItems.getAPI(sortItems.path, data);
 		}
 	});
 };
 SortItems.prototype.checkMemberReq = function(data){
-	if(sortItems.countStart===0){
-		var name = [];
-		data.forEach((app, index)=>{
-			if(name.indexOf(app.name)===-1){
-				name.push(app.name)
-			}
-		})
-		var htmlOptionTag = "<option value='all'>Members</option>";
-		name.forEach((app)=>{
-			htmlOptionTag += `<option value="${app}">${app}</option>`;
-		})
-		members.append(htmlOptionTag)
-	}
+	var name = [];
+	data.forEach((app, index)=>{
+		if(name.indexOf(app.name)===-1){
+			name.push(app.name)
+		}
+	})
+	var htmlOptionTag = "<option value='all'>Members</option>";
+	name.forEach((app)=>{
+		htmlOptionTag += `<option value="${app}">${app}</option>`;
+	})
+	members.append(htmlOptionTag)
 }
 SortItems.prototype.setPath = function(path){
 	this.path = path;
@@ -73,6 +73,7 @@ SortItems.prototype.renderReport = function() {
 							<td style="color: #111;">${sortItems.dataReportClick[x].ip}</td>
 							<td>${sortItems.dataReportClick[x].agent}</td>
 							<td style="max-width:10px;">${sortItems.dataReportClick[x].country}</td>
+							<td>${sortItems.dataReportClick[x].pay}</td>
 							<td>${sortItems.dataReportClick[x].key}</td>
 						</tr>`;
 			sortItems.arrayList.push(elementHtml)

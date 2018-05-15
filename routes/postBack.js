@@ -10,15 +10,19 @@ router.get('/:parameter', function(req, res, next) {
 		try {
 			function savePostback(data, db) {
 				data.enable = false;
-				db.collection("conversion").insertOne(data, (err, result)=>{
-					if(!err){
-						res.send(JSON.stringify({"message": "Ok!"}))
-					}else {
-						res.send("error")
-					}
-					assert.equal(null,err);
-					db.close();
-				})
+				try {
+					db.collection("conversion").insertOne(data, { ordered: false }, (err, result)=>{
+						if(!err){
+							res.send(JSON.stringify({"message": "Ok!"}))
+						}else {
+							res.send("error")
+						}
+						assert.equal(null,err);
+						db.close();
+					})
+				} catch(e) {
+					res.send("error")
+				}
 			}
 			var query = {
 				"key" : req.query.transaction_id
